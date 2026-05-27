@@ -8,3 +8,8 @@ app = FastAPI(title="aifactory-demo", version=__version__)
 @app.get("/")
 async def root() -> dict[str, str]:
     return {"app": "aifactory-demo"}
+
+
+@app.get("/ready")
+async def ready() -> dict[str, bool]:
+    return {"ready": True}

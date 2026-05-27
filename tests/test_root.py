@@ -9,3 +9,9 @@ def test_root_returns_app_name():
     r = client.get("/")
     assert r.status_code == 200
     assert r.json() == {"app": "aifactory-demo"}
+
+
+def test_ready_returns_true():
+    r = client.get("/ready")
+    assert r.status_code == 200
+    assert r.json() == {"ready": True}
