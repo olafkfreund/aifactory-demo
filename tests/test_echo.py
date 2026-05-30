@@ -19,3 +19,10 @@ def test_echo_reflects_arbitrary_message():
     r = client.get("/echo?msg=world")
     assert r.status_code == 200
     assert r.json() == {"echo": "world"}
+
+
+def test_echo_happy_path():
+    """GET /echo?msg=hello returns HTTP 200 with body {"echo": "hello"}."""
+    r = client.get("/echo?msg=hello")
+    assert r.status_code == 200
+    assert r.json() == {"echo": "hello"}
