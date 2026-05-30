@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "018-add-tic-tac-toe-game",
+  "state": "building",
+  "subtasks": {
+    "completed": 0,
+    "total": 10,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Core Game Logic",
+    "id": 1,
+    "total": 3
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 1,
+    "started_at": "2026-05-30T22:48:08.174830"
+  },
+  "last_update": "2026-05-30T22:48:08.227157"
+}

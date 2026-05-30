@@ -1,0 +1,1 @@
+aifactory: 1.1 - Create src/app/tictactoe.py with TicTacToe class
