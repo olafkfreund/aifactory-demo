@@ -21,3 +21,8 @@ async def root() -> dict[str, str]:
 @app.get("/metrics")
 async def metrics() -> dict[str, int]:
     return {"total_requests": _request_counts["total"]}
+
+
+@app.get("/echo")
+async def echo(msg: str) -> dict[str, str]:
+    return {"echo": msg}
