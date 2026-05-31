@@ -4,6 +4,14 @@ A tiny FastAPI service used as the demo target for [AIFactory](https://github.co
 
 The `scripts/demo.sh` script in the AIFactory repo seeds this repo with 3 GitHub issues (resetting it to a known state each run), imports them into a local AIFactory portal as backlog tasks, and walks through the Claude → portal → agent end-to-end flow.
 
+## Quick Start
+
+```bash
+git clone https://github.com/olafkfreund/aifactory-demo.git && cd aifactory-demo
+pip install -e .
+uvicorn src.app.main:app --reload
+```
+
 ## What this app does
 
 It's intentionally minimal — a single FastAPI route at `/` returning JSON.
