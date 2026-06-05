@@ -7,6 +7,7 @@ metadata:
   name: aifactory-demo
   description: "AIFactory demo project — scripts/demo.sh seeds 3 issues here to walk the end-to-end Claude→portal→agent flow"
   annotations:
+    backstage.io/techdocs-ref: dir:.
     github.com/project-slug: olafkfreund/aifactory-demo
   tags: []
 spec:
