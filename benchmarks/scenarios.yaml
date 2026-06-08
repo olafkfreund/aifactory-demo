@@ -1,0 +1,75 @@
+# PARR benchmark scenarios — the single source of truth for scripts/run_benchmark.py
+# and scripts/seed_issues.py.
+#
+# Each scenario flows: PFactory (plan) → AIFactory (code) → TFactory (verify),
+# threaded by the GitHub epic issue number (the RFC-0001 correlation_key).
+# All 4 live in THIS repo (aifactory-demo), one subdir + branch each, so the
+# repo is registered once in all three factories.
+#
+# verify_level:
+#   full          — TFactory generates + runs a real suite (Python/Rust/TS).
+#   validate-only — TFactory (or the orchestrator) runs `terraform validate`/`fmt`
+#                   only; no generated behavioural suite (TFactory Terraform
+#                   support is partial).
+version: 1
+
+defaults:
+  owner: olafkfreund
+  repo: aifactory-demo
+  aifactory:
+    mode: quick          # simplified prompts; faster for a benchmark
+    parallel: true
+    workers: 4
+    base_branch: main
+    model: null          # null → use the factory's configured default
+  pfactory:
+    category: software
+    channel: portal
+    review_threshold: 0.75
+  tfactory:
+    lanes: [unit]
+
+scenarios:
+  - slug: api-gateway
+    title: "FastAPI API gateway with rate limiting"
+    language: python
+    framework: pytest
+    subdir: scenarios/api-gateway
+    branch: bench/api-gateway
+    brief: benchmarks/scenarios/api-gateway/brief.md
+    verify_level: full
+    tfactory:
+      lanes: [unit, api]
+    labels: [benchmark, "scenario:api-gateway", "lang:python", epic]
+
+  - slug: rust-hello
+    title: "Rust hello-world greeting library + CLI"
+    language: rust
+    framework: cargo
+    subdir: scenarios/rust-hello
+    branch: bench/rust-hello
+    brief: benchmarks/scenarios/rust-hello/brief.md
+    verify_level: full
+    labels: [benchmark, "scenario:rust-hello", "lang:rust", epic]
+
+  - slug: ts-tictactoe
+    title: "TypeScript console Tic-Tac-Toe"
+    language: typescript
+    framework: vitest
+    subdir: scenarios/ts-tictactoe
+    branch: bench/ts-tictactoe
+    brief: benchmarks/scenarios/ts-tictactoe/brief.md
+    verify_level: full
+    labels: [benchmark, "scenario:ts-tictactoe", "lang:typescript", epic]
+
+  - slug: tf-k8s
+    title: "Terraform module: a k3d/k8s cluster + namespace"
+    language: terraform
+    framework: terraform
+    subdir: scenarios/tf-k8s
+    branch: bench/tf-k8s
+    brief: benchmarks/scenarios/tf-k8s/brief.md
+    verify_level: validate-only
+    tfactory:
+      lanes: []
+    labels: [benchmark, "scenario:tf-k8s", "lang:terraform", epic]

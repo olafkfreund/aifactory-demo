@@ -1,0 +1,2 @@
+# Deps for the PARR benchmark scripts (run_benchmark.py / seed_issues.py / register_projects.py)
+PyYAML>=6.0
