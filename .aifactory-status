@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "006-hello-go-via-ollama-portal",
+  "state": "building",
+  "subtasks": {
+    "completed": 0,
+    "total": 1,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Implementation",
+    "id": 1,
+    "total": 1
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 1,
+    "started_at": "2026-06-09T12:00:41.037878"
+  },
+  "last_update": "2026-06-09T12:00:41.114894"
+}
