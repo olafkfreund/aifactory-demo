@@ -126,13 +126,62 @@ class Client:
             print(f"  [dry-run] {method} {url}" + (f"  body={json.dumps(body)[:200]}" if body else ""))
             raise DryRun
         data = json.dumps(body).encode() if body is not None else None
-        headers = {"Content-Type": "application/json"}
+        # Browser-like User-Agent: the live factories sit behind Cloudflare,
+        # which 403s the default ``Python-urllib/x.y`` UA as a bot. A Mozilla
+        # UA passes the managed challenge.
+        headers = {
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) aifactory-bench/1.0",
+        }
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         req = urllib.request.Request(url, data=data, headers=headers, method=method)
-        with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
-            raw = resp.read().decode() or "{}"
-        return json.loads(raw) if raw.strip().startswith(("{", "[")) else {"raw": raw}
+        # The live factories occasionally 500 transiently (cold start, deploy
+        # roll); retry 5xx and connection errors with linear backoff.
+        for attempt in range(3):
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+                    raw = resp.read().decode() or "{}"
+                return json.loads(raw) if raw.strip().startswith(("{", "[")) else {"raw": raw}
+            except urllib.error.HTTPError as exc:
+                if exc.code >= 500 and attempt < 2:
+                    time.sleep(5 * (attempt + 1))
+                    continue
+                raise
+            except urllib.error.URLError:
+                if attempt < 2:
+                    time.sleep(5 * (attempt + 1))
+                    continue
+                raise
+
+
+def _ensure_project(client: Client, name: str, git_url: str, branch: str = "main") -> str | None:
+    """Reuse a registered project by git_url / name suffix, else register it.
+
+    The deployed factories register repos under derived names (e.g.
+    ``olafkfreund-aifactory-demo``), so a blind POST 409s on every re-run.
+    """
+    def _match(items):
+        for p in items:
+            pname = p.get("name", "")
+            if p.get("git_url") == git_url or pname == name or pname.endswith(f"-{name}"):
+                return p.get("project_id") or p.get("id")
+        return None
+
+    existing = client.call("GET", "/api/projects")
+    items = existing if isinstance(existing, list) else existing.get("projects", [])
+    pid = _match(items)
+    if pid:
+        return pid
+    try:
+        proj = client.call("POST", "/api/projects", {"name": name, "git_url": git_url, "branch": branch})
+        return proj.get("project_id") or proj.get("id")
+    except urllib.error.HTTPError as exc:
+        if exc.code == 409:  # raced or exists under a derived name — re-list
+            existing = client.call("GET", "/api/projects")
+            items = existing if isinstance(existing, list) else existing.get("projects", [])
+            return _match(items)
+        raise
 
 
 # ── Stages ─────────────────────────────────────────────────────────────────
@@ -179,10 +228,7 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
     owner, repo = defaults["owner"], defaults["repo"]
     afopt = {**defaults["aifactory"], **(sc.get("aifactory") or {})}
     try:
-        proj = af.call("POST", "/api/projects", {
-            "name": repo, "git_url": f"https://github.com/{owner}/{repo}", "branch": "main",
-        })
-        project_id = proj.get("project_id") or proj.get("id")
+        project_id = _ensure_project(af, repo, f"https://github.com/{owner}/{repo}")
         task = af.call("POST", "/api/tasks", {
             "title": sc["title"],
             "description": f"Benchmark scenario {sc['slug']}. Build under {sc['subdir']}/. "
@@ -198,9 +244,14 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
         })
         ok = _poll(af, f"/api/tasks/{task_id}/status", BUILD_TIMEOUT,
                    done=lambda s: not s.get("is_running", True))
-        usage = af.call("GET", f"/api/tasks/{task_id}/usage")
-        res.tokens += int(usage.get("total_tokens", 0) or 0)
-        res.cost_usd += float(usage.get("cost_usd", 0.0) or 0.0)
+        # AIFactory's per-task token/cost breakdown lives at /token-usage
+        # (camelCase totals), not /usage. A missing endpoint silently 404'd to 0.
+        try:
+            usage = af.call("GET", f"/api/tasks/{task_id}/token-usage")
+            res.tokens += int(usage.get("totalTokens", usage.get("total_tokens", 0)) or 0)
+            res.cost_usd += float(usage.get("totalCostUsd", usage.get("cost_usd", 0.0)) or 0.0)
+        except Exception:  # noqa: BLE001 — usage is best-effort, never fail the stage
+            pass
         m.detail = {"task_id": task_id, "project_id": project_id}
         m.status = "passed" if ok else "failed"
         return task_id
@@ -226,18 +277,36 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
     tf = Client("tfactory", dry)
     lanes = (sc.get("tfactory") or {}).get("lanes") or defaults["tfactory"]["lanes"]
     try:
-        spec = tf.call("POST", "/api/specs", {
-            "repo": f"{defaults['owner']}/{defaults['repo']}", "branch": sc["branch"],
-            "lanes": lanes, "correlation_key": epic, "subdir": sc["subdir"],
-        })
-        spec_id = spec.get("spec_id") or spec.get("id")
-        tf.call("POST", f"/api/specs/{spec_id}/run", {})
-        ok = _poll(tf, f"/api/specs/{spec_id}", VERIFY_TIMEOUT,
-                   done=lambda s: s.get("status") in {"passed", "triaged", "failed", "stuck", "needs_human"})
-        final = tf.call("GET", f"/api/specs/{spec_id}")
-        res.handbacks += int(final.get("correction_cycle", 0) or 0)
-        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": final.get("status")}
-        m.status = "passed" if final.get("status") in {"passed", "triaged"} else "failed"
+        # TFactory v0.9.x contract: ensure the project is registered, then
+        # POST /api/specs/ingest {project_id, spec_id, spec_text}. The planner
+        # auto-runs on ingest (#347) — there is no separate /run call.
+        owner, repo = defaults["owner"], defaults["repo"]
+        brief = (ROOT / sc["brief"]).read_text() if (ROOT / sc["brief"]).exists() else sc["title"]
+        project_id = _ensure_project(tf, repo, f"https://github.com/{owner}/{repo}")
+        spec_id = f"bench-{sc['slug']}-{int(time.time())}"
+        spec = tf.call("POST", "/api/specs/ingest", {
+            "project_id": project_id, "spec_id": spec_id, "spec_text": brief,
+        }, timeout=120)
+        # An ingested spec's status lives in its WORKSPACE (.../workspaces/{pid}/
+        # specs/{sid}/status.json), surfaced at GET /api/tfactory/tasks/{spec_id}
+        # with the verdict under `status_json.status`. The global GET
+        # /api/tasks/{id} reads a DIFFERENT location and 404s for ingested specs,
+        # so the verdict was never seen. Poll the workspace endpoint instead.
+        terminal = {"completed", "passed", "triaged", "failed", "error",
+                    "stuck", "needs_human", "human_review", "needs_review", "done"}
+
+        def _verdict(s: dict) -> str:
+            sj = s.get("status_json") or {}
+            return str(sj.get("status") or s.get("status") or "")
+
+        _poll(tf, f"/api/tfactory/tasks/{spec_id}", VERIFY_TIMEOUT,
+              done=lambda s: _verdict(s) in terminal)
+        final = tf.call("GET", f"/api/tfactory/tasks/{spec_id}")
+        verdict = _verdict(final)
+        sj = final.get("status_json") or {}
+        res.handbacks += int(sj.get("correction_cycle", final.get("correction_cycle", 0)) or 0)
+        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": verdict}
+        m.status = "passed" if verdict in {"completed", "passed", "triaged"} else "failed"
     except DryRun:
         m.status = "skipped"
     except Exception as exc:  # noqa: BLE001
