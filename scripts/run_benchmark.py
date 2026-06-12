@@ -244,9 +244,14 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
         })
         ok = _poll(af, f"/api/tasks/{task_id}/status", BUILD_TIMEOUT,
                    done=lambda s: not s.get("is_running", True))
-        usage = af.call("GET", f"/api/tasks/{task_id}/usage")
-        res.tokens += int(usage.get("total_tokens", 0) or 0)
-        res.cost_usd += float(usage.get("cost_usd", 0.0) or 0.0)
+        # AIFactory's per-task token/cost breakdown lives at /token-usage
+        # (camelCase totals), not /usage. A missing endpoint silently 404'd to 0.
+        try:
+            usage = af.call("GET", f"/api/tasks/{task_id}/token-usage")
+            res.tokens += int(usage.get("totalTokens", usage.get("total_tokens", 0)) or 0)
+            res.cost_usd += float(usage.get("totalCostUsd", usage.get("cost_usd", 0.0)) or 0.0)
+        except Exception:  # noqa: BLE001 — usage is best-effort, never fail the stage
+            pass
         m.detail = {"task_id": task_id, "project_id": project_id}
         m.status = "passed" if ok else "failed"
         return task_id
@@ -282,9 +287,13 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
         spec = tf.call("POST", "/api/specs/ingest", {
             "project_id": project_id, "spec_id": spec_id, "spec_text": brief,
         }, timeout=120)
-        task_id = spec.get("task_id") or spec_id
+        # TFactory's GET /api/tasks/{id} requires the COMPOSITE id
+        # "project_id:spec_id" (it 400s on a bare spec_id). The ingest returns the
+        # bare spec_id as task_id, so build the composite ourselves.
+        ingest_task = spec.get("task_id") or spec_id
+        task_id = ingest_task if ":" in str(ingest_task) else f"{project_id}:{ingest_task}"
         terminal = {"completed", "passed", "triaged", "failed", "error",
-                    "stuck", "needs_human", "human_review"}
+                    "stuck", "needs_human", "human_review", "needs_review", "done"}
         _poll(tf, f"/api/tasks/{task_id}", VERIFY_TIMEOUT,
               done=lambda s: str(s.get("status")) in terminal)
         final = tf.call("GET", f"/api/tasks/{task_id}")
