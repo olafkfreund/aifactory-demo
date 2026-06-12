@@ -287,19 +287,26 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
         spec = tf.call("POST", "/api/specs/ingest", {
             "project_id": project_id, "spec_id": spec_id, "spec_text": brief,
         }, timeout=120)
-        # TFactory's GET /api/tasks/{id} requires the COMPOSITE id
-        # "project_id:spec_id" (it 400s on a bare spec_id). The ingest returns the
-        # bare spec_id as task_id, so build the composite ourselves.
-        ingest_task = spec.get("task_id") or spec_id
-        task_id = ingest_task if ":" in str(ingest_task) else f"{project_id}:{ingest_task}"
+        # An ingested spec's status lives in its WORKSPACE (.../workspaces/{pid}/
+        # specs/{sid}/status.json), surfaced at GET /api/tfactory/tasks/{spec_id}
+        # with the verdict under `status_json.status`. The global GET
+        # /api/tasks/{id} reads a DIFFERENT location and 404s for ingested specs,
+        # so the verdict was never seen. Poll the workspace endpoint instead.
         terminal = {"completed", "passed", "triaged", "failed", "error",
                     "stuck", "needs_human", "human_review", "needs_review", "done"}
-        _poll(tf, f"/api/tasks/{task_id}", VERIFY_TIMEOUT,
-              done=lambda s: str(s.get("status")) in terminal)
-        final = tf.call("GET", f"/api/tasks/{task_id}")
-        res.handbacks += int(final.get("correction_cycle", 0) or 0)
-        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": final.get("status")}
-        m.status = "passed" if final.get("status") in {"completed", "passed", "triaged"} else "failed"
+
+        def _verdict(s: dict) -> str:
+            sj = s.get("status_json") or {}
+            return str(sj.get("status") or s.get("status") or "")
+
+        _poll(tf, f"/api/tfactory/tasks/{spec_id}", VERIFY_TIMEOUT,
+              done=lambda s: _verdict(s) in terminal)
+        final = tf.call("GET", f"/api/tfactory/tasks/{spec_id}")
+        verdict = _verdict(final)
+        sj = final.get("status_json") or {}
+        res.handbacks += int(sj.get("correction_cycle", final.get("correction_cycle", 0)) or 0)
+        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": verdict}
+        m.status = "passed" if verdict in {"completed", "passed", "triaged"} else "failed"
     except DryRun:
         m.status = "skipped"
     except Exception as exc:  # noqa: BLE001
