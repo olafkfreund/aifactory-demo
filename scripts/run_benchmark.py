@@ -63,7 +63,7 @@ TOKENS = {
 
 # Build/verify can be long; poll budgets (seconds).
 BUILD_TIMEOUT = int(os.environ.get("BENCH_BUILD_TIMEOUT", "5400"))   # 90 min
-VERIFY_TIMEOUT = int(os.environ.get("BENCH_VERIFY_TIMEOUT", "1800"))  # 30 min
+VERIFY_TIMEOUT = int(os.environ.get("BENCH_VERIFY_TIMEOUT", "3600"))  # 60 min — TFactory test-gen on a large build can take 30-35 min
 POLL_INTERVAL = int(os.environ.get("BENCH_POLL_INTERVAL", "15"))
 
 
