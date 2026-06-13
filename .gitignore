@@ -6,20 +6,18 @@ __pycache__/
 .aifactory/
 .DS_Store
 
+# stray TFactory runtime artifacts (do not commit)
+.tfactory/
+
 # Build / test artifacts (auto-added by AIFactory so parallel waves merge cleanly)
-__pycache__/
-*.py[cod]
 .coverage
 .coverage.*
 htmlcov/
-.pytest_cache/
 .mypy_cache/
 .ruff_cache/
 .tox/
 .nox/
-*.egg-info/
 .eggs/
 dist/
 build/
 node_modules/
-.DS_Store

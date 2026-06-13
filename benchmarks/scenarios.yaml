@@ -52,6 +52,28 @@ scenarios:
     verify_level: full
     labels: [benchmark, "scenario:rust-hello", "lang:rust", epic]
 
+  - slug: go-hello
+    title: "Go hello-world greeting library + CLI"
+    language: go
+    framework: gotest
+    subdir: scenarios/go-hello
+    branch: bench/go-hello
+    brief: benchmarks/scenarios/go-hello/brief.md
+    verify_level: full
+    labels: [benchmark, "scenario:go-hello", "lang:go", epic]
+
+  - slug: eks-aws
+    title: "Terraform module: an EKS cluster on AWS"
+    language: terraform
+    framework: terraform
+    subdir: scenarios/eks-aws
+    branch: bench/eks-aws
+    brief: benchmarks/scenarios/eks-aws/brief.md
+    verify_level: validate-only
+    tfactory:
+      lanes: []
+    labels: [benchmark, "scenario:eks-aws", "lang:terraform", epic]
+
   - slug: ts-tictactoe
     title: "TypeScript console Tic-Tac-Toe"
     language: typescript
