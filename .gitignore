@@ -8,3 +8,16 @@ __pycache__/
 
 # stray TFactory runtime artifacts (do not commit)
 .tfactory/
+
+# Build / test artifacts (auto-added by AIFactory so parallel waves merge cleanly)
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.eggs/
+dist/
+build/
+node_modules/
