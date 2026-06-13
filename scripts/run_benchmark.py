@@ -206,8 +206,12 @@ def stage_plan(sc: dict, defaults: dict, res: ScenarioResult, dry: bool) -> str 
         pf.call("POST", f"/api/plan/sessions/{sid}/process", {})
         pf.call("POST", f"/api/plan/sessions/{sid}/approve",
                 {"approver": owner + "@users.noreply.github.com", "auto_restart": False})
+        # Emit creates the whole epic tree (epic + a child issue per AC/component,
+        # sub-issue links, and label bootstrap per issue) — easily >30s. Give it a
+        # generous timeout so the default 30s doesn't trip the 5xx/URLError retry,
+        # which would re-run emit and create DUPLICATE epic trees.
         emit = pf.call("POST", f"/api/plan/sessions/{sid}/emit",
-                       {"repo": f"{owner}/{repo}", "dry_run": False})
+                       {"repo": f"{owner}/{repo}", "dry_run": False}, timeout=600)
         epic = str(emit.get("epic_number") or emit.get("epic") or "")
         m.detail = {"session_id": sid, "epic_number": epic}
         m.status = "passed" if epic else "failed"
