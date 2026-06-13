@@ -19,6 +19,9 @@ Usage:
 
 Endpoints (override via env): PFACTORY_API, AIFACTORY_API, TFACTORY_API, CFACTORY_API.
 Auth: AIFACTORY_TOKEN / TFACTORY_TOKEN / PFACTORY_TOKEN (Bearer) if the factory needs it.
+Model: BENCH_MODEL=<model> overrides the per-scenario model (e.g. gemini-2.5-pro
+for a Gemini coding run). Running on the live cluster: see
+Factory/docs/dev/benchmark-matrix-runbook.md.
 
 NOTE: this script does not *start* anything unless invoked. The benchmark is run
 deliberately, separately from scaffolding the repo.
@@ -227,6 +230,12 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
     af = Client("aifactory", dry)
     owner, repo = defaults["owner"], defaults["repo"]
     afopt = {**defaults["aifactory"], **(sc.get("aifactory") or {})}
+    # Provider/model override for A/B runs (e.g. Gemini vs Claude on the same
+    # scenario) without editing scenarios.yaml: BENCH_MODEL=<model> wins over
+    # the scenario/default model. Empty/unset → keep the manifest's model.
+    _model_override = os.environ.get("BENCH_MODEL", "").strip()
+    if _model_override:
+        afopt["model"] = _model_override
     try:
         project_id = _ensure_project(af, repo, f"https://github.com/{owner}/{repo}")
         task = af.call("POST", "/api/tasks", {
@@ -246,14 +255,26 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
                    done=lambda s: not s.get("is_running", True))
         # AIFactory's per-task token/cost breakdown lives at /token-usage
         # (camelCase totals), not /usage. A missing endpoint silently 404'd to 0.
+        task_tokens = 0
         try:
             usage = af.call("GET", f"/api/tasks/{task_id}/token-usage")
-            res.tokens += int(usage.get("totalTokens", usage.get("total_tokens", 0)) or 0)
+            task_tokens = int(usage.get("totalTokens", usage.get("total_tokens", 0)) or 0)
+            res.tokens += task_tokens
             res.cost_usd += float(usage.get("totalCostUsd", usage.get("cost_usd", 0.0)) or 0.0)
         except Exception:  # noqa: BLE001 — usage is best-effort, never fail the stage
             pass
-        m.detail = {"task_id": task_id, "project_id": project_id}
-        m.status = "passed" if ok else "failed"
+        # `is_running == False` alone is NOT success. A build that fails its
+        # planning gate (e.g. provider auth 401) or parks at human_review stops
+        # running within seconds having consumed ZERO tokens. Gating "passed" on
+        # is_running only let a dead build masquerade as passed in 30s — which is
+        # exactly how a Claude 401 hid behind a green code stage. A real build
+        # always consumes tokens, so require tokens > 0 for success.
+        built = ok and task_tokens > 0
+        m.detail = {"task_id": task_id, "project_id": project_id, "tokens": task_tokens,
+                    "reason": None if built else (
+                        "build timed out" if not ok
+                        else "0 tokens — build did not run (provider/plan failure?)")}
+        m.status = "passed" if built else "failed"
         return task_id
     except DryRun:
         m.status = "skipped"
@@ -343,7 +364,19 @@ def run_scenario(sc: dict, defaults: dict, stages: list[str], dry: bool) -> Scen
     if "code" in stages:
         epic = stage_code(sc, defaults, epic, res, dry) and epic or epic
     if "verify" in stages:
-        stage_verify(sc, defaults, epic, res, dry)
+        # Only verify when there's a real build to verify. If the code stage
+        # didn't pass (e.g. provider failure → 0 tokens), TFactory has nothing
+        # to test and would just burn the full 30-min verify timeout before
+        # failing — skip it loudly instead.
+        code_failed = "code" in stages and res.stages.get("code") and \
+            res.stages["code"].status not in ("passed", "skipped")
+        if code_failed and not dry:
+            mv = res.stage("verify")
+            mv.started_at = mv.ended_at = _now()
+            mv.duration_s, mv.status = 0.0, "skipped"
+            mv.detail = {"reason": "code stage did not produce a build — nothing to verify"}
+        else:
+            stage_verify(sc, defaults, epic, res, dry)
     res.ended_at = _now()
     statuses = {m.status for m in res.stages.values()}
     res.overall = "passed" if statuses and statuses <= {"passed", "skipped"} else (

@@ -66,6 +66,26 @@ python scripts/run_benchmark.py --all
 python scripts/run_benchmark.py --scenario rust-hello --stage plan
 ```
 
+### Provider A/B (Claude vs Gemini)
+
+Set `BENCH_MODEL` to override the model without editing `scenarios.yaml`:
+
+```bash
+# Gemini for the coding phase (planning stays Claude — it is pinned, see runbook):
+BENCH_MODEL=gemini-2.5-pro python scripts/run_benchmark.py --scenario api-gateway
+# omit BENCH_MODEL for the factory default (Claude / claude-sonnet-4-6)
+```
+
+### Running against the LIVE cluster (not localhost)
+
+The deployed fleet sits behind SSO and the agent/CI sandbox cannot
+`port-forward` to the pods. Run the harness **inside the AIFactory pod** (it has a
+clone of this repo) against in-cluster service DNS, with the shared
+`APP_API_TOKEN` as the Bearer. Full step-by-step, the live ports
+(pfactory=3114, tfactory=3103), how to read results, and the
+"`human_review` == success" rule are in the Factory runbook:
+**`Factory/docs/dev/benchmark-matrix-runbook.md`**.
+
 ## Metrics
 
 Per scenario → `results/<slug>.json`: per-stage (plan/code/verify) wall-clock +

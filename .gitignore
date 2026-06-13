@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 .aifactory/
 .DS_Store
+
+# stray TFactory runtime artifacts (do not commit)
+.tfactory/
