@@ -1,3 +1,8 @@
 pub fn greet(name: &str) -> String {
-    todo!("implement greet")
+    let trimmed = name.trim();
+    if trimmed.is_empty() {
+        String::from("Hello, stranger!")
+    } else {
+        format!("Hello, {}!", trimmed)
+    }
 }
