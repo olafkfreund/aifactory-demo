@@ -6,3 +6,13 @@ pub fn greet(name: &str) -> String {
         format!("Hello, {}!", trimmed)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_greet_world() {
+        assert_eq!(greet("World"), "Hello, World!");
+    }
+}
