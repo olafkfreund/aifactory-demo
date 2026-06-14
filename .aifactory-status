@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "006-hello-go-via-ollama-portal",
+  "spec": "029-rust-hello-world-greeting-libr",
   "state": "building",
   "subtasks": {
-    "completed": 0,
-    "total": 1,
+    "completed": 1,
+    "total": 16,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Implementation",
+    "current": "Project Setup",
     "id": 1,
-    "total": 1
+    "total": 2
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 1,
-    "started_at": "2026-06-09T12:00:41.037878"
+    "number": 2,
+    "started_at": "2026-06-14T14:06:20.419393"
   },
-  "last_update": "2026-06-09T12:00:41.114894"
+  "last_update": "2026-06-14T14:07:57.094076"
 }
