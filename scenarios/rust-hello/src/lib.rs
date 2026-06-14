@@ -20,4 +20,9 @@ mod tests {
     fn test_greet_empty_name() {
         assert_eq!(greet(""), "Hello, stranger!");
     }
+
+    #[test]
+    fn test_greet_whitespace_trimmed() {
+        assert_eq!(greet("  Bob "), "Hello, Bob!");
+    }
 }
