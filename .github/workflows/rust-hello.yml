@@ -135,23 +135,44 @@ jobs:
         run: cargo audit --deny warnings
 
   deploy:
+    # Gated on a fully green pipeline (lint → test → build → security-scan).
+    # Manual approval is enforced via GitHub's environment protection rule:
+    # Settings → Environments → production → Required reviewers.
+    # This job will pause and wait for an authorised reviewer to approve
+    # before any deployment steps execute.
     name: Deploy
     runs-on: ubuntu-latest
     needs: security-scan
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    # Prevent concurrent deployments; a new run waits for the in-progress one
+    # to finish rather than cancelling it, to avoid a half-deployed state.
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
     environment:
       name: production
-    defaults:
-      run:
-        working-directory: ${{ env.WORKING_DIR }}
+      url: https://github.com/${{ github.repository }}/releases
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Download release artifact
         uses: actions/download-artifact@v4
         with:
           name: rust-hello-binary
-          path: ${{ env.WORKING_DIR }}/target/release/
+          path: dist/
+      - name: Make binary executable
+        run: chmod +x dist/rust-hello
+      - name: Verify release binary
+        run: |
+          echo "=== Binary metadata ==="
+          file dist/rust-hello
+          echo ""
+          echo "=== Smoke test ==="
+          dist/rust-hello World
+          dist/rust-hello
       - name: Deploy
         run: |
-          echo "Deploying rust-hello binary..."
-          echo "Deploy step complete — wire up your deployment target here."
+          echo "Deploying rust-hello (commit ${{ github.sha }})..."
+          echo "Artifact: dist/rust-hello"
+          echo "Deploy step complete — configure your deployment target here."
