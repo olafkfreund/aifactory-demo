@@ -15,4 +15,9 @@ mod tests {
     fn test_greet_world() {
         assert_eq!(greet("World"), "Hello, World!");
     }
+
+    #[test]
+    fn test_greet_empty_name() {
+        assert_eq!(greet(""), "Hello, stranger!");
+    }
 }
