@@ -317,8 +317,13 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
         # with the verdict under `status_json.status`. The global GET
         # /api/tasks/{id} reads a DIFFERENT location and 404s for ingested specs,
         # so the verdict was never seen. Poll the workspace endpoint instead.
-        terminal = {"completed", "passed", "triaged", "failed", "error",
-                    "stuck", "needs_human", "human_review", "needs_review", "done"}
+        # NOTE: include every TERMINAL verdict TFactory can emit, or the poll
+        # waits the full VERIFY_TIMEOUT for one that never comes. ``triaged_empty``
+        # (triager committed 0 tests — e.g. an unsupported target language fell
+        # back to pytest and produced nothing runnable) is terminal-FAILED but was
+        # missing here, so a go-hello run burned the full hour before reading it.
+        terminal = {"completed", "passed", "triaged", "triaged_empty", "failed",
+                    "error", "stuck", "needs_human", "human_review", "needs_review", "done"}
 
         def _verdict(s: dict) -> str:
             sj = s.get("status_json") or {}
