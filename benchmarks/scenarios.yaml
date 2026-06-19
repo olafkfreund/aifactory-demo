@@ -30,6 +30,18 @@ defaults:
     lanes: [unit]
 
 scenarios:
+  - slug: aws-3tier
+    title: "LinkLite: 3-tier URL shortener on AWS EKS (web + Postgres + Redis)"
+    language: typescript
+    framework: jest
+    subdir: scenarios/aws-3tier
+    branch: bench/aws-3tier
+    brief: benchmarks/scenarios/aws-3tier/brief.md
+    verify_level: full
+    tfactory:
+      lanes: [unit, api, integration]
+    labels: [benchmark, "scenario:aws-3tier", "lang:typescript", "aws", epic]
+
   - slug: api-gateway
     title: "FastAPI API gateway with rate limiting"
     language: python
