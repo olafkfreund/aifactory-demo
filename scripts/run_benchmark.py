@@ -40,11 +40,6 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 
-try:
-    import yaml
-except ImportError:  # pragma: no cover
-    sys.exit("PyYAML required: pip install pyyaml")
-
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "benchmarks" / "scenarios.yaml"
 RESULTS_DIR = ROOT / "benchmarks" / "results"
@@ -69,6 +64,37 @@ POLL_INTERVAL = int(os.environ.get("BENCH_POLL_INTERVAL", "15"))
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
+
+
+def _epic_ref(emit: dict) -> str:
+    """Short, scalar epic reference from a PFactory emit response.
+
+    PFactory's ``/emit`` returns the full session (``session.model_dump()``),
+    whose ``epic`` key is the entire EpicPlan object (plan_id, epic_title,
+    children, effort_estimate, …). The benchmark only ever wants a short
+    identifier to drop into a ``Correlation epic #<id>`` reference, so we must
+    NEVER ``str()`` that object — doing so produced the "wall of text" task
+    Overview where the description embedded the whole stringified plan dict.
+
+    Resolution order (all short scalars): the GitHub issue number
+    (``epic_number`` / ``emitted_issue_number``), then the already-short
+    ``correlation_key``, then the epic's ``plan_id`` (e.g.
+    ``"016-fastapi-api-gateway-with-rate-limiting"``). Returns ``""`` when no
+    short id is available — the caller falls back to the session id.
+    """
+    for key in ("epic_number", "emitted_issue_number", "correlation_key"):
+        val = emit.get(key)
+        if isinstance(val, (int, str)) and str(val).strip():
+            return str(val).strip()
+    epic = emit.get("epic")
+    if isinstance(epic, dict):
+        pid = epic.get("plan_id")
+        if isinstance(pid, (int, str)) and str(pid).strip():
+            return str(pid).strip()
+    elif isinstance(epic, (int, str)) and str(epic).strip():
+        # Already a scalar (e.g. a bare issue number) — safe to use directly.
+        return str(epic).strip()
+    return ""
 
 
 class DryRun(Exception):
@@ -212,7 +238,7 @@ def stage_plan(sc: dict, defaults: dict, res: ScenarioResult, dry: bool) -> str 
         # which would re-run emit and create DUPLICATE epic trees.
         emit = pf.call("POST", f"/api/plan/sessions/{sid}/emit",
                        {"repo": f"{owner}/{repo}", "dry_run": False}, timeout=600)
-        epic = str(emit.get("epic_number") or emit.get("epic") or "")
+        epic = _epic_ref(emit) or sid
         m.detail = {"session_id": sid, "epic_number": epic}
         m.status = "passed" if epic else "failed"
         res.correlation_key = epic or res.correlation_key
@@ -418,6 +444,11 @@ def main() -> int:
                     help="restrict to specific stage(s); default all three")
     ap.add_argument("--dry-run", action="store_true", help="print the REST flow, make no calls")
     args = ap.parse_args()
+
+    try:
+        import yaml
+    except ImportError:  # pragma: no cover
+        sys.exit("PyYAML required: pip install pyyaml")
 
     manifest = yaml.safe_load(MANIFEST.read_text())
     defaults, scenarios = manifest["defaults"], manifest["scenarios"]
