@@ -338,8 +338,39 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
         m.ended_at, m.duration_s = _now(), round(time.monotonic() - t0, 1)
 
 
-def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, dry: bool) -> None:
-    """TFactory: create spec for the branch + run the verdict pipeline."""
+def _handoff_via_aifactory(task_id: str, dry: bool) -> dict | None:
+    """Ask AIFactory to push the built branch + hand the spec off to TFactory
+    SOURCE-AWARE (POST /api/tasks/{id}/handoff-tfactory). Returns the handoff
+    result (carrying ``tfactory_spec_id``) when TFactory accepted it, else None
+    so the caller falls back to the legacy text-only ingest.
+
+    This is the fix for hollow verify: a build parked at human_review never
+    auto-hands-off, so without this TFactory only saw the brief TEXT and had no
+    SUT to run tests against. The endpoint pushes the actual build branch and
+    passes git_url/source_branch/contract so TFactory checks out the real code.
+    """
+    af = Client("aifactory", dry)
+    try:
+        r = af.call("POST", f"/api/tasks/{task_id}/handoff-tfactory", {}, timeout=180)
+    except DryRun:
+        raise
+    except Exception:  # noqa: BLE001 — degrade to the text-only path
+        return None
+    if r.get("sent") and r.get("tfactory_spec_id"):
+        return r
+    return None
+
+
+def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult,
+                 dry: bool, task_id: str | None = None) -> None:
+    """TFactory: verify the BUILT branch (source-aware) + run the verdict pipeline.
+
+    Preferred path: when there's an AIFactory ``task_id``, ask AIFactory to push
+    the build branch and hand off to TFactory with git_url/source_branch/contract
+    so tests run against the ACTUAL built code. Falls back to the legacy text-only
+    spec-ingest (brief only — no SUT) when there's no build or the handoff can't
+    be made, so plan-only / verify-only runs still produce a result.
+    """
     m = res.stage("verify")
     m.started_at, t0 = _now(), time.monotonic()
     level = sc.get("verify_level", "full")
@@ -350,16 +381,27 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
     tf = Client("tfactory", dry)
     lanes = (sc.get("tfactory") or {}).get("lanes") or defaults["tfactory"]["lanes"]
     try:
-        # TFactory v0.9.x contract: ensure the project is registered, then
-        # POST /api/specs/ingest {project_id, spec_id, spec_text}. The planner
-        # auto-runs on ingest (#347) — there is no separate /run call.
         owner, repo = defaults["owner"], defaults["repo"]
-        brief = (ROOT / sc["brief"]).read_text() if (ROOT / sc["brief"]).exists() else sc["title"]
-        project_id = _ensure_project(tf, repo, f"https://github.com/{owner}/{repo}")
-        spec_id = f"bench-{sc['slug']}-{int(time.time())}"
-        spec = tf.call("POST", "/api/specs/ingest", {
-            "project_id": project_id, "spec_id": spec_id, "spec_text": brief,
-        }, timeout=120)
+        # Preferred: source-aware handoff through AIFactory (real built code).
+        handoff = _handoff_via_aifactory(task_id, dry) if task_id else None
+        if handoff is not None:
+            spec_id = handoff["tfactory_spec_id"]
+            verify_mode = "source-aware"
+        else:
+            # Fallback: legacy text-only ingest. TFactory v0.9.x contract: ensure
+            # the project is registered, then POST /api/specs/ingest
+            # {project_id, spec_id, spec_text}. The planner auto-runs on ingest
+            # (#347) — there is no separate /run call.
+            brief = (ROOT / sc["brief"]).read_text() if (ROOT / sc["brief"]).exists() else sc["title"]
+            project_id = _ensure_project(tf, repo, f"https://github.com/{owner}/{repo}")
+            spec_id = f"bench-{sc['slug']}-{int(time.time())}"
+            tf.call("POST", "/api/specs/ingest", {
+                "project_id": project_id, "spec_id": spec_id, "spec_text": brief,
+                "source_branch": sc.get("branch"),
+                "git_url": f"https://github.com/{owner}/{repo}",
+                "target_paths": [sc["subdir"]] if sc.get("subdir") else None,
+            }, timeout=120)
+            verify_mode = "text-ingest"
         # An ingested spec's status lives in its WORKSPACE (.../workspaces/{pid}/
         # specs/{sid}/status.json), surfaced at GET /api/tfactory/tasks/{spec_id}
         # with the verdict under `status_json.status`. The global GET
@@ -378,7 +420,8 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
         verdict = _verdict(final)
         sj = final.get("status_json") or {}
         res.handbacks += int(sj.get("correction_cycle", final.get("correction_cycle", 0)) or 0)
-        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": verdict}
+        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": verdict,
+                    "mode": verify_mode}
         m.status = "passed" if verdict in {"completed", "passed", "triaged"} else "failed"
     except DryRun:
         m.status = "skipped"
@@ -411,10 +454,13 @@ def run_scenario(sc: dict, defaults: dict, stages: list[str], dry: bool) -> Scen
     res = ScenarioResult(slug=sc["slug"], title=sc["title"])
     print(f"\n=== scenario: {sc['slug']} — {sc['title']} ===")
     epic = None
+    task_id = None
     if "plan" in stages:
         epic = stage_plan(sc, defaults, res, dry)
     if "code" in stages:
-        epic = stage_code(sc, defaults, epic, res, dry) and epic or epic
+        # Capture the AIFactory task_id so verify can hand the BUILT branch off
+        # to TFactory (source-aware), not just the brief text (hollow verify).
+        task_id = stage_code(sc, defaults, epic, res, dry)
     if "verify" in stages:
         # Only verify when there's a real build to verify. If the code stage
         # didn't pass (e.g. provider failure → 0 tokens), TFactory has nothing
@@ -428,7 +474,7 @@ def run_scenario(sc: dict, defaults: dict, stages: list[str], dry: bool) -> Scen
             mv.duration_s, mv.status = 0.0, "skipped"
             mv.detail = {"reason": "code stage did not produce a build — nothing to verify"}
         else:
-            stage_verify(sc, defaults, epic, res, dry)
+            stage_verify(sc, defaults, epic, res, dry, task_id=task_id)
     res.ended_at = _now()
     statuses = {m.status for m in res.stages.values()}
     res.overall = "passed" if statuses and statuses <= {"passed", "skipped"} else (
