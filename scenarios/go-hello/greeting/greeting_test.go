@@ -1,8 +1,6 @@
 package greeting
 
-import (
-	"testing"
-)
+import "testing"
 
 func TestGreet(t *testing.T) {
 	tests := []struct {
