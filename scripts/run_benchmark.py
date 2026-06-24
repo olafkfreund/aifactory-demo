@@ -288,6 +288,23 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
     _model_override = os.environ.get("BENCH_MODEL", "").strip()
     if _model_override:
         afopt["model"] = _model_override
+    # All-Ollama routing: BENCH_OLLAMA=1 runs every LLM phase on Ollama models via
+    # the openai-compatible provider (OPENAI_COMPATIBLE_BASE_URL=https://ollama.com).
+    # The per-phase mix (coding -> strong coder, others -> general) is set as the
+    # task's phaseModels (isAutoProfile), and propagates to TFactory's verify lanes
+    # via the handoff contract. Overridable via BENCH_OLLAMA_CODING_MODEL /
+    # BENCH_OLLAMA_GENERAL_MODEL. (PFactory's plan stage makes no LLM calls.)
+    metadata = {"correlation_key": epic, "github_repo": f"{owner}/{repo}",
+                "epic_issue": epic, "scenario": sc["slug"]}
+    if os.environ.get("BENCH_OLLAMA", "").strip().lower() in ("1", "true", "yes"):
+        _coding = os.environ.get("BENCH_OLLAMA_CODING_MODEL",
+                                 "openai-compatible:qwen3-coder:480b")
+        _general = os.environ.get("BENCH_OLLAMA_GENERAL_MODEL",
+                                  "openai-compatible:gpt-oss:120b")
+        metadata["isAutoProfile"] = True
+        metadata["phaseModels"] = {"spec": _general, "planning": _general,
+                                   "coding": _coding, "qa": _general, "qa_fixer": _general}
+        afopt["model"] = None  # phaseModels drives routing — don't pin a flat model
     try:
         project_id = _ensure_project(af, repo, f"https://github.com/{owner}/{repo}")
         task = af.call("POST", "/api/tasks", {
@@ -295,8 +312,7 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
             "description": f"Benchmark scenario {sc['slug']}. Build under {sc['subdir']}/. "
                            f"Correlation epic #{epic}. See benchmarks/{sc['brief']}.",
             "project_id": project_id,
-            "metadata": {"correlation_key": epic, "github_repo": f"{owner}/{repo}",
-                         "epic_issue": epic, "scenario": sc["slug"]},
+            "metadata": metadata,
         })
         task_id = task.get("task_id") or task.get("id")
         af.call("POST", f"/api/tasks/{task_id}/start", {
