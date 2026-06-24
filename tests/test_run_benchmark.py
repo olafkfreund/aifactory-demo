@@ -79,3 +79,34 @@ def test_description_reference_has_no_embedded_plan_dict() -> None:
     assert "effort_estimate" not in description
     assert "{'plan_id'" not in description
     assert "Correlation epic #016-fastapi-api-gateway-with-rate-limiting." in description
+
+
+# --- verify poll terminal-state detection -------------------------------------
+# A verify status that isn't recognised as terminal makes the poll wait the full
+# VERIFY_TIMEOUT (60 min) for a verdict that never comes. ``planner_failed`` (the
+# spec-ingest planner raised before any lane ran — e.g. the project's on-disk
+# clone was absent after a pod/PVC recycle) hung a go-hello run for the full hour
+# until it was added here.
+_verify_is_terminal = run_benchmark.verify_is_terminal
+
+
+def test_planner_failed_is_terminal() -> None:
+    # The status that hung the go-hello verify poll for the full VERIFY_TIMEOUT.
+    assert _verify_is_terminal("planner_failed") is True
+
+
+def test_enumerated_terminal_verdicts() -> None:
+    for status in ("completed", "passed", "triaged", "triaged_empty", "failed"):
+        assert _verify_is_terminal(status) is True, status
+
+
+def test_any_phase_failure_suffix_is_terminal() -> None:
+    # We don't enumerate every <phase>_failed TFactory might add — the suffix
+    # rule must catch them all (and *_error / *_exception).
+    for status in ("coder_failed", "triager_error", "planner_initial_exception"):
+        assert _verify_is_terminal(status) is True, status
+
+
+def test_in_progress_statuses_are_not_terminal() -> None:
+    for status in ("planning", "running", "pending", "in_progress", ""):
+        assert _verify_is_terminal(status) is False, status

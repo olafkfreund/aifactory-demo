@@ -61,6 +61,28 @@ BUILD_TIMEOUT = int(os.environ.get("BENCH_BUILD_TIMEOUT", "5400"))   # 90 min
 VERIFY_TIMEOUT = int(os.environ.get("BENCH_VERIFY_TIMEOUT", "3600"))  # 60 min — TFactory test-gen on a large build can take 30-35 min
 POLL_INTERVAL = int(os.environ.get("BENCH_POLL_INTERVAL", "15"))
 
+# Terminal verify verdicts the TFactory spec-ingest pipeline can emit. The
+# verify poll stops as soon as the status reaches one of these; miss one and
+# the poll burns the full VERIFY_TIMEOUT waiting for a verdict that never comes.
+#  - ``triaged_empty`` — triager committed 0 tests (e.g. an unsupported target
+#    language fell back to pytest and produced nothing runnable).
+#  - ``planner_failed`` / ``*_exception`` — the spec-ingest planner raised
+#    before any lane ran (e.g. the project's on-disk clone was absent after a
+#    pod/PVC recycle: "Working directory does not exist").
+# Both are terminal FAILURES. Rather than chase every new ``<phase>_failed``
+# status TFactory adds, any ``*_failed``/``*_error``/``*_exception`` status is
+# treated as terminal too.
+VERIFY_TERMINAL = {
+    "completed", "passed", "triaged", "triaged_empty", "failed", "error",
+    "stuck", "needs_human", "human_review", "needs_review", "done",
+}
+VERIFY_TERMINAL_SUFFIXES = ("_failed", "_error", "_exception")
+
+
+def verify_is_terminal(status: str) -> bool:
+    """True when a verify status is terminal (the poll can stop)."""
+    return status in VERIFY_TERMINAL or status.endswith(VERIFY_TERMINAL_SUFFIXES)
+
 
 def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
@@ -343,20 +365,15 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
         # with the verdict under `status_json.status`. The global GET
         # /api/tasks/{id} reads a DIFFERENT location and 404s for ingested specs,
         # so the verdict was never seen. Poll the workspace endpoint instead.
-        # NOTE: include every TERMINAL verdict TFactory can emit, or the poll
-        # waits the full VERIFY_TIMEOUT for one that never comes. ``triaged_empty``
-        # (triager committed 0 tests — e.g. an unsupported target language fell
-        # back to pytest and produced nothing runnable) is terminal-FAILED but was
-        # missing here, so a go-hello run burned the full hour before reading it.
-        terminal = {"completed", "passed", "triaged", "triaged_empty", "failed",
-                    "error", "stuck", "needs_human", "human_review", "needs_review", "done"}
-
+        # The poll must recognise every TERMINAL verdict TFactory can emit
+        # (see ``verify_is_terminal``), or it waits the full VERIFY_TIMEOUT for
+        # one that never comes.
         def _verdict(s: dict) -> str:
             sj = s.get("status_json") or {}
             return str(sj.get("status") or s.get("status") or "")
 
         _poll(tf, f"/api/tfactory/tasks/{spec_id}", VERIFY_TIMEOUT,
-              done=lambda s: _verdict(s) in terminal)
+              done=lambda s: verify_is_terminal(_verdict(s)))
         final = tf.call("GET", f"/api/tfactory/tasks/{spec_id}")
         verdict = _verdict(final)
         sj = final.get("status_json") or {}
