@@ -1,0 +1,52 @@
+{
+  "slug": "aws-3tier",
+  "title": "LinkLite: 3-tier URL shortener on AWS EKS (web + Postgres + Redis)",
+  "correlation_key": null,
+  "started_at": "2026-06-19T17:03:48.767970+00:00",
+  "ended_at": "2026-06-19T18:52:12.427426+00:00",
+  "stages": {
+    "plan": {
+      "name": "plan",
+      "started_at": "2026-06-19T17:03:48.767998+00:00",
+      "ended_at": "2026-06-19T17:03:56.526246+00:00",
+      "duration_s": 7.8,
+      "status": "error",
+      "detail": {
+        "error": "HTTP Error 409: Conflict"
+      }
+    },
+    "code": {
+      "name": "code",
+      "started_at": "2026-06-19T17:03:56.526284+00:00",
+      "ended_at": "2026-06-19T18:21:09.963809+00:00",
+      "duration_s": 4633.4,
+      "status": "passed",
+      "detail": {
+        "task_id": "9d2ce435-c1d2-467d-8e91-dce3ce26a049:037-linklite-3-tier-url-shortener-",
+        "project_id": "9d2ce435-c1d2-467d-8e91-dce3ce26a049",
+        "tokens": 9468438,
+        "reason": null
+      }
+    },
+    "verify": {
+      "name": "verify",
+      "started_at": "2026-06-19T18:21:09.963844+00:00",
+      "ended_at": "2026-06-19T18:52:12.427397+00:00",
+      "duration_s": 1862.5,
+      "status": "failed",
+      "detail": {
+        "spec_id": "bench-aws-3tier-1781893270",
+        "lanes": [
+          "unit",
+          "api",
+          "integration"
+        ],
+        "verdict": "failed"
+      }
+    }
+  },
+  "handbacks": 0,
+  "tokens": 9468438,
+  "cost_usd": 7.351532,
+  "overall": "failed"
+}

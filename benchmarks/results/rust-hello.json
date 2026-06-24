@@ -1,0 +1,51 @@
+{
+  "slug": "rust-hello",
+  "title": "Rust hello-world greeting library + CLI",
+  "correlation_key": "{'plan_id': '018-rust-hello-world-greeting-library-cli', 'epic_title': 'Rust hello-world greeting library + CLI', 'epic_body': 'This epic is decomposed into 6 feature issue(s), a cicd issue.', 'children': [{'key': 'C1', 'title': 'AC#1: `greet(\"World\")` returns exactly `\"Hello, World!\"`.', 'body': 'AC#1: `greet(\"World\")` returns exactly `\"Hello, World!\"`.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#1: `greet(\"World\")` returns exactly `\"Hello, World!\"`.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C2', 'title': 'AC#2: `greet(\"\")` returns exactly `\"Hello, stranger!\"` (empty name \u2192 friendly d\u2026', 'body': 'AC#2: `greet(\"\")` returns exactly `\"Hello, stranger!\"` (empty name \u2192 friendly default).', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#2: `greet(\"\")` returns exactly `\"Hello, stranger!\"` (empty name \u2192 friendly default).'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C3', 'title': 'AC#3: `greet` trims surrounding whitespace from the name (`greet(\"  Bob \")` \u2192 `\u2026', 'body': 'AC#3: `greet` trims surrounding whitespace from the name (`greet(\"  Bob \")` \u2192 `\"Hello, Bob!\"`).', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#3: `greet` trims surrounding whitespace from the name (`greet(\"  Bob \")` \u2192 `\"Hello, Bob!\"`).'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C4', 'title': 'AC#4: The binary, run with one argument, prints `greet(arg)` followed by a newl\u2026', 'body': 'AC#4: The binary, run with one argument, prints `greet(arg)` followed by a newline and exits 0.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#4: The binary, run with one argument, prints `greet(arg)` followed by a newline and exits 0.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C5', 'title': 'AC#5: The binary, run with no arguments, prints `greet(\"\")` and exits 0.', 'body': 'AC#5: The binary, run with no arguments, prints `greet(\"\")` and exits 0.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#5: The binary, run with no arguments, prints `greet(\"\")` and exits 0.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C6', 'title': 'AC#6: `cargo test` passes and covers AC#1\u2013AC#3; `cargo build` succeeds.', 'body': 'AC#6: `cargo test` passes and covers AC#1\u2013AC#3; `cargo build` succeeds.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#6: `cargo test` passes and covers AC#1\u2013AC#3; `cargo build` succeeds.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'CICD', 'title': 'Set up CI/CD for Rust hello-world greeting library + CLI', 'body': 'Implement the CI/CD pipeline specified in `docs/plans/018-rust-hello-world-greeting-library-cli-cicd-pipeline.md`.\\n\\nStages: lint \u2192 test \u2192 build \u2192 security scan \u2192 deploy.', 'kind': 'cicd', 'labels': ['pfactory', 'area:cicd', 'plan-type:cicd'], 'depends_on': ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'], 'complexity': 'standard', 'acceptance_criteria': ['Lint, test, build, and security-scan stages run on every push and PR.', 'The test stage runs the full suite and publishes a coverage report.', 'Deploy stages are gated on a green build and require manual approval.'], 'effort_estimate': None, 'access_requirements': []}], 'summary': \"7 child issue(s) under epic 'Rust hello-world greeting library + CLI'.\", 'cost_estimate': {'monthly_usd': 0.0, 'currency': 'USD', 'lines': [], 'confidence': 'low', 'source': 'no-resources'}, 'effort_estimate': {'story_points': 21, 'duration_days_low': 8.4, 'duration_days_high': 21.0, 'confidence': 'high', 'assumptions': [\"7 child issues; 0 rated 'complex'.\", 'Points: simple=1, standard=3, complex=8 (total 21).', 'Velocity 1.0\u20132.5 pts/dev-day (one developer).', 'Excludes review/QA latency and external dependencies.']}, 'access_requirements': [], 'decompose_method': 'heuristic', 'decompose_errors': []}",
+  "started_at": "2026-06-14T14:03:38.360399+00:00",
+  "ended_at": "2026-06-14T15:02:40.369645+00:00",
+  "stages": {
+    "plan": {
+      "name": "plan",
+      "started_at": "2026-06-14T14:03:38.360424+00:00",
+      "ended_at": "2026-06-14T14:04:23.904529+00:00",
+      "duration_s": 45.5,
+      "status": "passed",
+      "detail": {
+        "session_id": "018-rust-hello-world-greeting-library-cli",
+        "epic_number": "{'plan_id': '018-rust-hello-world-greeting-library-cli', 'epic_title': 'Rust hello-world greeting library + CLI', 'epic_body': 'This epic is decomposed into 6 feature issue(s), a cicd issue.', 'children': [{'key': 'C1', 'title': 'AC#1: `greet(\"World\")` returns exactly `\"Hello, World!\"`.', 'body': 'AC#1: `greet(\"World\")` returns exactly `\"Hello, World!\"`.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#1: `greet(\"World\")` returns exactly `\"Hello, World!\"`.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C2', 'title': 'AC#2: `greet(\"\")` returns exactly `\"Hello, stranger!\"` (empty name \u2192 friendly d\u2026', 'body': 'AC#2: `greet(\"\")` returns exactly `\"Hello, stranger!\"` (empty name \u2192 friendly default).', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#2: `greet(\"\")` returns exactly `\"Hello, stranger!\"` (empty name \u2192 friendly default).'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C3', 'title': 'AC#3: `greet` trims surrounding whitespace from the name (`greet(\"  Bob \")` \u2192 `\u2026', 'body': 'AC#3: `greet` trims surrounding whitespace from the name (`greet(\"  Bob \")` \u2192 `\"Hello, Bob!\"`).', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#3: `greet` trims surrounding whitespace from the name (`greet(\"  Bob \")` \u2192 `\"Hello, Bob!\"`).'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C4', 'title': 'AC#4: The binary, run with one argument, prints `greet(arg)` followed by a newl\u2026', 'body': 'AC#4: The binary, run with one argument, prints `greet(arg)` followed by a newline and exits 0.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#4: The binary, run with one argument, prints `greet(arg)` followed by a newline and exits 0.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C5', 'title': 'AC#5: The binary, run with no arguments, prints `greet(\"\")` and exits 0.', 'body': 'AC#5: The binary, run with no arguments, prints `greet(\"\")` and exits 0.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#5: The binary, run with no arguments, prints `greet(\"\")` and exits 0.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'C6', 'title': 'AC#6: `cargo test` passes and covers AC#1\u2013AC#3; `cargo build` succeeds.', 'body': 'AC#6: `cargo test` passes and covers AC#1\u2013AC#3; `cargo build` succeeds.', 'kind': 'feature', 'labels': ['plan-type:cicd', 'kind:feature'], 'depends_on': [], 'complexity': 'standard', 'acceptance_criteria': ['AC#6: `cargo test` passes and covers AC#1\u2013AC#3; `cargo build` succeeds.'], 'effort_estimate': None, 'access_requirements': []}, {'key': 'CICD', 'title': 'Set up CI/CD for Rust hello-world greeting library + CLI', 'body': 'Implement the CI/CD pipeline specified in `docs/plans/018-rust-hello-world-greeting-library-cli-cicd-pipeline.md`.\\n\\nStages: lint \u2192 test \u2192 build \u2192 security scan \u2192 deploy.', 'kind': 'cicd', 'labels': ['pfactory', 'area:cicd', 'plan-type:cicd'], 'depends_on': ['C1', 'C2', 'C3', 'C4', 'C5', 'C6'], 'complexity': 'standard', 'acceptance_criteria': ['Lint, test, build, and security-scan stages run on every push and PR.', 'The test stage runs the full suite and publishes a coverage report.', 'Deploy stages are gated on a green build and require manual approval.'], 'effort_estimate': None, 'access_requirements': []}], 'summary': \"7 child issue(s) under epic 'Rust hello-world greeting library + CLI'.\", 'cost_estimate': {'monthly_usd': 0.0, 'currency': 'USD', 'lines': [], 'confidence': 'low', 'source': 'no-resources'}, 'effort_estimate': {'story_points': 21, 'duration_days_low': 8.4, 'duration_days_high': 21.0, 'confidence': 'high', 'assumptions': [\"7 child issues; 0 rated 'complex'.\", 'Points: simple=1, standard=3, complex=8 (total 21).', 'Velocity 1.0\u20132.5 pts/dev-day (one developer).', 'Excludes review/QA latency and external dependencies.']}, 'access_requirements': [], 'decompose_method': 'heuristic', 'decompose_errors': []}"
+      }
+    },
+    "code": {
+      "name": "code",
+      "started_at": "2026-06-14T14:04:23.904584+00:00",
+      "ended_at": "2026-06-14T14:38:54.476210+00:00",
+      "duration_s": 2070.6,
+      "status": "passed",
+      "detail": {
+        "task_id": "9d2ce435-c1d2-467d-8e91-dce3ce26a049:029-rust-hello-world-greeting-libr",
+        "project_id": "9d2ce435-c1d2-467d-8e91-dce3ce26a049",
+        "tokens": 7602717,
+        "reason": null
+      }
+    },
+    "verify": {
+      "name": "verify",
+      "started_at": "2026-06-14T14:38:54.476243+00:00",
+      "ended_at": "2026-06-14T15:02:40.369614+00:00",
+      "duration_s": 1425.9,
+      "status": "passed",
+      "detail": {
+        "spec_id": "bench-rust-hello-1781447934",
+        "lanes": [
+          "unit"
+        ],
+        "verdict": "triaged"
+      }
+    }
+  },
+  "handbacks": 0,
+  "tokens": 7602717,
+  "cost_usd": 5.04701,
+  "overall": "passed"
+}

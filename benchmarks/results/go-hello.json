@@ -1,0 +1,43 @@
+{
+  "slug": "go-hello",
+  "title": "Go hello-world greeting library + CLI",
+  "correlation_key": null,
+  "started_at": "2026-06-20T14:58:19.003111+00:00",
+  "ended_at": "2026-06-20T14:58:34.050920+00:00",
+  "stages": {
+    "plan": {
+      "name": "plan",
+      "started_at": "2026-06-20T14:58:19.003140+00:00",
+      "ended_at": "2026-06-20T14:58:34.048263+00:00",
+      "duration_s": 15.0,
+      "status": "error",
+      "detail": {
+        "error": "<urlopen error [Errno 111] Connection refused>"
+      }
+    },
+    "code": {
+      "name": "code",
+      "started_at": "2026-06-20T14:58:34.048306+00:00",
+      "ended_at": "2026-06-20T14:58:34.050884+00:00",
+      "duration_s": 0.0,
+      "status": "error",
+      "detail": {
+        "error": "HTTP Error 401: Unauthorized"
+      }
+    },
+    "verify": {
+      "name": "verify",
+      "started_at": "2026-06-20T14:58:34.050914+00:00",
+      "ended_at": "2026-06-20T14:58:34.050914+00:00",
+      "duration_s": 0.0,
+      "status": "skipped",
+      "detail": {
+        "reason": "code stage did not produce a build \u2014 nothing to verify"
+      }
+    }
+  },
+  "handbacks": 0,
+  "tokens": 0,
+  "cost_usd": 0.0,
+  "overall": "failed"
+}
