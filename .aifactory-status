@@ -1,17 +1,17 @@
 {
   "active": true,
-  "spec": "006-hello-go-via-ollama-portal",
+  "spec": "047-go-hello-world-greeting-librar",
   "state": "building",
   "subtasks": {
     "completed": 0,
-    "total": 1,
+    "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Implementation",
-    "id": 1,
-    "total": 1
+    "current": "Go Module Implementation",
+    "id": null,
+    "total": 4
   },
   "workers": {
     "active": 0,
@@ -19,7 +19,7 @@
   },
   "session": {
     "number": 1,
-    "started_at": "2026-06-09T12:00:41.037878"
+    "started_at": "2026-06-24T21:57:31.420910"
   },
-  "last_update": "2026-06-09T12:00:41.114894"
+  "last_update": "2026-06-24T21:57:31.752901"
 }
