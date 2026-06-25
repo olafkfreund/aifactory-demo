@@ -514,6 +514,72 @@ def write_leaderboard(results: list[ScenarioResult]) -> None:
     (RESULTS_DIR / "RESULTS.md").write_text("\n".join(lines) + "\n")
 
 
+def _warm_ollama_models() -> None:
+    """Pre-load the Ollama models into VRAM and BLOCK until each responds.
+
+    A cold Ollama model takes 60-180s to load on the first request; until then
+    /v1 returns empty bodies or times out, which the pipeline mis-reads as a
+    provider/plan failure (and a verify Planner can fail instantly). This runs a
+    readiness gate ONLY for BENCH_OLLAMA runs: wait for the server, then send a
+    1-token request per model to force the load and confirm it answers, BEFORE
+    any real phase call. Best-effort + deadline-bounded — it logs and proceeds so
+    it can never hang the run; tune via BENCH_OLLAMA_WARMUP_TIMEOUT (default 900s).
+    """
+    if os.environ.get("BENCH_OLLAMA", "").strip().lower() not in ("1", "true", "yes"):
+        return
+    base = (os.environ.get("OPENAI_COMPATIBLE_BASE_URL") or "").rstrip("/")
+    if not base:
+        print("[warmup] OPENAI_COMPATIBLE_BASE_URL unset — skipping Ollama warmup")
+        return
+    models = {
+        os.environ.get("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b"),
+        os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b"),
+    }
+    deadline = time.monotonic() + float(
+        os.environ.get("BENCH_OLLAMA_WARMUP_TIMEOUT", "900")
+    )
+    # 1) Server up?
+    while time.monotonic() < deadline:
+        try:
+            urllib.request.urlopen(f"{base}/api/tags", timeout=10).read()
+            break
+        except (urllib.error.URLError, OSError) as exc:
+            print(f"[warmup] ollama server at {base} not ready ({exc}); retrying…")
+            time.sleep(5)
+    # 2) Force-load + confirm each model answers.
+    for raw in sorted(models):
+        model = (
+            raw.split(":", 1)[1]
+            if raw.startswith(("openai-compatible:", "openai:", "studio:"))
+            else raw
+        )
+        t0 = time.monotonic()
+        while time.monotonic() < deadline:
+            try:
+                body = json.dumps(
+                    {
+                        "model": model,
+                        "messages": [{"role": "user", "content": "ready?"}],
+                        "max_tokens": 1,
+                    }
+                ).encode("utf-8")
+                req = urllib.request.Request(
+                    f"{base}/v1/chat/completions",
+                    data=body,
+                    headers={"Content-Type": "application/json"},
+                    method="POST",
+                )
+                with urllib.request.urlopen(req, timeout=300) as resp:
+                    if resp.status == 200 and resp.read():
+                        print(f"[warmup] {model} ready in {int(time.monotonic() - t0)}s")
+                        break
+            except (urllib.error.URLError, OSError) as exc:
+                print(f"[warmup] {model} loading… ({exc}); retrying")
+                time.sleep(5)
+        else:
+            print(f"[warmup] {model} not ready within deadline — proceeding anyway")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="PARR benchmark orchestrator")
     g = ap.add_mutually_exclusive_group(required=True)
@@ -539,6 +605,10 @@ def main() -> int:
 
     print(f"endpoints: {ENDPOINTS}")
     print(f"stages: {stages}  dry_run: {args.dry_run}")
+    # Readiness gate: warm the local Ollama models before any phase runs, so a
+    # cold model load can't be mis-read as a provider failure (BENCH_OLLAMA only).
+    if not args.dry_run:
+        _warm_ollama_models()
     results = [run_scenario(sc, defaults, stages, args.dry_run) for sc in chosen]
     if not args.dry_run:
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
