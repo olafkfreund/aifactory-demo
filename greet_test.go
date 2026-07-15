@@ -3,16 +3,23 @@ package main
 import "testing"
 
 func TestGreet(t *testing.T) {
-	expected := "Hello, World!"
-	actual := greet("World")
-	if actual != expected {
-		t.Errorf("greet(\"World\") = %s; expected %s", actual, expected)
+	// Test with normal names
+	testCases := []struct {
+		name     string
+		expected string
+	}{
+		{"World", "Hello, World!"},
+		{"Go", "Hello, Go!"},
+		{"Bob", "Hello, Bob!"},
+		{"", "Hello, World!"},           // empty string
+		{"   ", "Hello, World!"},         // whitespace only
+		{"\t\n", "Hello, World!"},        // tabs and newlines
 	}
-	
-	// Test with another name
-	expected = "Hello, Go!"
-	actual = greet("Go")
-	if actual != expected {
-		t.Errorf("greet(\"Go\") = %s; expected %s", actual, expected)
+
+	for _, tc := range testCases {
+		actual := greet(tc.name)
+		if actual != tc.expected {
+			t.Errorf("greet(%q) = %q; expected %q", tc.name, actual, tc.expected)
+		}
 	}
 }
