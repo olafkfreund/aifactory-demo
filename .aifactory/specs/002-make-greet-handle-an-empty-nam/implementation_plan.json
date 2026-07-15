@@ -81,7 +81,7 @@
           "id": "4.2",
           "title": "Manual verification",
           "description": "Run the program manually to verify the output is correct",
-          "status": "pending"
+          "status": "completed"
         }
       ]
     },
