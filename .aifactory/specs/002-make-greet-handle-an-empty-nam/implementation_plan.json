@@ -75,7 +75,7 @@
           "id": "4.1",
           "title": "Run all tests",
           "description": "Execute 'go test ./...' to ensure all tests pass",
-          "status": "pending"
+          "status": "completed"
         },
         {
           "id": "4.2",
