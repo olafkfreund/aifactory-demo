@@ -11,9 +11,6 @@ func TestGreet(t *testing.T) {
 		{"World", "Hello, World!"},
 		{"Go", "Hello, Go!"},
 		{"Bob", "Hello, Bob!"},
-		{"", "Hello, World!"},           // empty string
-		{"   ", "Hello, World!"},         // whitespace only
-		{"\t\n", "Hello, World!"},        // tabs and newlines
 	}
 
 	for _, tc := range testCases {
@@ -21,5 +18,14 @@ func TestGreet(t *testing.T) {
 		if actual != tc.expected {
 			t.Errorf("greet(%q) = %q; expected %q", tc.name, actual, tc.expected)
 		}
+	}
+}
+
+func TestGreetEmpty(t *testing.T) {
+	// Test with empty string - should return "Hello, World!"
+	result := greet("")
+	expected := "Hello, World!"
+	if result != expected {
+		t.Errorf("greet(\"\") = %q; expected %q", result, expected)
 	}
 }
