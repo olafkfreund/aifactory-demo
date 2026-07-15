@@ -1,9 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func greet(name string) string {
-	return "Hello, " + name + "!"
+	trimmedName := strings.TrimSpace(name)
+	if trimmedName == "" {
+		return "Hello, World!"
+	}
+	return "Hello, " + trimmedName + "!"
 }
 
 func main() {
