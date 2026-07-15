@@ -3,8 +3,8 @@
   "spec": "002-make-greet-handle-an-empty-nam",
   "state": "building",
   "subtasks": {
-    "completed": 0,
-    "total": 0,
+    "completed": 4,
+    "total": 10,
     "in_progress": 1,
     "failed": 0
   },
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 2,
+    "number": 3,
     "started_at": "2026-07-15T19:17:44.698286"
   },
-  "last_update": "2026-07-15T19:19:24.830548"
+  "last_update": "2026-07-15T19:20:40.606159"
 }
