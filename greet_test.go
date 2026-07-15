@@ -22,4 +22,11 @@ func TestGreet(t *testing.T) {
 	if actual != expected {
 		t.Errorf("greet(\"\") = %s; expected %s", actual, expected)
 	}
+
+	// Test with whitespace-only string
+	expected = "Hello, World!"
+	actual = greet("   ")
+	if actual != expected {
+		t.Errorf("greet(\"   \") = %s; expected %s", actual, expected)
+	}
 }
