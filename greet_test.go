@@ -10,10 +10,10 @@ func TestGreet(t *testing.T) {
 	}
 	
 	// Test with another name
-	expected = "Hello, Go!"
-	actual = greet("Go")
+	expected = "Hello, Bob!"
+	actual = greet("Bob")
 	if actual != expected {
-		t.Errorf("greet(\"Go\") = %s; expected %s", actual, expected)
+		t.Errorf("greet(\"Bob\") = %s; expected %s", actual, expected)
 	}
 
 	// Test with empty string
