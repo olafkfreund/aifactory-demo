@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "006-hello-go-via-ollama-portal",
+  "spec": "002-make-greet-handle-an-empty-nam",
   "state": "building",
   "subtasks": {
     "completed": 0,
-    "total": 1,
+    "total": 0,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Implementation",
-    "id": 1,
-    "total": 1
+    "current": "",
+    "id": 0,
+    "total": 0
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 1,
-    "started_at": "2026-06-09T12:00:41.037878"
+    "number": 2,
+    "started_at": "2026-07-15T19:17:44.698286"
   },
-  "last_update": "2026-06-09T12:00:41.114894"
+  "last_update": "2026-07-15T19:19:24.830548"
 }
