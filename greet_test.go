@@ -15,4 +15,11 @@ func TestGreet(t *testing.T) {
 	if actual != expected {
 		t.Errorf("greet(\"Go\") = %s; expected %s", actual, expected)
 	}
+
+	// Test with empty string
+	expected = "Hello, World!"
+	actual = greet("")
+	if actual != expected {
+		t.Errorf("greet(\"\") = %s; expected %s", actual, expected)
+	}
 }
