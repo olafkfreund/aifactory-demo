@@ -25,8 +25,8 @@ def to_snake_case(text: str) -> str:
     # Replace hyphens and spaces with underscores
     text = re.sub(r"[-\s]+", "_", text)
 
-    # Insert underscores before uppercase letters that follow lowercase letters
-    text = re.sub(r"([a-z])([A-Z])", r"\1_\2", text)
+    # Insert underscores before uppercase letters that follow lowercase letters or numbers
+    text = re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", text)
 
     # Insert underscores between consecutive uppercase letters and a following lowercase letter
     # E.g., "HTTPServer" -> "HTTP_Server"

@@ -1,0 +1,89 @@
+AIFactory Task: 014-add-a-to-snake-case-text-helpe
+=====================================================
+
+Task: Add a to_snake_case(text) helper
+
+Status: IN PROGRESS
+
+Completed Subtasks:
+===================
+
+Phase 1: Setup & Planning
+- 1.1: Explore project structure ✓ COMPLETED
+- 1.2: Verify testing setup ✓ COMPLETED
+
+Phase 2: Implementation
+- 2.1: Create text utilities module ✓ COMPLETED
+  * Created src/app/text_utils.py with to_snake_case() function
+  * Handles CamelCase, space-separated, hyphen-separated, and mixed inputs
+  * Pure function with no side effects
+  * Comprehensive documentation in docstring
+
+- 2.2: Implement to_snake_case function ✓ COMPLETED
+  * Converts "HelloWorld" → "hello_world"
+  * Converts "hello world" → "hello_world"
+  * Converts "hello-world" → "hello_world"
+  * Handles consecutive capitals: "HTTPServer" → "http_server"
+  * Returns empty string for empty input
+
+- 2.3: Create unit tests ✓ COMPLETED
+  * Created tests/test_text_utils.py with comprehensive test coverage
+  * 16+ test cases covering all requirements and edge cases
+  * Tests follow project pytest conventions
+
+Phase 3: Integration & Verification
+- 3.1: Export function from app module ✓ COMPLETED
+  * Updated src/app/__init__.py to export to_snake_case
+  * Added __all__ export list
+
+Next Steps:
+===========
+- 3.2: Run test suite (pending)
+- 3.3: Code review and cleanup (pending)
+- 4.1-4.3: Smoke test and finalization (pending)
+
+Implementation Details:
+=======================
+
+Implementation uses regex-based approach:
+1. Handle empty string early return
+2. Replace spaces and hyphens with underscores
+3. Insert underscores before uppercase letters following lowercase
+4. Handle consecutive uppercase letters (e.g., HTTP)
+5. Convert entire string to lowercase
+
+Test Coverage:
+- Empty strings
+- CamelCase variations
+- Space and hyphen separation
+- Mixed case inputs
+- Consecutive capitals
+- Numbers preservation
+- Leading/trailing spaces
+- Complex mixed inputs
+
+Quality Checklist:
+==================
+✓ Follows patterns from reference files (FastAPI project style)
+✓ No console.log/print debugging statements
+✓ Error handling not needed (pure function)
+✓ Comprehensive unit tests created
+✓ Clean commit with descriptive message
+✓ Code follows project conventions (type hints, docstrings)
+
+Git Commit:
+===========
+Commit: 66b1da8a1860c1e83e213c82f2ad1a16d73a48a9
+Message: "aifactory: 2.1 - Create src/app/text_utils.py module for text helper"
+
+Files Modified:
+- src/app/__init__.py (added export)
+- src/app/text_utils.py (new file)
+- tests/test_text_utils.py (new file)
+
+Notes:
+======
+- Subtask 2.1 is the primary focus: create the text_utils.py module
+- Module is pure Python with no external dependencies
+- Uses standard library `re` module for regex operations
+- Implementation and tests follow project conventions
