@@ -1,7 +1,5 @@
 """Comprehensive test suite for text_helpers module."""
 
-import pytest
-
 from src.app.text_helpers import word_count
 
 
@@ -148,8 +146,8 @@ class TestWordCountSpecialCases:
         assert word_count("café naïve résumé") == 3
 
     def test_punctuation_attached_to_word(self) -> None:
-        """Test that punctuation attached to words is counted as part of the word."""
-        # Note: word_count doesn't strip punctuation, it just counts split() results
+        """Test punctuation attached to words is part of the word."""
+        # Note: word_count doesn't strip punctuation, just counts split()
         assert word_count("hello, world!") == 2
 
     def test_words_with_apostrophe(self) -> None:
@@ -208,7 +206,7 @@ class TestWordCountCountAccuracy:
     """Test accuracy of word counts across various scenarios."""
 
     def test_count_matches_split_length(self) -> None:
-        """Test that word_count matches len(text.split()) for various inputs."""
+        """Test word_count matches len(text.split()) for inputs."""
         test_cases = [
             "",
             "   ",
