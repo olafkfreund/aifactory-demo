@@ -3,23 +3,23 @@
   "spec": "011-add-a-to-kebab-helper-to-strut",
   "state": "building",
   "subtasks": {
-    "completed": 4,
+    "completed": 6,
     "total": 8,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Testing",
+    "current": "Validation",
     "id": null,
-    "total": 2
+    "total": 1
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 3,
+    "number": 5,
     "started_at": "2026-07-16T16:46:46.280107"
   },
-  "last_update": "2026-07-16T16:50:17.635326"
+  "last_update": "2026-07-16T16:53:33.591160"
 }
