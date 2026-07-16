@@ -65,9 +65,9 @@ def test_multiple_spaces_and_hyphens():
 
 
 def test_leading_and_trailing_spaces():
-    """Leading and trailing spaces are handled."""
-    assert to_snake_case("  hello world  ") == "_hello_world_"
-    assert to_snake_case("  HelloWorld  ") == "_hello_world_"
+    """Leading and trailing spaces are trimmed."""
+    assert to_snake_case("  hello world  ") == "hello_world"
+    assert to_snake_case("  HelloWorld  ") == "hello_world"
 
 
 def test_complex_mixed_inputs():

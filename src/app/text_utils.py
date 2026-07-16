@@ -22,6 +22,9 @@ def to_snake_case(text: str) -> str:
     if not text:
         return ""
 
+    # Strip leading and trailing whitespace for clean output
+    text = text.strip()
+
     # Replace hyphens and spaces with underscores
     text = re.sub(r"[-\s]+", "_", text)
 
