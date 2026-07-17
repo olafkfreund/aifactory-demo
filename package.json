@@ -1,0 +1,19 @@
+{
+  "name": "aifactory-demo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tiny FastAPI service used as the demo target for AIFactory. Node manifest declares JS/tooling runtime dependencies.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/olafkfreund/aifactory-demo.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "echo \"No JavaScript tests configured\" && exit 0"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
