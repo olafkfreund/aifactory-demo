@@ -1,5 +1,7 @@
 """Titlecase function for capitalizing the first letter of each word."""
 
+import re
+
 
 def titlecase(text: str) -> str:
     """
@@ -23,17 +25,31 @@ def titlecase(text: str) -> str:
         'A'
         >>> titlecase("")
         ''
+        >>> titlecase("hello  world")
+        'Hello  World'
+        >>> titlecase("hello\tworld")
+        'Hello\tWorld'
     """
     if not text:
         return ""
 
-    words = text.split()
-    titlecased_words = []
+    # Use regex to capitalize the first letter of each whitespace-separated word
+    # Split by whitespace while keeping the whitespace, then capitalize first letter in each chunk
+    def process_word(match):
+        whitespace = match.group(1)  # The preceding whitespace or start-of-string marker
+        word = match.group(2)  # The non-whitespace word content
 
-    for word in words:
-        if word:
-            titlecased_words.append(word[0].upper() + word[1:])
-        else:
-            titlecased_words.append(word)
+        if not word:
+            return whitespace
 
-    return " ".join(titlecased_words)
+        # Find the first letter in the word and capitalize it
+        for i, char in enumerate(word):
+            if char.isalpha():
+                return whitespace + word[:i] + char.upper() + word[i+1:]
+
+        # If no letters found, return the word as-is
+        return whitespace + word
+
+    # Match: (start of string or whitespace) + (non-whitespace sequence)
+    result = re.sub(r'(^|\s)([^\s]*)', process_word, text)
+    return result
