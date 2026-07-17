@@ -7,4 +7,4 @@ app = FastAPI(title="aifactory-demo", version=__version__)
 
 @app.get("/")
 async def root() -> dict[str, str]:
-    return {"app": "aifactory-demo"}
+    return {"app": "aifactory-demo", "version": __version__}
