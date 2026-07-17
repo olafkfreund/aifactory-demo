@@ -7,6 +7,8 @@ Exercises the wired application end-to-end via ``TestClient``:
 * AC3 - ``GET /api/audit`` filtering (path prefix, status class, time range) and
   limit/offset pagination.
 * AC4 - the audit endpoint excludes itself from recording (no self-amplification).
+* AC6 - ``GET /api/audit`` enforces client-key authentication: unauthenticated or
+  invalid-key requests are rejected (401/403) and never expose audit records.
 """
 
 from __future__ import annotations
@@ -77,19 +79,19 @@ def test_error_responses_are_recorded(
 
 
 def test_audit_endpoint_is_not_recorded(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     # Repeated reads of the trail must not append records to it.
     for _ in range(3):
-        assert client.get("/api/audit").status_code == 200
+        assert client.get("/api/audit", headers=auth_headers).status_code == 200
     assert store.count() == 0
 
 
 def test_self_exclusion_does_not_suppress_other_paths(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     client.get("/api/things")
-    client.get("/api/audit")
+    client.get("/api/audit", headers=auth_headers)
     client.get("/api/widgets")
 
     paths = {r.path for r in store.query()}
@@ -113,50 +115,60 @@ def _items(resp) -> list[dict]:
 
 
 def test_endpoint_returns_records_newest_first(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     client.get("/api/things")
     client.get("/api/widgets")
 
-    body = client.get("/api/audit").json()
+    body = client.get("/api/audit", headers=auth_headers).json()
     assert body["count"] == 2
     assert [item["path"] for item in body["items"]] == ["/api/widgets", "/api/things"]
 
 
 def test_endpoint_filters_by_path_prefix(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     client.get("/api/things")
     client.get("/api/widgets")
 
-    resp = client.get("/api/audit", params={"path_prefix": "/api/wid"})
+    resp = client.get(
+        "/api/audit", params={"path_prefix": "/api/wid"}, headers=auth_headers
+    )
     assert [item["path"] for item in _items(resp)] == ["/api/widgets"]
 
 
 def test_endpoint_filters_by_status_class(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     client.get("/api/things")  # 200
     client.get("/api/missing")  # 404
     client.get("/api/broken")  # 500
 
-    ok = client.get("/api/audit", params={"status_class": "2xx"})
+    ok = client.get("/api/audit", params={"status_class": "2xx"}, headers=auth_headers)
     assert [item["status_code"] for item in _items(ok)] == [200]
 
-    client_err = client.get("/api/audit", params={"status_class": "4xx"})
+    client_err = client.get(
+        "/api/audit", params={"status_class": "4xx"}, headers=auth_headers
+    )
     assert [item["status_code"] for item in _items(client_err)] == [404]
 
-    server_err = client.get("/api/audit", params={"status_class": "5xx"})
+    server_err = client.get(
+        "/api/audit", params={"status_class": "5xx"}, headers=auth_headers
+    )
     assert [item["status_code"] for item in _items(server_err)] == [500]
 
 
-def test_endpoint_rejects_invalid_status_class(client: TestClient) -> None:
-    resp = client.get("/api/audit", params={"status_class": "9xx"})
+def test_endpoint_rejects_invalid_status_class(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    resp = client.get(
+        "/api/audit", params={"status_class": "9xx"}, headers=auth_headers
+    )
     assert resp.status_code == 422
 
 
 def test_endpoint_filters_by_time_range(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     # Seed records with controlled timestamps directly through the store.
     from src.app.audit.models import AuditRecord
@@ -168,23 +180,28 @@ def test_endpoint_filters_by_time_range(
     resp = client.get(
         "/api/audit",
         params={"from": "2026-03-01T00:00:00+00:00", "to": "2026-09-01T00:00:00+00:00"},
+        headers=auth_headers,
     )
     assert [item["path"] for item in _items(resp)] == ["/mid"]
 
 
 def test_endpoint_paginates_with_limit_and_offset(
-    client: TestClient, store: SQLiteAuditStore
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
 ) -> None:
     for _ in range(5):
         client.get("/api/things")
 
-    first = client.get("/api/audit", params={"limit": 2, "offset": 0}).json()
+    first = client.get(
+        "/api/audit", params={"limit": 2, "offset": 0}, headers=auth_headers
+    ).json()
     assert first["count"] == 2
     assert first["limit"] == 2
     assert first["offset"] == 0
     first_ids = [item["id"] for item in first["items"]]
 
-    second = client.get("/api/audit", params={"limit": 2, "offset": 2}).json()
+    second = client.get(
+        "/api/audit", params={"limit": 2, "offset": 2}, headers=auth_headers
+    ).json()
     second_ids = [item["id"] for item in second["items"]]
 
     # Pages are disjoint and ordered newest-first (descending ids).
@@ -193,6 +210,68 @@ def test_endpoint_paginates_with_limit_and_offset(
     assert min(first_ids) > max(second_ids)
 
 
-def test_endpoint_rejects_out_of_range_limit(client: TestClient) -> None:
-    assert client.get("/api/audit", params={"limit": -1}).status_code == 422
-    assert client.get("/api/audit", params={"limit": 10_000}).status_code == 422
+def test_endpoint_rejects_out_of_range_limit(
+    client: TestClient, auth_headers: dict[str, str]
+) -> None:
+    assert (
+        client.get("/api/audit", params={"limit": -1}, headers=auth_headers).status_code
+        == 422
+    )
+    assert (
+        client.get(
+            "/api/audit", params={"limit": 10_000}, headers=auth_headers
+        ).status_code
+        == 422
+    )
+
+
+# --- client-key authentication (AC6) -----------------------------------------
+
+
+def test_audit_endpoint_rejects_missing_client_key(
+    client: TestClient, store: SQLiteAuditStore
+) -> None:
+    # Seed a record so we can prove it is never leaked to an unauthenticated call.
+    client.get("/api/things")
+
+    resp = client.get("/api/audit")
+    assert resp.status_code == 401
+    # No audit records are exposed to an unauthenticated caller.
+    assert "items" not in resp.json()
+
+
+def test_audit_endpoint_rejects_invalid_client_key(
+    client: TestClient, store: SQLiteAuditStore
+) -> None:
+    client.get("/api/things")
+
+    resp = client.get("/api/audit", headers={"x-client-key": "wrong-key"})
+    assert resp.status_code == 403
+    assert "items" not in resp.json()
+
+
+def test_audit_endpoint_allows_valid_client_key(
+    client: TestClient, store: SQLiteAuditStore, auth_headers: dict[str, str]
+) -> None:
+    client.get("/api/things")
+
+    resp = client.get("/api/audit", headers=auth_headers)
+    assert resp.status_code == 200
+    assert [item["path"] for item in _items(resp)] == ["/api/things"]
+
+
+def test_audit_records_never_exposed_unauthenticated(
+    client: TestClient, store: SQLiteAuditStore
+) -> None:
+    # Populate the trail with several records.
+    for _ in range(3):
+        client.get("/api/things")
+    assert store.count() == 3
+
+    # Neither a missing key nor an invalid key returns any record payload.
+    for headers in ({}, {"x-client-key": "nope"}):
+        resp = client.get("/api/audit", headers=headers)
+        assert resp.status_code in (401, 403)
+        body = resp.json()
+        assert "items" not in body
+        assert "/api/things" not in resp.text

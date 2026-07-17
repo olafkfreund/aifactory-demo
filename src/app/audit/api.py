@@ -5,6 +5,11 @@ with support for filtering by path prefix, HTTP status class (``2xx``/``4xx``/
 ``5xx``) and an inclusive ``from``/``to`` timestamp range, plus ``limit``/
 ``offset`` pagination (AC3).
 
+Access is guarded by the service's client-key authentication (AC6): every
+request must present a valid ``X-Client-Key`` header via the
+:func:`~app.audit.auth.require_client_key` dependency, or it is rejected with
+``401``/``403`` and no audit records are returned.
+
 The router is intentionally self-contained: it does not wire itself into the
 application. Call :func:`set_audit_store` (or override :func:`get_audit_store`
 via FastAPI dependency overrides in tests) to supply the backing store, then
@@ -15,6 +20,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, Query
 
+from .auth import require_client_key
 from .models import StatusClass
 from .store import AuditStore, SQLiteAuditStore
 
@@ -50,7 +56,7 @@ def get_audit_store() -> AuditStore:
 router = APIRouter(prefix="/api", tags=["audit"])
 
 
-@router.get("/audit")
+@router.get("/audit", dependencies=[Depends(require_client_key)])
 async def query_audit(
     path_prefix: str | None = Query(
         default=None,
