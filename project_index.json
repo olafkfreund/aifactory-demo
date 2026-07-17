@@ -1,0 +1,26 @@
+{
+  "project_type": "single",
+  "project_name": "aifactory-demo",
+  "services": {
+    "backend": {
+      "path": ".",
+      "tech_stack": ["python", "fastapi"],
+      "port": 8000,
+      "dev_command": "uvicorn src.app.main:app --reload",
+      "test_command": "pytest",
+      "install_command": "pip install -e ."
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "database": null
+  },
+  "conventions": {
+    "linter": "ruff",
+    "formatter": "black",
+    "testing": "pytest",
+    "test_location": "tests/",
+    "source_location": "src/app/",
+    "import_pattern": "from src.app.* import ..."
+  }
+}
