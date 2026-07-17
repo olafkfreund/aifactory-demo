@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.app.helpers.duration import human_duration
+from helpers.duration import human_duration
 
 
 def test_human_duration_basic():
