@@ -21,3 +21,9 @@ htmlcov/
 dist/
 build/
 node_modules/
+
+# audit-trail persistent store (runtime artifact, do not commit)
+data/
+*.db
+*.db-wal
+*.db-shm
