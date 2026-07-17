@@ -1,0 +1,1 @@
+"""AIFactory demo application package."""

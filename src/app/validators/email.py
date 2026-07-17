@@ -3,42 +3,44 @@
 import re
 
 
-class InvalidEmailError(ValueError):
-    """Raised when an email address is invalid."""
-
-    pass
-
-
-def validate_email(email: str) -> str:
+def is_valid_email(s: str) -> bool:
     """
-    Validate an email address.
+    Validate if a string is a valid email.
+
+    A valid email:
+    - Has at least one character before @
+    - Has a valid domain after @
+    - Has a valid top-level domain (.tld)
+    - Does not have consecutive dots
+    - Does not have spaces
 
     Args:
-        email: The email address to validate.
+        s: The string to validate
 
     Returns:
-        The validated email address (lowercased).
-
-    Raises:
-        InvalidEmailError: If the email address is invalid.
+        True if the string is a valid email, False otherwise
     """
-    if not isinstance(email, str):
-        raise InvalidEmailError(f"Email must be a string, got {type(email).__name__}")
+    # Type check - return False for non-strings
+    if not isinstance(s, str):
+        return False
 
-    email = email.strip()
+    # Strip whitespace
+    s = s.strip()
 
-    if not email:
-        raise InvalidEmailError("Email cannot be empty")
+    # Empty check
+    if not s:
+        return False
 
     # Check for consecutive dots
-    if ".." in email:
-        raise InvalidEmailError(f"Invalid email format: {email}")
+    if ".." in s:
+        return False
 
     # Simple but effective email regex pattern
     # Matches basic email format: localpart@domain.tld
     pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
 
-    if not re.match(pattern, email):
-        raise InvalidEmailError(f"Invalid email format: {email}")
+    # Return True/False instead of raising
+    if not re.match(pattern, s):
+        return False
 
-    return email.lower()
+    return True
