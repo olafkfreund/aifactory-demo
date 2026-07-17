@@ -33,11 +33,9 @@ def slugify(text: str) -> str:
     # Lowercase the text
     text = text.lower()
 
-    # Replace spaces and underscores with hyphens
-    text = re.sub(r'[\s_]+', '-', text)
-
-    # Keep only alphanumeric characters and hyphens
-    text = re.sub(r'[^a-z0-9\-]', '', text)
+    # Replace all non-alphanumeric characters (except hyphens) with hyphens
+    # This includes spaces, underscores, and special characters
+    text = re.sub(r'[^a-z0-9\-]', '-', text)
 
     # Collapse consecutive hyphens into single hyphen
     text = re.sub(r'-+', '-', text)
