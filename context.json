@@ -1,0 +1,42 @@
+{
+  "task_title": "Add helpers/const_3.py returning the integer 3",
+  "task_type": "trivial",
+  "complexity_level": 1,
+  "workflow_type": "simple",
+  "workflow_rationale": "Single-file addition with minimal logic - no dependencies between phases, no multi-service complexity",
+  "files_to_create": {
+    "source": ["src/app/helpers/const_3.py"],
+    "tests": ["tests/test_const_3.py"]
+  },
+  "files_to_modify": {
+    "source": []
+  },
+  "files_to_reference": {
+    "patterns": ["src/app/main.py"],
+    "tests": ["tests/test_root.py"]
+  },
+  "patterns": {
+    "module_structure": "All modules under src/app/ with __init__.py support",
+    "test_structure": "Simple unit tests in tests/ directory using pytest",
+    "import_pattern": "from src.app.* import",
+    "function_pattern": "Simple pure Python functions with clear return types"
+  },
+  "existing_implementations": {
+    "description": "Existing modules in src/app/ follow simple patterns with clear imports and docstrings",
+    "relevant_files": [
+      "src/app/__init__.py - Module documentation and versioning",
+      "src/app/main.py - Simple FastAPI app structure",
+      "tests/test_root.py - Pytest patterns used in project"
+    ]
+  },
+  "acceptance_criteria": [
+    "AC1: src/app/helpers/const_3.py defines get_3() returning 3",
+    "AC2: tests/test_const_3.py asserts get_3() == 3; pytest green"
+  ],
+  "required_commands": ["pip", "pytest", "python"],
+  "environment": {
+    "python_version": "3.10+",
+    "install_step": "pip install -e .",
+    "test_runner": "pytest"
+  }
+}
