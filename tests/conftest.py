@@ -24,8 +24,21 @@ from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402
 
 from src.app.audit.api import get_audit_store, router  # noqa: E402
+from src.app.audit.auth import get_valid_client_keys  # noqa: E402
 from src.app.audit.middleware import AuditMiddleware  # noqa: E402
 from src.app.audit.store import SQLiteAuditStore  # noqa: E402
+
+# Client key accepted by the audit endpoint in tests (AC6). The app built by
+# :func:`build_app` overrides the auth allowlist to this single key.
+AUDIT_TEST_KEY = "test-client-key"
+
+
+@pytest.fixture
+def auth_headers() -> dict[str, str]:
+    """Return request headers carrying a valid audit client key (AC6)."""
+    from src.app.audit.auth import CLIENT_KEY_HEADER
+
+    return {CLIENT_KEY_HEADER: AUDIT_TEST_KEY}
 
 
 @pytest.fixture
@@ -55,6 +68,8 @@ def build_app(store: SQLiteAuditStore) -> FastAPI:
     app.add_middleware(AuditMiddleware, store_factory=lambda: store)
     app.include_router(router)
     app.dependency_overrides[get_audit_store] = lambda: store
+    # Guard the audit endpoint with a known client key so AC6 auth is exercised.
+    app.dependency_overrides[get_valid_client_keys] = lambda: {AUDIT_TEST_KEY}
 
     @app.get("/api/things")
     async def list_things() -> dict[str, bool]:  # pragma: no cover - trivial
