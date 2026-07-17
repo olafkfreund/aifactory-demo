@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Factory cockpit (live runs)
+    url: https://cfactory.freundcloud.org.uk
+    about: Watch factory builds, verifications and verdicts live.
