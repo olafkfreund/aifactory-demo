@@ -1,0 +1,139 @@
+name: CI/CD
+
+# Runnable delivery pipeline for the aifactory-demo FastAPI service (including
+# the src/app/audit request-audit trail). Implements the plan in
+# docs/plans/003-...-cicd-pipeline.md:
+#   build -> lint -> test -> scans (secret-scan, sast, dependency-audit)
+#   -> deploy (dry-run only, gated on ci-green; production behind manual approval)
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install ruff
+      - name: ruff check
+        run: ruff check .
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -e '.[test]'
+      - name: pytest
+        run: pytest -q
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install build
+      - name: build wheel
+        run: python -m build --wheel
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/*.whl
+
+  # --- Mandated security scans -------------------------------------------------
+
+  secret-scan:
+    name: secret-scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  sast:
+    name: sast
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install bandit
+      - name: bandit (static application security testing)
+        run: bandit -r src/app -ll
+
+  dependency-audit:
+    name: dependency-audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install pip-audit
+      - name: pip-audit (dependency vulnerabilities)
+        run: pip-audit
+
+  # --- CI-green gate -----------------------------------------------------------
+
+  ci-green:
+    name: ci-green
+    runs-on: ubuntu-latest
+    needs: [lint, test, build, secret-scan, sast, dependency-audit]
+    steps:
+      - run: echo "All CI stages passed — build is green."
+
+  # --- Deploy: DRY-RUN ONLY, gated on ci-green ---------------------------------
+
+  deploy-dry-run:
+    name: deploy (dry-run)
+    runs-on: ubuntu-latest
+    needs: [ci-green]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render manifests and validate (no apply — VAL-3 ephemeral)
+        run: |
+          echo "Rendering deployment manifests for dry-run validation..."
+          # Ephemeral, apply-free validation of the exact manifests that would
+          # ship. Real clusters use: helm template ./chart | kubectl apply --dry-run=server -f -
+          if command -v helm >/dev/null 2>&1 && [ -d chart ]; then
+            helm template aifactory-demo ./chart
+          fi
+          if command -v kubectl >/dev/null 2>&1 && [ -d deploy ]; then
+            kubectl apply --dry-run=client -f deploy/
+          fi
+          echo "Dry-run only: no changes applied to any environment."
+
+  # --- Production apply: behind human approval (never auto-applies) ------------
+
+  deploy-production:
+    name: deploy (production)
+    runs-on: ubuntu-latest
+    needs: [deploy-dry-run]
+    if: github.ref == 'refs/heads/main'
+    # The 'production' environment must be configured with a required reviewer
+    # in repo Settings -> Environments, so this job pauses for manual approval
+    # and never applies to production automatically.
+    environment: production
+    steps:
+      - run: echo "Approved by a human — promote the already-scanned image to production."
