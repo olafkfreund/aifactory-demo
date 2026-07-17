@@ -1,0 +1,34 @@
+{
+  "project_type": "single",
+  "project_name": "aifactory-demo",
+  "description": "Tiny FastAPI service used as the demo target for AIFactory",
+  "language": "python",
+  "version": "0.1.0",
+  "services": {
+    "backend": {
+      "path": ".",
+      "tech_stack": ["python", "fastapi", "uvicorn"],
+      "type": "web_service",
+      "port": 8000,
+      "dev_command": "uvicorn src.app.main:app --reload",
+      "test_command": "pytest tests/"
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "ci_cd": false,
+    "database": false
+  },
+  "package_manager": {
+    "tool": "pip",
+    "manifest": "pyproject.toml"
+  },
+  "conventions": {
+    "linter": "none",
+    "formatter": "none",
+    "type_checker": "none",
+    "testing": "pytest",
+    "test_pattern": "tests/test_*.py",
+    "source_pattern": "src/app/**"
+  }
+}
