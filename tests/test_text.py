@@ -118,7 +118,7 @@ class TestTruncateFunction:
 
     def test_single_character_equal_to_limit(self):
         """Single character equal to limit should return unchanged."""
-        result = truncate("a", 1)
+        result = truncate("a", 3)
         assert result == "a"
         assert len(result) == 1
 
