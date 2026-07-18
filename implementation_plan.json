@@ -1,0 +1,135 @@
+{
+  "feature": "Add src/app/helpers/wordcount.py with word_count(s) function",
+  "workflow_type": "simple",
+  "workflow_rationale": "Single, self-contained helper function with unit tests. No API changes, no dependencies. Simple 1-phase implementation.",
+  "required_commands": ["python", "pytest"],
+  "phases": [
+    {
+      "id": "phase-1-implementation",
+      "name": "Implementation",
+      "type": "implementation",
+      "description": "Create wordcount helper module with word_count function and comprehensive unit tests",
+      "depends_on": [],
+      "parallel_safe": true,
+      "subtasks": [
+        {
+          "id": "subtask-1-1",
+          "description": "Create src/app/helpers/ directory structure and wordcount.py module with word_count(s: str) -> int function",
+          "service": "backend",
+          "depends_on": [],
+          "files_to_modify": [],
+          "files_to_create": [
+            "src/app/helpers/__init__.py",
+            "src/app/helpers/wordcount.py"
+          ],
+          "patterns_from": [
+            "src/app/__init__.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "python -c \"from src.app.helpers.wordcount import word_count; assert word_count('hello world') == 2; assert word_count('') == 0; assert word_count('   ') == 0; print('OK')\"",
+            "expected": "OK"
+          },
+          "status": "pending",
+          "notes": "Function should return count of whitespace-separated words. Empty or whitespace-only strings return 0."
+        },
+        {
+          "id": "subtask-1-2",
+          "description": "Create comprehensive unit tests for word_count function covering normal sentence, empty string, whitespace-only, and multiple spaces",
+          "service": "backend",
+          "depends_on": [
+            "subtask-1-1"
+          ],
+          "files_to_modify": [],
+          "files_to_create": [
+            "tests/test_wordcount.py"
+          ],
+          "patterns_from": [
+            "tests/test_root.py"
+          ],
+          "verification": {
+            "type": "command",
+            "command": "pytest tests/test_wordcount.py -v",
+            "expected": "passed"
+          },
+          "status": "pending",
+          "notes": "Tests must cover: (1) normal sentence, (2) empty string, (3) whitespace-only string, (4) multiple spaces between words"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "total_phases": 1,
+    "total_subtasks": 2,
+    "services_involved": ["backend"],
+    "parallelism": {
+      "max_parallel_phases": 1,
+      "parallel_groups": [],
+      "recommended_workers": 1,
+      "speedup_estimate": "N/A - simple linear task"
+    },
+    "startup_command": "pytest tests/test_wordcount.py -v"
+  },
+  "verification_strategy": {
+    "risk_level": "low",
+    "skip_validation": false,
+    "test_creation_phase": "phase-1-implementation",
+    "test_types_required": ["unit"],
+    "security_scanning_required": false,
+    "staging_deployment_required": false,
+    "acceptance_criteria": [
+      "word_count function exists in src/app/helpers/wordcount.py",
+      "Function signature is word_count(s: str) -> int",
+      "All unit tests pass",
+      "Handles empty string (returns 0)",
+      "Handles whitespace-only string (returns 0)",
+      "Handles multiple spaces between words",
+      "Handles normal sentence correctly"
+    ],
+    "verification_steps": [
+      {
+        "name": "Import and Basic Functionality",
+        "command": "python -c \"from src.app.helpers.wordcount import word_count; assert word_count('test') == 1\"",
+        "expected_outcome": "No errors",
+        "type": "command",
+        "required": true,
+        "blocking": true
+      },
+      {
+        "name": "Unit Tests",
+        "command": "pytest tests/test_wordcount.py -v",
+        "expected_outcome": "All tests pass",
+        "type": "test",
+        "required": true,
+        "blocking": true
+      }
+    ],
+    "reasoning": "Low-risk helper function - unit tests sufficient for validation"
+  },
+  "qa_acceptance": {
+    "unit_tests": {
+      "required": true,
+      "commands": ["pytest tests/test_wordcount.py -v"],
+      "minimum_coverage": null
+    },
+    "integration_tests": {
+      "required": false,
+      "commands": [],
+      "services_to_test": []
+    },
+    "e2e_tests": {
+      "required": false,
+      "commands": [],
+      "flows": []
+    },
+    "browser_verification": {
+      "required": false,
+      "pages": []
+    },
+    "database_verification": {
+      "required": false,
+      "checks": []
+    }
+  },
+  "qa_signoff": null
+}

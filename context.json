@@ -1,0 +1,38 @@
+{
+  "feature": "Add word_count helper function",
+  "workflow_type": "simple",
+  "files_to_modify": {
+    "backend": []
+  },
+  "files_to_create": {
+    "backend": [
+      "src/app/helpers/__init__.py",
+      "src/app/helpers/wordcount.py",
+      "tests/test_wordcount.py"
+    ]
+  },
+  "files_to_reference": [
+    "src/app/__init__.py",
+    "tests/test_root.py"
+  ],
+  "patterns": {
+    "module_structure": "Each module has an __init__.py that imports public symbols",
+    "test_pattern": "Tests use pytest with simple assert statements",
+    "function_pattern": "Pure functions with type hints are placed in dedicated modules",
+    "import_pattern": "Relative imports from src.app namespace"
+  },
+  "existing_implementations": {
+    "description": "No existing helpers directory, but test_root.py shows testing pattern for simple functions",
+    "relevant_files": ["tests/test_root.py", "src/app/__init__.py"]
+  },
+  "requirements": {
+    "function_signature": "word_count(s: str) -> int",
+    "behavior": "Returns count of whitespace-separated words",
+    "edge_cases": [
+      "Empty string: should return 0",
+      "Whitespace-only string: should return 0",
+      "Multiple spaces between words: should count words correctly",
+      "Normal sentence: should count words correctly"
+    ]
+  }
+}
