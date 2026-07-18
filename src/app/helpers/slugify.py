@@ -18,8 +18,11 @@ def slugify(s: str) -> str:
     # Lowercase and strip leading/trailing whitespace
     s = s.lower().strip()
 
-    # Replace runs of non-alphanumeric characters (except hyphens) with a single hyphen
-    s = re.sub(r"[^a-z0-9-]+", "-", s)
+    # Replace runs of non-alphanumeric characters with a single hyphen
+    s = re.sub(r"[^a-z0-9]+", "-", s)
+
+    # Collapse multiple consecutive hyphens to a single hyphen
+    s = re.sub(r"-+", "-", s)
 
     # Remove leading and trailing hyphens
     s = s.strip("-")
