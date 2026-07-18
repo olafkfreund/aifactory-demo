@@ -1,0 +1,3534 @@
+{
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "nodes": [
+    {
+      "id": "pkg_hello",
+      "label": "hello",
+      "file_type": "code",
+      "type": "package",
+      "ecosystem": "go",
+      "source_file": "go.mod",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "greet_test",
+      "label": "greet_test.go",
+      "file_type": "code",
+      "source_file": "greet_test.go",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "greet_test_testgreet",
+      "label": "TestGreet()",
+      "file_type": "code",
+      "source_file": "greet_test.go",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "t",
+      "label": "T",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "main",
+      "label": "main.go",
+      "file_type": "code",
+      "source_file": "main.go",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "main_greet",
+      "label": "greet()",
+      "file_type": "code",
+      "source_file": "main.go",
+      "source_location": "L5",
+      "_origin": "ast"
+    },
+    {
+      "id": "main_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "main.go",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "pkg_aifactory_demo",
+      "label": "aifactory-demo",
+      "file_type": "code",
+      "type": "package",
+      "ecosystem": "python",
+      "source_file": "pyproject.toml",
+      "source_location": "L1",
+      "version": "0.1.0",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_register_projects",
+      "label": "register_projects.py",
+      "file_type": "code",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_register_projects_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L39",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark",
+      "label": "run_benchmark.py",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_verify_is_terminal",
+      "label": "verify_is_terminal()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L82",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_now",
+      "label": "_now()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L87",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_epic_ref",
+      "label": "_epic_ref()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L91",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_dryrun",
+      "label": "DryRun",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L122",
+      "_origin": "ast"
+    },
+    {
+      "id": "exception",
+      "label": "Exception",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_stagemetric",
+      "label": "StageMetric",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L127",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_scenarioresult",
+      "label": "ScenarioResult",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L137",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_scenarioresult_stage",
+      "label": ".stage()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L149",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_scenarioresult_to_dict",
+      "label": ".to_dict()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L156",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_client",
+      "label": "Client",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L165",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_client_init",
+      "label": ".__init__()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L168",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_client_call",
+      "label": ".call()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L174",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_ensure_project",
+      "label": "_ensure_project()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L209",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_stage_plan",
+      "label": "stage_plan()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L241",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_stage_code",
+      "label": "stage_code()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L278",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_handoff_via_aifactory",
+      "label": "_handoff_via_aifactory()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L357",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_stage_verify",
+      "label": "stage_verify()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L380",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_poll",
+      "label": "_poll()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L450",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_run_scenario",
+      "label": "run_scenario()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L469",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_write_leaderboard",
+      "label": "write_leaderboard()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L504",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_warm_ollama_models",
+      "label": "_warm_ollama_models()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L517",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L583",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_83",
+      "label": "True when a verify status is terminal (the poll can stop).",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L83",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_92",
+      "label": "Short, scalar epic reference from a PFactory emit response.      PFactory's ``/e",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L92",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_123",
+      "label": "Raised internally to short-circuit network calls in --dry-run mode.",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L123",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_166",
+      "label": "Tiny JSON REST client over urllib with optional Bearer auth + dry-run.",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L166",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_210",
+      "label": "Reuse a registered project by git_url / name suffix, else register it.      The",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L210",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_242",
+      "label": "PFactory: ingest brief → process → approve → emit issues. Returns epic #.",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L242",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_279",
+      "label": "AIFactory: ensure project → create task from the epic → start → poll. Returns ta",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L279",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_358",
+      "label": "Ask AIFactory to push the built branch + hand the spec off to TFactory     SOURC",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L358",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_382",
+      "label": "TFactory: verify the BUILT branch (source-aware) + run the verdict pipeline.",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L382",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_run_benchmark_rationale_518",
+      "label": "Pre-load the Ollama models into VRAM and BLOCK until each responds.      A cold",
+      "file_type": "rationale",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L518",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_seed_issues",
+      "label": "seed_issues.py",
+      "file_type": "code",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_seed_issues_sh",
+      "label": "sh()",
+      "file_type": "code",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L51",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_seed_issues_existing_titles",
+      "label": "existing_titles()",
+      "file_type": "code",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L58",
+      "_origin": "ast"
+    },
+    {
+      "id": "scripts_seed_issues_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L66",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_app_init",
+      "label": "__init__.py",
+      "file_type": "code",
+      "source_file": "src/app/__init__.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_app_init_rationale_1",
+      "label": "aifactory-demo — tiny FastAPI service used as an AIFactory demo target.",
+      "file_type": "rationale",
+      "source_file": "src/app/__init__.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_app_main",
+      "label": "main.py",
+      "file_type": "code",
+      "source_file": "src/app/main.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "src_app_main_root",
+      "label": "root()",
+      "file_type": "code",
+      "source_file": "src/app/main.py",
+      "source_location": "L9",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_root",
+      "label": "test_root.py",
+      "file_type": "code",
+      "source_file": "tests/test_root.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_root_test_root_returns_app_name",
+      "label": "test_root_returns_app_name()",
+      "file_type": "code",
+      "source_file": "tests/test_root.py",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark",
+      "label": "test_run_benchmark.py",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_epic_ref_prefers_issue_number",
+      "label": "test_epic_ref_prefers_issue_number()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L39",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_epic_ref_falls_back_to_correlation_key",
+      "label": "test_epic_ref_falls_back_to_correlation_key()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L43",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_epic_ref_uses_plan_id_not_the_whole_dict",
+      "label": "test_epic_ref_uses_plan_id_not_the_whole_dict()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L47",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_epic_ref_never_returns_a_stringified_dict",
+      "label": "test_epic_ref_never_returns_a_stringified_dict()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L52",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_epic_ref_accepts_a_bare_scalar_epic",
+      "label": "test_epic_ref_accepts_a_bare_scalar_epic()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L62",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_epic_ref_empty_when_no_short_id_available",
+      "label": "test_epic_ref_empty_when_no_short_id_available()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L66",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_description_reference_has_no_embedded_plan_dict",
+      "label": "test_description_reference_has_no_embedded_plan_dict()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L71",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_planner_failed_is_terminal",
+      "label": "test_planner_failed_is_terminal()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L93",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_enumerated_terminal_verdicts",
+      "label": "test_enumerated_terminal_verdicts()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L98",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_any_phase_failure_suffix_is_terminal",
+      "label": "test_any_phase_failure_suffix_is_terminal()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L103",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_test_in_progress_statuses_are_not_terminal",
+      "label": "test_in_progress_statuses_are_not_terminal()",
+      "file_type": "code",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L110",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_rationale_1",
+      "label": "Regression tests for the benchmark harness epic-reference handling.  Guards the",
+      "file_type": "rationale",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "tests_test_run_benchmark_rationale_72",
+      "label": "End-to-end shape: the description the harness builds is clean.",
+      "file_type": "rationale",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L72",
+      "_origin": "ast"
+    },
+    {
+      "id": "github_issue_template_benchmark_scenario",
+      "label": "benchmark-scenario.md",
+      "file_type": "document",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "github_issue_template_benchmark_scenario_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "github_issue_template_benchmark_scenario_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L13",
+      "_origin": "ast"
+    },
+    {
+      "id": "github_issue_template_benchmark_scenario_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "github_issue_template_benchmark_scenario_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L19",
+      "_origin": "ast"
+    },
+    {
+      "id": "readme",
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "readme_aifactory_demo",
+      "label": "aifactory-demo",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "readme_what_this_app_does",
+      "label": "What this app does",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "readme_why_fastapi",
+      "label": "Why FastAPI",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "readme_issues_the_demo_seeds",
+      "label": "Issues the demo seeds",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": "L22",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme",
+      "label": "README.md",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_factory_parr_benchmark",
+      "label": "Factory PARR benchmark",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_scenarios",
+      "label": "Scenarios",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_layout",
+      "label": "Layout",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L31",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_prerequisites",
+      "label": "Prerequisites",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L44",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_running_do_this_deliberately_it_costs_time_tokens",
+      "label": "Running (do this deliberately — it costs time + tokens)",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L51",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_provider_a_b_claude_vs_gemini",
+      "label": "Provider A/B (Claude vs Gemini)",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L69",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_running_against_the_live_cluster_not_localhost",
+      "label": "Running against the LIVE cluster (not localhost)",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L79",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_metrics",
+      "label": "Metrics",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L89",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_readme_what_the_benchmark_exercises",
+      "label": "What the benchmark exercises",
+      "file_type": "document",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L95",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results",
+      "label": "RESULTS.md",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_parr_benchmark_results_claude_config_28",
+      "label": "PARR benchmark results — Claude config (#28)",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_leaderboard",
+      "label": "Leaderboard",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_method_reproducible",
+      "label": "Method (reproducible)",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L25",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_per_scenario_notes",
+      "label": "Per-scenario notes",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L44",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_api_gateway_python_passed",
+      "label": "api-gateway (Python) — passed",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L46",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_rust_hello_rust_passed",
+      "label": "rust-hello (Rust) — passed",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L50",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_aws_3tier_typescript_built_verify_failed",
+      "label": "aws-3tier (TypeScript) — built, verify failed",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L55",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_go_hello_go_no_clean_run_blocked_on_go_support",
+      "label": "go-hello (Go) — no clean run; blocked on Go support",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L66",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_results_results_headline_numbers_for_the_blog_pitch_kit",
+      "label": "Headline numbers (for the blog + pitch kit)",
+      "file_type": "document",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L77",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "label": "Scenario 1 — FastAPI API gateway with rate limiting",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L11",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L29",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_api_gateway_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L33",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "label": "Scenario — LinkLite: a 3-tier URL shortener on AWS EKS (web + Postgres + Redis)",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L8",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_stack",
+      "label": "Stack",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_application_scope_web_tier",
+      "label": "Application scope (web tier)",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L25",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_caching_behaviour_the_point_of_the_3rd_tier",
+      "label": "Caching behaviour (the point of the 3rd tier)",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L35",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L42",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_aws_deployment_infrastructure_as_code",
+      "label": "AWS deployment (infrastructure as code)",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L58",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L75",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_aws_3tier_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L79",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "label": "Scenario — Terraform module: an EKS cluster on AWS",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L7",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L14",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L26",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L38",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_eks_aws_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L43",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "label": "Scenario — Go hello-world greeting library + CLI",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L20",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L29",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_go_hello_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L33",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "label": "Scenario 2 — Rust hello-world greeting library + CLI",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L6",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L12",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L18",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L27",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_rust_hello_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L31",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "label": "Scenario 4 — Terraform module: a k3d/k8s cluster + namespace",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L16",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L23",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L32",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_tf_k8s_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L36",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief",
+      "label": "brief.md",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "label": "Scenario 3 — TypeScript console Tic-Tac-Toe",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief_goal",
+      "label": "Goal",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief_scope",
+      "label": "Scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L15",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief_acceptance_criteria",
+      "label": "Acceptance Criteria",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L21",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief_out_of_scope",
+      "label": "Out of scope",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L30",
+      "_origin": "ast"
+    },
+    {
+      "id": "benchmarks_scenarios_ts_tictactoe_brief_notes_for_the_pipeline",
+      "label": "Notes for the pipeline",
+      "file_type": "document",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L34",
+      "_origin": "ast"
+    },
+    {
+      "id": "docs_index",
+      "label": "index.md",
+      "file_type": "document",
+      "source_file": "docs/index.md",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "docs_index_aifactory_demo",
+      "label": "aifactory-demo",
+      "file_type": "document",
+      "source_file": "docs/index.md",
+      "source_location": "L4",
+      "_origin": "ast"
+    },
+    {
+      "id": "docs_index_what_this_app_does",
+      "label": "What this app does",
+      "file_type": "document",
+      "source_file": "docs/index.md",
+      "source_location": "L10",
+      "_origin": "ast"
+    },
+    {
+      "id": "docs_index_why_fastapi",
+      "label": "Why FastAPI",
+      "file_type": "document",
+      "source_file": "docs/index.md",
+      "source_location": "L21",
+      "_origin": "ast"
+    },
+    {
+      "id": "docs_index_issues_the_demo_seeds",
+      "label": "Issues the demo seeds",
+      "file_type": "document",
+      "source_file": "docs/index.md",
+      "source_location": "L25",
+      "_origin": "ast"
+    }
+  ],
+  "links": [
+    {
+      "source": "greet_test",
+      "target": "go_pkg_testing",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "greet_test.go",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_origin": "ast"
+    },
+    {
+      "source": "greet_test",
+      "target": "greet_test_testgreet",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "greet_test.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "greet_test_testgreet",
+      "target": "t",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "source_file": "greet_test.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "context": "parameter_type",
+      "_origin": "ast"
+    },
+    {
+      "source": "main",
+      "target": "go_pkg_fmt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "main.go",
+      "source_location": "L3",
+      "weight": 1.0,
+      "context": "import",
+      "_origin": "ast"
+    },
+    {
+      "source": "main",
+      "target": "main_greet",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main.go",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "main",
+      "target": "main_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "main.go",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "main_main",
+      "target": "main_greet",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "main.go",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "pkg_aifactory_demo",
+      "target": "pkg_fastapi",
+      "relation": "depends_on",
+      "context": "dependency",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "pyproject.toml",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "pkg_aifactory_demo",
+      "target": "pkg_uvicorn",
+      "relation": "depends_on",
+      "context": "dependency",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "pyproject.toml",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "argparse",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "json",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "os",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "sys",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "urllib_request",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "yaml",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_register_projects",
+      "target": "scripts_register_projects_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/register_projects.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "argparse",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "json",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "os",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "sys",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "time",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "urllib_error",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "urllib_request",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "dataclasses",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "datetime",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_verify_is_terminal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L82",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_now",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L87",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L91",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_dryrun",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L122",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_dryrun",
+      "target": "exception",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L122",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_stagemetric",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L127",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L137",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_scenarioresult",
+      "target": "scripts_run_benchmark_scenarioresult_stage",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_scenarioresult_stage",
+      "target": "scripts_run_benchmark_stagemetric",
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_scenarioresult",
+      "target": "scripts_run_benchmark_scenarioresult_to_dict",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L156",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_client",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L165",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_client",
+      "target": "scripts_run_benchmark_client_init",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L168",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_client",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L174",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_ensure_project",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L209",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_ensure_project",
+      "target": "scripts_run_benchmark_client",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L209",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_stage_plan",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L241",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_plan",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L241",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_stage_code",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L278",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L278",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_handoff_via_aifactory",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L357",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_stage_verify",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L380",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L380",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_poll",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L450",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_poll",
+      "target": "scripts_run_benchmark_client",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L450",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_run_scenario",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L469",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L469",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_write_leaderboard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L504",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_write_leaderboard",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "references",
+      "context": "generic_arg",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L504",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_warm_ollama_models",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L517",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark",
+      "target": "scripts_run_benchmark_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L583",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_scenarioresult_stage",
+      "target": "scripts_run_benchmark_stagemetric",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L152",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_ensure_project",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L222",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_plan",
+      "target": "scripts_run_benchmark_scenarioresult_stage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L243",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_plan",
+      "target": "scripts_run_benchmark_now",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L244",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_plan",
+      "target": "scripts_run_benchmark_client",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L245",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_plan",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L249",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_plan",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L263",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_scenarioresult_stage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L280",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_now",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L281",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_client",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L282",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_ensure_project",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L309",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L310",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_code",
+      "target": "scripts_run_benchmark_poll",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L322",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_handoff_via_aifactory",
+      "target": "scripts_run_benchmark_client",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L368",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_handoff_via_aifactory",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L370",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_scenarioresult_stage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L390",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_now",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L391",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_client",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L397",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_handoff_via_aifactory",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L402",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_ensure_project",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L412",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L414",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_poll",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L433",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_stage_verify",
+      "target": "scripts_run_benchmark_verify_is_terminal",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L434",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_poll",
+      "target": "scripts_run_benchmark_client_call",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L454",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_scenarioresult",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L470",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_stage_plan",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L475",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_stage_code",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L479",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_scenarioresult_stage",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L488",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_now",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L489",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_stage_verify",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L493",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_run_scenario",
+      "target": "scripts_run_benchmark_scenarioresult_to_dict",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L500",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_write_leaderboard",
+      "target": "scripts_run_benchmark_now",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L505",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_main",
+      "target": "scripts_run_benchmark_warm_ollama_models",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L611",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_main",
+      "target": "scripts_run_benchmark_run_scenario",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L612",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_main",
+      "target": "scripts_run_benchmark_write_leaderboard",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L615",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_83",
+      "target": "scripts_run_benchmark_verify_is_terminal",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L83",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_92",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L92",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_123",
+      "target": "scripts_run_benchmark_dryrun",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L123",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_166",
+      "target": "scripts_run_benchmark_client",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L166",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_210",
+      "target": "scripts_run_benchmark_ensure_project",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L210",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_242",
+      "target": "scripts_run_benchmark_stage_plan",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L242",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_279",
+      "target": "scripts_run_benchmark_stage_code",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L279",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_358",
+      "target": "scripts_run_benchmark_handoff_via_aifactory",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L358",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_382",
+      "target": "scripts_run_benchmark_stage_verify",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L382",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_run_benchmark_rationale_518",
+      "target": "scripts_run_benchmark_warm_ollama_models",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/run_benchmark.py",
+      "source_location": "L518",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "argparse",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "json",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "subprocess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "sys",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L28",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "yaml",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "scripts_seed_issues_sh",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "scripts_seed_issues_existing_titles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues",
+      "target": "scripts_seed_issues_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues_main",
+      "target": "scripts_seed_issues_sh",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "scripts_seed_issues_main",
+      "target": "scripts_seed_issues_existing_titles",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "scripts/seed_issues.py",
+      "source_location": "L80",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "src_app_init_rationale_1",
+      "target": "src_app_init",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/__init__.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "src_app_main",
+      "target": "fastapi",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/main.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "src_app_main",
+      "target": "src_app_init",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/main.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "src_app_main",
+      "target": "src_app_main_root",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/app/main.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_root",
+      "target": "fastapi_testclient",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_root.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_root",
+      "target": "src_app_main",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_root.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_root",
+      "target": "tests_test_root_test_root_returns_app_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_root.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "importlib_util",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "sys",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_epic_ref_prefers_issue_number",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L39",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_epic_ref_falls_back_to_correlation_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_epic_ref_uses_plan_id_not_the_whole_dict",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L47",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_epic_ref_never_returns_a_stringified_dict",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L52",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_epic_ref_accepts_a_bare_scalar_epic",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L62",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_epic_ref_empty_when_no_short_id_available",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_description_reference_has_no_embedded_plan_dict",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L71",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_planner_failed_is_terminal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_enumerated_terminal_verdicts",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L98",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_any_phase_failure_suffix_is_terminal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L103",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark",
+      "target": "tests_test_run_benchmark_test_in_progress_statuses_are_not_terminal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L110",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_rationale_1",
+      "target": "tests_test_run_benchmark",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_rationale_72",
+      "target": "tests_test_run_benchmark_test_description_reference_has_no_embedded_plan_dict",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "github_issue_template_benchmark_scenario",
+      "target": "github_issue_template_benchmark_scenario_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "github_issue_template_benchmark_scenario",
+      "target": "github_issue_template_benchmark_scenario_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "github_issue_template_benchmark_scenario",
+      "target": "github_issue_template_benchmark_scenario_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "github_issue_template_benchmark_scenario",
+      "target": "github_issue_template_benchmark_scenario_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".github/ISSUE_TEMPLATE/benchmark-scenario.md",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "readme",
+      "target": "readme_aifactory_demo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "readme_aifactory_demo",
+      "target": "readme_what_this_app_does",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "readme_aifactory_demo",
+      "target": "readme_why_fastapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "readme_aifactory_demo",
+      "target": "readme_issues_the_demo_seeds",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "README.md",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme",
+      "target": "benchmarks_readme_factory_parr_benchmark",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_factory_parr_benchmark",
+      "target": "benchmarks_readme_scenarios",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_factory_parr_benchmark",
+      "target": "benchmarks_readme_layout",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_factory_parr_benchmark",
+      "target": "benchmarks_readme_prerequisites",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_factory_parr_benchmark",
+      "target": "benchmarks_readme_running_do_this_deliberately_it_costs_time_tokens",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L51",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_running_do_this_deliberately_it_costs_time_tokens",
+      "target": "benchmarks_readme_provider_a_b_claude_vs_gemini",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L69",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_running_do_this_deliberately_it_costs_time_tokens",
+      "target": "benchmarks_readme_running_against_the_live_cluster_not_localhost",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_factory_parr_benchmark",
+      "target": "benchmarks_readme_metrics",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_readme_factory_parr_benchmark",
+      "target": "benchmarks_readme_what_the_benchmark_exercises",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/README.md",
+      "source_location": "L95",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results",
+      "target": "benchmarks_results_results_parr_benchmark_results_claude_config_28",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_parr_benchmark_results_claude_config_28",
+      "target": "benchmarks_results_results_leaderboard",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_parr_benchmark_results_claude_config_28",
+      "target": "benchmarks_results_results_method_reproducible",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_parr_benchmark_results_claude_config_28",
+      "target": "benchmarks_results_results_per_scenario_notes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_per_scenario_notes",
+      "target": "benchmarks_results_results_api_gateway_python_passed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L46",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_per_scenario_notes",
+      "target": "benchmarks_results_results_rust_hello_rust_passed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L50",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_per_scenario_notes",
+      "target": "benchmarks_results_results_aws_3tier_typescript_built_verify_failed",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_per_scenario_notes",
+      "target": "benchmarks_results_results_go_hello_go_no_clean_run_blocked_on_go_support",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L66",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_results_results_parr_benchmark_results_claude_config_28",
+      "target": "benchmarks_results_results_headline_numbers_for_the_blog_pitch_kit",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/results/RESULTS.md",
+      "source_location": "L77",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_api_gateway_brief",
+      "target": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "target": "benchmarks_scenarios_api_gateway_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "target": "benchmarks_scenarios_api_gateway_brief_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "target": "benchmarks_scenarios_api_gateway_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "target": "benchmarks_scenarios_api_gateway_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_api_gateway_brief_scenario_1_fastapi_api_gateway_with_rate_limiting",
+      "target": "benchmarks_scenarios_api_gateway_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/api-gateway/brief.md",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief",
+      "target": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_stack",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_application_scope_web_tier",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_caching_behaviour_the_point_of_the_3rd_tier",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_aws_deployment_infrastructure_as_code",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L58",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_aws_3tier_brief_scenario_linklite_a_3_tier_url_shortener_on_aws_eks_web_postgres_redis",
+      "target": "benchmarks_scenarios_aws_3tier_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/aws-3tier/brief.md",
+      "source_location": "L79",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_eks_aws_brief",
+      "target": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "target": "benchmarks_scenarios_eks_aws_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "target": "benchmarks_scenarios_eks_aws_brief_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "target": "benchmarks_scenarios_eks_aws_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "target": "benchmarks_scenarios_eks_aws_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_eks_aws_brief_scenario_terraform_module_an_eks_cluster_on_aws",
+      "target": "benchmarks_scenarios_eks_aws_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/eks-aws/brief.md",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_go_hello_brief",
+      "target": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_go_hello_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_go_hello_brief_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_go_hello_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_go_hello_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L29",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_go_hello_brief_scenario_go_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_go_hello_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/go-hello/brief.md",
+      "source_location": "L33",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_rust_hello_brief",
+      "target": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_rust_hello_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_rust_hello_brief_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_rust_hello_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_rust_hello_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_rust_hello_brief_scenario_2_rust_hello_world_greeting_library_cli",
+      "target": "benchmarks_scenarios_rust_hello_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/rust-hello/brief.md",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_tf_k8s_brief",
+      "target": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "target": "benchmarks_scenarios_tf_k8s_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "target": "benchmarks_scenarios_tf_k8s_brief_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "target": "benchmarks_scenarios_tf_k8s_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "target": "benchmarks_scenarios_tf_k8s_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_tf_k8s_brief_scenario_4_terraform_module_a_k3d_k8s_cluster_namespace",
+      "target": "benchmarks_scenarios_tf_k8s_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/tf-k8s/brief.md",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_ts_tictactoe_brief",
+      "target": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "target": "benchmarks_scenarios_ts_tictactoe_brief_goal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "target": "benchmarks_scenarios_ts_tictactoe_brief_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "target": "benchmarks_scenarios_ts_tictactoe_brief_acceptance_criteria",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "target": "benchmarks_scenarios_ts_tictactoe_brief_out_of_scope",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "benchmarks_scenarios_ts_tictactoe_brief_scenario_3_typescript_console_tic_tac_toe",
+      "target": "benchmarks_scenarios_ts_tictactoe_brief_notes_for_the_pipeline",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "benchmarks/scenarios/ts-tictactoe/brief.md",
+      "source_location": "L34",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "docs_index",
+      "target": "docs_index_aifactory_demo",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/index.md",
+      "source_location": "L4",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "docs_index_aifactory_demo",
+      "target": "docs_index_what_this_app_does",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/index.md",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "docs_index_aifactory_demo",
+      "target": "docs_index_why_fastapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/index.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "docs_index_aifactory_demo",
+      "target": "docs_index_issues_the_demo_seeds",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "docs/index.md",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "greet_test_testgreet",
+      "target": "main_greet",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "greet_test.go",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_epic_ref_prefers_issue_number",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_epic_ref_falls_back_to_correlation_key",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_epic_ref_uses_plan_id_not_the_whole_dict",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_epic_ref_never_returns_a_stringified_dict",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L53",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_epic_ref_accepts_a_bare_scalar_epic",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L63",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_epic_ref_empty_when_no_short_id_available",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "tests_test_run_benchmark_test_description_reference_has_no_embedded_plan_dict",
+      "target": "scripts_run_benchmark_epic_ref",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "tests/test_run_benchmark.py",
+      "source_location": "L73",
+      "weight": 1.0,
+      "_origin": "ast"
+    }
+  ]
+}

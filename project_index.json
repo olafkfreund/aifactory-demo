@@ -1,0 +1,31 @@
+{
+  "project_type": "single",
+  "services": {
+    "backend": {
+      "path": ".",
+      "tech_stack": ["python", "fastapi"],
+      "port": 8000,
+      "dev_command": "uvicorn src.app.main:app --reload",
+      "test_command": "pytest",
+      "package_manager": "pip"
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "database": false
+  },
+  "conventions": {
+    "linter": "ruff",
+    "formatter": "black",
+    "testing": "pytest",
+    "import_style": "imports from src.app.* using relative paths",
+    "type_hints": "required (PEP 484)"
+  },
+  "python_version": ">=3.10",
+  "testing_patterns": {
+    "test_location": "tests/",
+    "test_naming": "test_*.py",
+    "test_runner": "pytest",
+    "test_dependencies": ["pytest>=8", "httpx>=0.27"]
+  }
+}
