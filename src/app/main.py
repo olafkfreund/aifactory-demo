@@ -11,5 +11,5 @@ async def root() -> dict[str, str]:
 
 
 @app.get("/healthz")
-async def healthz() -> dict[str, str]:
-    return {"status": "healthy"}
+async def healthz() -> dict[str, bool]:
+    return {"alive": True}
