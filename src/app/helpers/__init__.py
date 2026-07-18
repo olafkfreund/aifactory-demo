@@ -1,3 +1,5 @@
 """Helper utilities for the aifactory-demo application."""
 
-__all__ = []
+from src.app.helpers.titlecase import titlecase
+
+__all__ = ["titlecase"]
