@@ -1,16 +1,16 @@
 {
   "active": true,
-  "spec": "006-hello-go-via-ollama-portal",
+  "spec": "064-add-a-slugify-text-helper",
   "state": "building",
   "subtasks": {
-    "completed": 0,
-    "total": 1,
-    "in_progress": 1,
+    "completed": 3,
+    "total": 3,
+    "in_progress": 0,
     "failed": 0
   },
   "phase": {
-    "current": "Implementation",
-    "id": 1,
+    "current": "Verification",
+    "id": null,
     "total": 1
   },
   "workers": {
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 1,
-    "started_at": "2026-06-09T12:00:41.037878"
+    "number": 4,
+    "started_at": "2026-07-22T20:17:01.480099"
   },
-  "last_update": "2026-06-09T12:00:41.114894"
+  "last_update": "2026-07-22T20:23:45.907554"
 }
