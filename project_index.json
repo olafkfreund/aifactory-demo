@@ -1,0 +1,24 @@
+{
+  "project_type": "single",
+  "services": {
+    "backend": {
+      "path": ".",
+      "tech_stack": ["python", "fastapi"],
+      "port": 8000,
+      "dev_command": "uvicorn src.app.main:app --reload",
+      "test_command": "pytest tests/"
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "database": null
+  },
+  "conventions": {
+    "linter": "none",
+    "formatter": "none",
+    "testing": "pytest",
+    "test_location": "tests/",
+    "test_naming": "test_*.py",
+    "import_style": "from app.* import"
+  }
+}
