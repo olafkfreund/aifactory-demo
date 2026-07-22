@@ -1,0 +1,30 @@
+{
+  "project_type": "single",
+  "services": {
+    "backend": {
+      "path": ".",
+      "tech_stack": ["python", "fastapi"],
+      "port": 8000,
+      "dev_command": "uvicorn src.app.main:app --reload",
+      "test_command": "pytest",
+      "build_tool": "pip"
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "database": null,
+    "ci": "github"
+  },
+  "conventions": {
+    "linter": "default",
+    "formatter": "default",
+    "testing": "pytest",
+    "source_root": "src/",
+    "tests_root": "tests/"
+  },
+  "python_config": {
+    "version": ">=3.10",
+    "entry_point": "src.app.main:app",
+    "manifest": "pyproject.toml"
+  }
+}
