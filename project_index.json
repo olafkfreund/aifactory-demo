@@ -1,0 +1,22 @@
+{
+  "project_type": "single",
+  "services": {
+    "backend": {
+      "path": ".",
+      "tech_stack": ["python", "fastapi"],
+      "port": 8000,
+      "dev_command": "uvicorn app.main:app --reload",
+      "test_command": "pytest tests/"
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "database": null
+  },
+  "conventions": {
+    "linter": "ruff",
+    "formatter": "black",
+    "testing": "pytest",
+    "structure": "FastAPI with TestClient for API testing"
+  }
+}
