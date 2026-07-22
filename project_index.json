@@ -1,0 +1,28 @@
+{
+  "project_type": "single",
+  "services": {
+    "backend": {
+      "path": ".",
+      "language": "python",
+      "tech_stack": ["python3.10+", "fastapi", "pytest"],
+      "package_manager": "pip",
+      "test_command": "pytest tests/",
+      "dev_command": "python -m pytest"
+    }
+  },
+  "infrastructure": {
+    "docker": false,
+    "database": null
+  },
+  "conventions": {
+    "linter": "none",
+    "formatter": "none",
+    "testing": "pytest",
+    "code_organization": "src/app for implementation, tests/ for tests",
+    "import_style": "from app.* imports work directly"
+  },
+  "entry_points": {
+    "main_module": "src/app/main.py",
+    "test_runner": "pytest"
+  }
+}
