@@ -11,5 +11,10 @@ def clamp(value: float, low: float, high: float) -> float:
 
     Returns:
         The value clamped to the [low, high] range.
+
+    Raises:
+        ValueError: If low is greater than high.
     """
+    if low > high:
+        raise ValueError(f"low ({low}) must be less than or equal to high ({high})")
     return max(low, min(value, high))
