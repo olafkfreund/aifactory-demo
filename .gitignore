@@ -9,6 +9,9 @@ __pycache__/
 # stray TFactory runtime artifacts (do not commit)
 .tfactory/
 
+# Compiled Go binary (do not commit)
+/hello
+
 # Build / test artifacts (auto-added by AIFactory so parallel waves merge cleanly)
 .coverage
 .coverage.*

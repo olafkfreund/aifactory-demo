@@ -1,9 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func greet(name string) string {
 	return "Hello, " + name + "!"
+}
+
+func shout(name string) string {
+	return strings.ToUpper(name) + "!"
 }
 
 func main() {
