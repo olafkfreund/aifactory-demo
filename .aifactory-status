@@ -3,13 +3,13 @@
   "spec": "095-url-safe-slug-service-python-f",
   "state": "building",
   "subtasks": {
-    "completed": 1,
+    "completed": 2,
     "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Slug core implementation",
+    "current": "Unit tests",
     "id": null,
     "total": 2
   },
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 3,
+    "number": 4,
     "started_at": "2026-07-29T10:50:11.232945"
   },
-  "last_update": "2026-07-29T10:54:23.917375"
+  "last_update": "2026-07-29T10:55:22.530020"
 }
