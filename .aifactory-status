@@ -3,13 +3,13 @@
   "spec": "097-inventory-reservation-service-",
   "state": "building",
   "subtasks": {
-    "completed": 2,
+    "completed": 3,
     "total": 5,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "HTTP API",
+    "current": "Tests",
     "id": null,
     "total": 1
   },
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 4,
+    "number": 5,
     "started_at": "2026-07-29T12:36:49.929765"
   },
-  "last_update": "2026-07-29T12:43:05.740384"
+  "last_update": "2026-07-29T12:44:40.776515"
 }
