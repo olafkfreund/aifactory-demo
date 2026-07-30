@@ -1,6 +1,9 @@
+import math
+from decimal import ROUND_HALF_UP, Decimal
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from . import __version__
 from .models import ItemCreate, ItemView, ReservationCreate, ReservationView
@@ -8,7 +11,7 @@ from .store import Conflict, InventoryStore, NotFound
 
 
 # ---------------------------------------------------------------------------
-# Invoice line models
+# Invoice line models (legacy)
 # ---------------------------------------------------------------------------
 
 
@@ -23,6 +26,56 @@ class InvoiceLineResponse(BaseModel):
     quantity: int
     description: str | None
     total: float
+
+
+# ---------------------------------------------------------------------------
+# /api/line-total models
+# ---------------------------------------------------------------------------
+
+
+class LineTotalRequest(BaseModel):
+    """Request body for POST /api/line-total."""
+
+    unit_price: float = Field(
+        gt=0,
+        le=1_000_000,
+        description="Price per unit in GBP (positive, max 1,000,000)",
+    )
+    quantity: int = Field(
+        ge=1,
+        le=10_000,
+        description="Number of units (1 to 10,000 inclusive)",
+    )
+    vat_rate: float = Field(
+        ge=0.0,
+        le=1.0,
+        description="VAT rate as a fraction of net (0 to 1 inclusive)",
+    )
+
+    @field_validator("unit_price", "vat_rate", mode="before")
+    @classmethod
+    def _reject_non_finite(cls, v: object) -> object:
+        """Reject NaN and infinity before Pydantic's own coercion runs."""
+        try:
+            fv = float(v)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            raise ValueError("must be a number")
+        if not math.isfinite(fv):
+            raise ValueError("must be a finite number (NaN and Infinity are not allowed)")
+        return v
+
+
+class LineTotalResponse(BaseModel):
+    """Response body for POST /api/line-total."""
+
+    net: float
+    vat: float
+    total: float
+
+
+def _half_up(value: Decimal) -> Decimal:
+    """Round *value* to 2 decimal places using half-up (ties away from zero)."""
+    return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 app = FastAPI(title="aifactory-demo", version=__version__)
@@ -83,7 +136,7 @@ async def cancel_reservation(reservation_id: str) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# Invoice endpoints
+# Invoice endpoints (legacy)
 # ---------------------------------------------------------------------------
 
 
@@ -96,3 +149,30 @@ async def invoice_line_total(body: InvoiceLineRequest) -> dict:
         "description": body.description,
         "total": round(body.unit_price * body.quantity, 2),
     }
+
+
+# ---------------------------------------------------------------------------
+# /api/line-total — stateless VAT calculator (AC1-AC6)
+# ---------------------------------------------------------------------------
+
+
+@app.post("/api/line-total", response_model=LineTotalResponse)
+async def api_line_total(body: LineTotalRequest) -> dict:
+    """Compute net, VAT and gross total for one invoice line.
+
+    Arithmetic (AC2):
+      net   = half-up round(unit_price × quantity, 2)
+      vat   = half-up round(net × vat_rate, 2)
+      total = net + vat          (exact; never rounded again)
+
+    The handler is intentionally stateless — no DB, file, or secret access (AC6).
+    """
+    unit_price = Decimal(str(body.unit_price))
+    quantity = Decimal(str(body.quantity))
+    vat_rate = Decimal(str(body.vat_rate))
+
+    net = _half_up(unit_price * quantity)
+    vat = _half_up(net * vat_rate)
+    total = net + vat  # exact; net and vat are already rounded to 2 dp
+
+    return {"net": float(net), "vat": float(vat), "total": float(total)}
