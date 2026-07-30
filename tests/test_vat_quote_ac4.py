@@ -8,7 +8,6 @@ the lower-bound edge cases ("outside 0..1" means below 0 as well as above 1)
 plus missing-field and boundary-exact scenarios.
 """
 
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -29,6 +28,7 @@ def _post(body: dict) -> int:
 # subtotal validation
 # ---------------------------------------------------------------------------
 
+
 def test_ac4_negative_subtotal_422():
     """Negative subtotal must yield 422, not 500."""
     assert _post({"subtotal": -0.01, "vat_rate": 0.2}) == 422
@@ -42,6 +42,7 @@ def test_ac4_zero_subtotal_is_valid():
 # ---------------------------------------------------------------------------
 # vat_rate validation — "outside 0..1" means both below 0 AND above 1
 # ---------------------------------------------------------------------------
+
 
 def test_ac4_vat_rate_below_zero_422():
     """Negative vat_rate is outside the 0..1 range — must yield 422."""
@@ -67,6 +68,7 @@ def test_ac4_vat_rate_above_one_422():
 # discount_pct validation — "outside 0..100" includes negative values
 # ---------------------------------------------------------------------------
 
+
 def test_ac4_discount_pct_below_zero_422():
     """Negative discount_pct is outside 0..100 — must yield 422."""
     assert _post({"subtotal": 100, "vat_rate": 0.2, "discount_pct": -0.01}) == 422
@@ -90,6 +92,7 @@ def test_ac4_discount_pct_above_100_422():
 # ---------------------------------------------------------------------------
 # Missing required fields must yield 422, not 500
 # ---------------------------------------------------------------------------
+
 
 def test_ac4_missing_subtotal_422():
     """Omitting ``subtotal`` (a required field) must yield 422."""

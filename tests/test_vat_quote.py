@@ -27,6 +27,7 @@ def _quote(**kwargs) -> dict:
 # AC2: half-up rounding — ties round AWAY from zero, not to even
 # ---------------------------------------------------------------------------
 
+
 def test_ac2_1_005_rounds_total_to_1_01():
     """1.005 with vat_rate=0 must return total=1.01 (half-up, not banker's)."""
     data = _quote(subtotal=1.005, vat_rate=0)
@@ -46,9 +47,7 @@ def test_ac2_all_fields_have_exactly_two_decimal_places():
         val = data[field]
         # round(val, 2) == val iff val has at most 2 decimal places.
         # Avoids float-multiplication artefacts (e.g. 1.13 * 100 ≈ 112.999…).
-        assert val == round(val, 2), (
-            f"field '{field}' = {val!r} is not rounded to 2dp"
-        )
+        assert val == round(val, 2), f"field '{field}' = {val!r} is not rounded to 2dp"
 
 
 def test_ac2_vat_rounding_half_up():
@@ -62,6 +61,7 @@ def test_ac2_vat_rounding_half_up():
 # ---------------------------------------------------------------------------
 # AC5: net + vat == total to the penny (rounding must never create a gap)
 # ---------------------------------------------------------------------------
+
 
 def test_ac5_net_plus_vat_equals_total_basic():
     """net + vat == total for a straightforward request."""
@@ -78,6 +78,7 @@ def test_ac5_net_plus_vat_equals_total_rounding_edge():
 # ---------------------------------------------------------------------------
 # AC1: basic happy path (included here to keep all quote tests together)
 # ---------------------------------------------------------------------------
+
 
 def test_ac1_basic_vat_calculation():
     """subtotal=100, vat_rate=0.2 → net=100, vat=20, total=120."""
@@ -100,6 +101,7 @@ def test_ac1_zero_vat_rate():
 # AC4: input validation returns 422 (not 500)
 # ---------------------------------------------------------------------------
 
+
 def test_ac4_negative_subtotal_returns_422():
     r = client.post("/api/quote", json={"subtotal": -1, "vat_rate": 0.2})
     assert r.status_code == 422
@@ -111,7 +113,9 @@ def test_ac4_vat_rate_above_1_returns_422():
 
 
 def test_ac4_discount_pct_above_100_returns_422():
-    r = client.post("/api/quote", json={"subtotal": 100, "vat_rate": 0.2, "discount_pct": 101})
+    r = client.post(
+        "/api/quote", json={"subtotal": 100, "vat_rate": 0.2, "discount_pct": 101}
+    )
     assert r.status_code == 422
 
 

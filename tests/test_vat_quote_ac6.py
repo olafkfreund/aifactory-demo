@@ -88,12 +88,18 @@ def test_ac6_discount_pct_nan_returns_422():
 
 def test_ac6_discount_pct_positive_infinity_returns_422():
     """+∞ discount_pct must be rejected with 422."""
-    assert _post_raw('{"subtotal": 100.0, "vat_rate": 0.2, "discount_pct": Infinity}') == 422
+    assert (
+        _post_raw('{"subtotal": 100.0, "vat_rate": 0.2, "discount_pct": Infinity}')
+        == 422
+    )
 
 
 def test_ac6_discount_pct_negative_infinity_returns_422():
     """-∞ discount_pct must be rejected with 422."""
-    assert _post_raw('{"subtotal": 100.0, "vat_rate": 0.2, "discount_pct": -Infinity}') == 422
+    assert (
+        _post_raw('{"subtotal": 100.0, "vat_rate": 0.2, "discount_pct": -Infinity}')
+        == 422
+    )
 
 
 # ---------------------------------------------------------------------------

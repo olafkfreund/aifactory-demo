@@ -60,8 +60,10 @@ TOKENS = {
 }
 
 # Build/verify can be long; poll budgets (seconds).
-BUILD_TIMEOUT = int(os.environ.get("BENCH_BUILD_TIMEOUT", "5400"))   # 90 min
-VERIFY_TIMEOUT = int(os.environ.get("BENCH_VERIFY_TIMEOUT", "3600"))  # 60 min — TFactory test-gen on a large build can take 30-35 min
+BUILD_TIMEOUT = int(os.environ.get("BENCH_BUILD_TIMEOUT", "5400"))  # 90 min
+VERIFY_TIMEOUT = int(
+    os.environ.get("BENCH_VERIFY_TIMEOUT", "3600")
+)  # 60 min — TFactory test-gen on a large build can take 30-35 min
 POLL_INTERVAL = int(os.environ.get("BENCH_POLL_INTERVAL", "15"))
 
 # Terminal verify verdicts the TFactory spec-ingest pipeline can emit. The
@@ -76,8 +78,17 @@ POLL_INTERVAL = int(os.environ.get("BENCH_POLL_INTERVAL", "15"))
 # status TFactory adds, any ``*_failed``/``*_error``/``*_exception`` status is
 # treated as terminal too.
 VERIFY_TERMINAL = {
-    "completed", "passed", "triaged", "triaged_empty", "failed", "error",
-    "stuck", "needs_human", "human_review", "needs_review", "done",
+    "completed",
+    "passed",
+    "triaged",
+    "triaged_empty",
+    "failed",
+    "error",
+    "stuck",
+    "needs_human",
+    "human_review",
+    "needs_review",
+    "done",
 }
 VERIFY_TERMINAL_SUFFIXES = ("_failed", "_error", "_exception")
 
@@ -132,7 +143,7 @@ class StageMetric:
     started_at: str | None = None
     ended_at: str | None = None
     duration_s: float | None = None
-    status: str = "pending"          # pending | passed | failed | skipped | error
+    status: str = "pending"  # pending | passed | failed | skipped | error
     detail: dict = field(default_factory=dict)
 
 
@@ -143,7 +154,7 @@ class ScenarioResult:
     correlation_key: str | None = None
     started_at: str = field(default_factory=_now)
     ended_at: str | None = None
-    stages: dict = field(default_factory=dict)        # plan/code/verify → StageMetric
+    stages: dict = field(default_factory=dict)  # plan/code/verify → StageMetric
     handbacks: int = 0
     tokens: int = 0
     cost_usd: float = 0.0
@@ -177,7 +188,10 @@ class Client:
     def call(self, method: str, path: str, body: dict | None = None, timeout: int = 30):
         url = f"{self.base}{path}"
         if self.dry_run:
-            print(f"  [dry-run] {method} {url}" + (f"  body={json.dumps(body)[:200]}" if body else ""))
+            print(
+                f"  [dry-run] {method} {url}"
+                + (f"  body={json.dumps(body)[:200]}" if body else "")
+            )
             raise DryRun
         data = json.dumps(body).encode() if body is not None else None
         # Browser-like User-Agent: the live factories sit behind Cloudflare,
@@ -194,9 +208,13 @@ class Client:
         # roll); retry 5xx and connection errors with linear backoff.
         for attempt in range(3):
             try:
-                with urllib.request.urlopen(req, timeout=timeout) as resp:  # noqa: S310
+                with urllib.request.urlopen(req, timeout=timeout) as resp:
                     raw = resp.read().decode() or "{}"
-                return json.loads(raw) if raw.strip().startswith(("{", "[")) else {"raw": raw}
+                return (
+                    json.loads(raw)
+                    if raw.strip().startswith(("{", "["))
+                    else {"raw": raw}
+                )
             except urllib.error.HTTPError as exc:
                 if exc.code >= 500 and attempt < 2:
                     time.sleep(5 * (attempt + 1))
@@ -209,16 +227,23 @@ class Client:
                 raise
 
 
-def _ensure_project(client: Client, name: str, git_url: str, branch: str = "main") -> str | None:
+def _ensure_project(
+    client: Client, name: str, git_url: str, branch: str = "main"
+) -> str | None:
     """Reuse a registered project by git_url / name suffix, else register it.
 
     The deployed factories register repos under derived names (e.g.
     ``olafkfreund-aifactory-demo``), so a blind POST 409s on every re-run.
     """
+
     def _match(items):
         for p in items:
             pname = p.get("name", "")
-            if p.get("git_url") == git_url or pname == name or pname.endswith(f"-{name}"):
+            if (
+                p.get("git_url") == git_url
+                or pname == name
+                or pname.endswith(f"-{name}")
+            ):
                 return p.get("project_id") or p.get("id")
         return None
 
@@ -228,12 +253,18 @@ def _ensure_project(client: Client, name: str, git_url: str, branch: str = "main
     if pid:
         return pid
     try:
-        proj = client.call("POST", "/api/projects", {"name": name, "git_url": git_url, "branch": branch})
+        proj = client.call(
+            "POST",
+            "/api/projects",
+            {"name": name, "git_url": git_url, "branch": branch},
+        )
         return proj.get("project_id") or proj.get("id")
     except urllib.error.HTTPError as exc:
         if exc.code == 409:  # raced or exists under a derived name — re-list
             existing = client.call("GET", "/api/projects")
-            items = existing if isinstance(existing, list) else existing.get("projects", [])
+            items = (
+                existing if isinstance(existing, list) else existing.get("projects", [])
+            )
             return _match(items)
         raise
 
@@ -247,22 +278,39 @@ def stage_plan(sc: dict, defaults: dict, res: ScenarioResult, dry: bool) -> str 
     m.started_at, t0 = _now(), time.monotonic()
     pf = Client("pfactory", dry)
     owner, repo = defaults["owner"], defaults["repo"]
-    brief = (ROOT / sc["brief"]).read_text() if (ROOT / sc["brief"]).exists() else sc["title"]
+    brief = (
+        (ROOT / sc["brief"]).read_text()
+        if (ROOT / sc["brief"]).exists()
+        else sc["title"]
+    )
     try:
-        sess = pf.call("POST", "/api/plan/sessions/ingest-text", {
-            "title": sc["title"], "category": defaults["pfactory"]["category"],
-            "channel": defaults["pfactory"]["channel"], "text": brief,
-        })
+        sess = pf.call(
+            "POST",
+            "/api/plan/sessions/ingest-text",
+            {
+                "title": sc["title"],
+                "category": defaults["pfactory"]["category"],
+                "channel": defaults["pfactory"]["channel"],
+                "text": brief,
+            },
+        )
         sid = sess.get("session_id") or sess.get("id")
         pf.call("POST", f"/api/plan/sessions/{sid}/process", {})
-        pf.call("POST", f"/api/plan/sessions/{sid}/approve",
-                {"approver": owner + "@users.noreply.github.com", "auto_restart": False})
+        pf.call(
+            "POST",
+            f"/api/plan/sessions/{sid}/approve",
+            {"approver": owner + "@users.noreply.github.com", "auto_restart": False},
+        )
         # Emit creates the whole epic tree (epic + a child issue per AC/component,
         # sub-issue links, and label bootstrap per issue) — easily >30s. Give it a
         # generous timeout so the default 30s doesn't trip the 5xx/URLError retry,
         # which would re-run emit and create DUPLICATE epic trees.
-        emit = pf.call("POST", f"/api/plan/sessions/{sid}/emit",
-                       {"repo": f"{owner}/{repo}", "dry_run": False}, timeout=600)
+        emit = pf.call(
+            "POST",
+            f"/api/plan/sessions/{sid}/emit",
+            {"repo": f"{owner}/{repo}", "dry_run": False},
+            timeout=600,
+        )
         epic = _epic_ref(emit) or sid
         m.detail = {"session_id": sid, "epic_number": epic}
         m.status = "passed" if epic else "failed"
@@ -305,10 +353,19 @@ def _phase_models_from_env() -> dict[str, str]:
     """
     pm: dict[str, str] = {}
     if os.environ.get("BENCH_OLLAMA", "").strip().lower() in ("1", "true", "yes"):
-        coding = os.environ.get("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b")
-        general = os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b")
-        pm = {"spec": general, "planning": general, "coding": coding,
-              "qa": general, "qa_fixer": general}
+        coding = os.environ.get(
+            "BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b"
+        )
+        general = os.environ.get(
+            "BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b"
+        )
+        pm = {
+            "spec": general,
+            "planning": general,
+            "coding": coding,
+            "qa": general,
+            "qa_fixer": general,
+        }
     raw = os.environ.get("BENCH_PHASE_MODELS", "").strip()
     if raw:
         try:
@@ -316,16 +373,22 @@ def _phase_models_from_env() -> dict[str, str]:
         except json.JSONDecodeError as exc:
             raise SystemExit(f"BENCH_PHASE_MODELS is not valid JSON: {exc}") from exc
         if not isinstance(override, dict):
-            raise SystemExit("BENCH_PHASE_MODELS must be a JSON object of phase -> model")
+            raise SystemExit(
+                "BENCH_PHASE_MODELS must be a JSON object of phase -> model"
+            )
         unknown = sorted(k for k in override if k not in _PHASES)
         if unknown:
-            raise SystemExit(f"BENCH_PHASE_MODELS has unknown phase(s) {unknown}; "
-                             f"valid phases: {list(_PHASES)}")
+            raise SystemExit(
+                f"BENCH_PHASE_MODELS has unknown phase(s) {unknown}; "
+                f"valid phases: {list(_PHASES)}"
+            )
         pm.update({k: str(v) for k, v in override.items()})
     return pm
 
 
-def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, dry: bool) -> str | None:
+def stage_code(
+    sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, dry: bool
+) -> str | None:
     """AIFactory: ensure project → create task from the epic → start → poll. Returns task_id."""
     m = res.stage("code")
     m.started_at, t0 = _now(), time.monotonic()
@@ -343,8 +406,12 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
     # propagates to TFactory's verify lanes via the handoff contract. See
     # _phase_models_from_env for the two env knobs. (PFactory's plan stage makes no
     # LLM calls, so no backend choice reaches it.)
-    metadata = {"correlation_key": epic, "github_repo": f"{owner}/{repo}",
-                "epic_issue": epic, "scenario": sc["slug"]}
+    metadata = {
+        "correlation_key": epic,
+        "github_repo": f"{owner}/{repo}",
+        "epic_issue": epic,
+        "scenario": sc["slug"],
+    }
     _pm = _phase_models_from_env()
     if _pm:
         # isAutoProfile is load-bearing: AIFactory's resolver ignores phaseModels
@@ -359,28 +426,48 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
         print(f"  phaseModels requested: {json.dumps(_pm, sort_keys=True)}")
     try:
         project_id = _ensure_project(af, repo, f"https://github.com/{owner}/{repo}")
-        task = af.call("POST", "/api/tasks", {
-            "title": sc["title"],
-            "description": f"Benchmark scenario {sc['slug']}. Build under {sc['subdir']}/. "
-                           f"Correlation epic #{epic}. See benchmarks/{sc['brief']}.",
-            "project_id": project_id,
-            "metadata": metadata,
-        })
+        task = af.call(
+            "POST",
+            "/api/tasks",
+            {
+                "title": sc["title"],
+                "description": f"Benchmark scenario {sc['slug']}. Build under {sc['subdir']}/. "
+                f"Correlation epic #{epic}. See benchmarks/{sc['brief']}.",
+                "project_id": project_id,
+                "metadata": metadata,
+            },
+        )
         task_id = task.get("task_id") or task.get("id")
-        af.call("POST", f"/api/tasks/{task_id}/start", {
-            "auto_continue": True, "mode": afopt["mode"], "parallel": afopt["parallel"],
-            "workers": afopt["workers"], "baseBranch": sc["branch"], "model": afopt.get("model"),
-        })
-        ok = _poll(af, f"/api/tasks/{task_id}/status", BUILD_TIMEOUT,
-                   done=lambda s: not s.get("is_running", True))
+        af.call(
+            "POST",
+            f"/api/tasks/{task_id}/start",
+            {
+                "auto_continue": True,
+                "mode": afopt["mode"],
+                "parallel": afopt["parallel"],
+                "workers": afopt["workers"],
+                "baseBranch": sc["branch"],
+                "model": afopt.get("model"),
+            },
+        )
+        ok = _poll(
+            af,
+            f"/api/tasks/{task_id}/status",
+            BUILD_TIMEOUT,
+            done=lambda s: not s.get("is_running", True),
+        )
         # AIFactory's per-task token/cost breakdown lives at /token-usage
         # (camelCase totals), not /usage. A missing endpoint silently 404'd to 0.
         task_tokens = 0
         try:
             usage = af.call("GET", f"/api/tasks/{task_id}/token-usage")
-            task_tokens = int(usage.get("totalTokens", usage.get("total_tokens", 0)) or 0)
+            task_tokens = int(
+                usage.get("totalTokens", usage.get("total_tokens", 0)) or 0
+            )
             res.tokens += task_tokens
-            res.cost_usd += float(usage.get("totalCostUsd", usage.get("cost_usd", 0.0)) or 0.0)
+            res.cost_usd += float(
+                usage.get("totalCostUsd", usage.get("cost_usd", 0.0)) or 0.0
+            )
         except Exception:  # noqa: BLE001 — usage is best-effort, never fail the stage
             pass
         # `is_running == False` alone is NOT success. A build that fails its
@@ -390,10 +477,18 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
         # exactly how a Claude 401 hid behind a green code stage. A real build
         # always consumes tokens, so require tokens > 0 for success.
         built = ok and task_tokens > 0
-        m.detail = {"task_id": task_id, "project_id": project_id, "tokens": task_tokens,
-                    "reason": None if built else (
-                        "build timed out" if not ok
-                        else "0 tokens — build did not run (provider/plan failure?)")}
+        m.detail = {
+            "task_id": task_id,
+            "project_id": project_id,
+            "tokens": task_tokens,
+            "reason": None
+            if built
+            else (
+                "build timed out"
+                if not ok
+                else "0 tokens — build did not run (provider/plan failure?)"
+            ),
+        }
         m.status = "passed" if built else "failed"
         return task_id
     except DryRun:
@@ -429,8 +524,14 @@ def _handoff_via_aifactory(task_id: str, dry: bool) -> dict | None:
     return None
 
 
-def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult,
-                 dry: bool, task_id: str | None = None) -> None:
+def stage_verify(
+    sc: dict,
+    defaults: dict,
+    epic: str | None,
+    res: ScenarioResult,
+    dry: bool,
+    task_id: str | None = None,
+) -> None:
     """TFactory: verify the BUILT branch (source-aware) + run the verdict pipeline.
 
     Preferred path: when there's an AIFactory ``task_id``, ask AIFactory to push
@@ -443,7 +544,12 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
     m.started_at, t0 = _now(), time.monotonic()
     level = sc.get("verify_level", "full")
     if level == "validate-only":
-        m.status, m.detail = "skipped", {"reason": "validate-only (terraform fmt/init/validate run in-tree, not via TFactory)"}
+        m.status, m.detail = (
+            "skipped",
+            {
+                "reason": "validate-only (terraform fmt/init/validate run in-tree, not via TFactory)"
+            },
+        )
         m.ended_at, m.duration_s = _now(), round(time.monotonic() - t0, 1)
         return
     tf = Client("tfactory", dry)
@@ -460,16 +566,28 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
             # the project is registered, then POST /api/specs/ingest
             # {project_id, spec_id, spec_text}. The planner auto-runs on ingest
             # (#347) — there is no separate /run call.
-            brief = (ROOT / sc["brief"]).read_text() if (ROOT / sc["brief"]).exists() else sc["title"]
+            brief = (
+                (ROOT / sc["brief"]).read_text()
+                if (ROOT / sc["brief"]).exists()
+                else sc["title"]
+            )
             project_id = _ensure_project(tf, repo, f"https://github.com/{owner}/{repo}")
             spec_id = f"bench-{sc['slug']}-{int(time.time())}"
-            tf.call("POST", "/api/specs/ingest", {
-                "project_id": project_id, "spec_id": spec_id, "spec_text": brief,
-                "source_branch": sc.get("branch"),
-                "git_url": f"https://github.com/{owner}/{repo}",
-                "target_paths": [sc["subdir"]] if sc.get("subdir") else None,
-            }, timeout=120)
+            tf.call(
+                "POST",
+                "/api/specs/ingest",
+                {
+                    "project_id": project_id,
+                    "spec_id": spec_id,
+                    "spec_text": brief,
+                    "source_branch": sc.get("branch"),
+                    "git_url": f"https://github.com/{owner}/{repo}",
+                    "target_paths": [sc["subdir"]] if sc.get("subdir") else None,
+                },
+                timeout=120,
+            )
             verify_mode = "text-ingest"
+
         # An ingested spec's status lives in its WORKSPACE (.../workspaces/{pid}/
         # specs/{sid}/status.json), surfaced at GET /api/tfactory/tasks/{spec_id}
         # with the verdict under `status_json.status`. The global GET
@@ -482,15 +600,27 @@ def stage_verify(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult
             sj = s.get("status_json") or {}
             return str(sj.get("status") or s.get("status") or "")
 
-        _poll(tf, f"/api/tfactory/tasks/{spec_id}", VERIFY_TIMEOUT,
-              done=lambda s: verify_is_terminal(_verdict(s)))
+        _poll(
+            tf,
+            f"/api/tfactory/tasks/{spec_id}",
+            VERIFY_TIMEOUT,
+            done=lambda s: verify_is_terminal(_verdict(s)),
+        )
         final = tf.call("GET", f"/api/tfactory/tasks/{spec_id}")
         verdict = _verdict(final)
         sj = final.get("status_json") or {}
-        res.handbacks += int(sj.get("correction_cycle", final.get("correction_cycle", 0)) or 0)
-        m.detail = {"spec_id": spec_id, "lanes": lanes, "verdict": verdict,
-                    "mode": verify_mode}
-        m.status = "passed" if verdict in {"completed", "passed", "triaged"} else "failed"
+        res.handbacks += int(
+            sj.get("correction_cycle", final.get("correction_cycle", 0)) or 0
+        )
+        m.detail = {
+            "spec_id": spec_id,
+            "lanes": lanes,
+            "verdict": verdict,
+            "mode": verify_mode,
+        }
+        m.status = (
+            "passed" if verdict in {"completed", "passed", "triaged"} else "failed"
+        )
     except DryRun:
         m.status = "skipped"
     except Exception as exc:  # noqa: BLE001
@@ -518,7 +648,9 @@ def _poll(client: Client, path: str, timeout: int, *, done) -> bool:
 # ── Driver ───────────────────────────────────────────────────────────────
 
 
-def run_scenario(sc: dict, defaults: dict, stages: list[str], dry: bool) -> ScenarioResult:
+def run_scenario(
+    sc: dict, defaults: dict, stages: list[str], dry: bool
+) -> ScenarioResult:
     res = ScenarioResult(slug=sc["slug"], title=sc["title"])
     print(f"\n=== scenario: {sc['slug']} — {sc['title']} ===")
     epic = None
@@ -534,35 +666,58 @@ def run_scenario(sc: dict, defaults: dict, stages: list[str], dry: bool) -> Scen
         # didn't pass (e.g. provider failure → 0 tokens), TFactory has nothing
         # to test and would just burn the full 30-min verify timeout before
         # failing — skip it loudly instead.
-        code_failed = "code" in stages and res.stages.get("code") and \
-            res.stages["code"].status not in ("passed", "skipped")
+        code_failed = (
+            "code" in stages
+            and res.stages.get("code")
+            and res.stages["code"].status not in ("passed", "skipped")
+        )
         if code_failed and not dry:
             mv = res.stage("verify")
             mv.started_at = mv.ended_at = _now()
             mv.duration_s, mv.status = 0.0, "skipped"
-            mv.detail = {"reason": "code stage did not produce a build — nothing to verify"}
+            mv.detail = {
+                "reason": "code stage did not produce a build — nothing to verify"
+            }
         else:
             stage_verify(sc, defaults, epic, res, dry, task_id=task_id)
     res.ended_at = _now()
     statuses = {m.status for m in res.stages.values()}
-    res.overall = "passed" if statuses and statuses <= {"passed", "skipped"} else (
-        "skipped" if statuses == {"skipped"} else "failed")
+    res.overall = (
+        "passed"
+        if statuses and statuses <= {"passed", "skipped"}
+        else ("skipped" if statuses == {"skipped"} else "failed")
+    )
     if not dry:
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-        (RESULTS_DIR / f"{sc['slug']}.json").write_text(json.dumps(res.to_dict(), indent=2))
+        (RESULTS_DIR / f"{sc['slug']}.json").write_text(
+            json.dumps(res.to_dict(), indent=2)
+        )
     return res
 
 
 def write_leaderboard(results: list[ScenarioResult]) -> None:
-    lines = ["# Benchmark results", "", f"_Generated {_now()}_", "",
-             "| Scenario | Plan | Code | Verify | Handbacks | Tokens | Cost (USD) | Overall |",
-             "|---|---|---|---|---|---|---|---|"]
+    lines = [
+        "# Benchmark results",
+        "",
+        f"_Generated {_now()}_",
+        "",
+        "| Scenario | Plan | Code | Verify | Handbacks | Tokens | Cost (USD) | Overall |",
+        "|---|---|---|---|---|---|---|---|",
+    ]
+
     def s(r, n):
         m = r.stages.get(n)
-        return f"{m.status} ({m.duration_s}s)" if m and m.duration_s is not None else (m.status if m else "—")
+        return (
+            f"{m.status} ({m.duration_s}s)"
+            if m and m.duration_s is not None
+            else (m.status if m else "—")
+        )
+
     for r in results:
-        lines.append(f"| {r.slug} | {s(r,'plan')} | {s(r,'code')} | {s(r,'verify')} | "
-                     f"{r.handbacks} | {r.tokens} | {r.cost_usd:.4f} | **{r.overall}** |")
+        lines.append(
+            f"| {r.slug} | {s(r, 'plan')} | {s(r, 'code')} | {s(r, 'verify')} | "
+            f"{r.handbacks} | {r.tokens} | {r.cost_usd:.4f} | **{r.overall}** |"
+        )
     (RESULTS_DIR / "RESULTS.md").write_text("\n".join(lines) + "\n")
 
 
@@ -584,7 +739,9 @@ def _warm_ollama_models() -> None:
         print("[warmup] OPENAI_COMPATIBLE_BASE_URL unset — skipping Ollama warmup")
         return
     models = {
-        os.environ.get("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b"),
+        os.environ.get(
+            "BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b"
+        ),
         os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b"),
     }
     deadline = time.monotonic() + float(
@@ -623,7 +780,9 @@ def _warm_ollama_models() -> None:
                 )
                 with urllib.request.urlopen(req, timeout=300) as resp:
                     if resp.status == 200 and resp.read():
-                        print(f"[warmup] {model} ready in {int(time.monotonic() - t0)}s")
+                        print(
+                            f"[warmup] {model} ready in {int(time.monotonic() - t0)}s"
+                        )
                         break
             except (urllib.error.URLError, OSError) as exc:
                 print(f"[warmup] {model} loading… ({exc}); retrying")
@@ -637,9 +796,15 @@ def main() -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--scenario", help="run one scenario by slug")
     g.add_argument("--all", action="store_true", help="run every scenario")
-    ap.add_argument("--stage", action="append", choices=["plan", "code", "verify"],
-                    help="restrict to specific stage(s); default all three")
-    ap.add_argument("--dry-run", action="store_true", help="print the REST flow, make no calls")
+    ap.add_argument(
+        "--stage",
+        action="append",
+        choices=["plan", "code", "verify"],
+        help="restrict to specific stage(s); default all three",
+    )
+    ap.add_argument(
+        "--dry-run", action="store_true", help="print the REST flow, make no calls"
+    )
     args = ap.parse_args()
 
     try:
@@ -651,9 +816,13 @@ def main() -> int:
     defaults, scenarios = manifest["defaults"], manifest["scenarios"]
     stages = args.stage or ["plan", "code", "verify"]
 
-    chosen = scenarios if args.all else [s for s in scenarios if s["slug"] == args.scenario]
+    chosen = (
+        scenarios if args.all else [s for s in scenarios if s["slug"] == args.scenario]
+    )
     if not chosen:
-        sys.exit(f"unknown scenario {args.scenario!r}; known: {[s['slug'] for s in scenarios]}")
+        sys.exit(
+            f"unknown scenario {args.scenario!r}; known: {[s['slug'] for s in scenarios]}"
+        )
 
     print(f"endpoints: {ENDPOINTS}")
     print(f"stages: {stages}  dry_run: {args.dry_run}")

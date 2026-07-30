@@ -34,6 +34,7 @@ def _quote(**kwargs) -> dict:
 # AC3: basic discount applied before VAT
 # ---------------------------------------------------------------------------
 
+
 def test_ac3_ten_percent_discount_reduces_net():
     """10 % discount on 100.00 → discount=10.00, net=90.00."""
     data = _quote(subtotal=100.00, vat_rate=0.0, discount_pct=10)
@@ -81,6 +82,7 @@ def test_ac3_discount_pct_omitted_defaults_to_zero():
 # AC3 + AC2: discount itself is rounded half-up
 # ---------------------------------------------------------------------------
 
+
 def test_ac3_discount_rounded_half_up_at_tie():
     """Discount of 0.005 must round to 0.01 (half-up, not to even)."""
     # subtotal_r=100.00, discount=round_half_up(100.00 * 0.005 / 100)
@@ -111,6 +113,7 @@ def test_ac3_fractional_discount_pct():
 # AC3 + AC5: net + vat == total still holds with discounts applied
 # ---------------------------------------------------------------------------
 
+
 def test_ac3_ac5_net_plus_vat_equals_total_with_discount():
     """net + vat == total to the penny when a discount is applied."""
     data = _quote(subtotal=149.99, vat_rate=0.175, discount_pct=15)
@@ -122,6 +125,4 @@ def test_ac3_ac5_all_fields_two_dp_with_discount():
     data = _quote(subtotal=1.005, vat_rate=0.175, discount_pct=25)
     for field in ("subtotal", "discount", "net", "vat", "total"):
         val = data[field]
-        assert val == round(val, 2), (
-            f"field '{field}' = {val!r} is not rounded to 2dp"
-        )
+        assert val == round(val, 2), f"field '{field}' = {val!r} is not rounded to 2dp"

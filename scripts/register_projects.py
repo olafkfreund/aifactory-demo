@@ -53,18 +53,23 @@ def main() -> int:
         headers = {"Content-Type": "application/json"}
         if AF_TOKEN:
             headers["Authorization"] = f"Bearer {AF_TOKEN}"
-        req = urllib.request.Request(f"{AIFACTORY}/api/projects", data=body,
-                                     headers=headers, method="POST")
+        req = urllib.request.Request(
+            f"{AIFACTORY}/api/projects", data=body, headers=headers, method="POST"
+        )
         try:
-            with urllib.request.urlopen(req, timeout=60) as r:  # noqa: S310
+            with urllib.request.urlopen(req, timeout=60) as r:
                 print("  →", r.read().decode()[:200])
         except Exception as exc:  # noqa: BLE001
             print(f"  ! AIFactory register failed (may already exist): {exc}")
 
-    print("PFactory: no persistent project — repo is supplied at plan emit time "
-          f"(repo={owner}/{repo}).")
-    print("TFactory: no persistent project — repo+branch supplied per spec by "
-          "run_benchmark.py.")
+    print(
+        "PFactory: no persistent project — repo is supplied at plan emit time "
+        f"(repo={owner}/{repo})."
+    )
+    print(
+        "TFactory: no persistent project — repo+branch supplied per spec by "
+        "run_benchmark.py."
+    )
     return 0
 
 

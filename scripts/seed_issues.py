@@ -37,13 +37,21 @@ MANIFEST = ROOT / "benchmarks" / "scenarios.yaml"
 
 # Labels the PARR emit/import/handoff flow relies on (superset of per-scenario labels).
 PIPELINE_LABELS = [
-    ("epic", "8250df"), ("benchmark", "0e8a16"), ("pfactory", "5319e7"),
-    ("handoff:aifactory", "1d76db"), ("handoff:tfactory", "0052cc"),
-    ("handover:tfactory", "0052cc"), ("kind:feature", "a2eeef"),
-    ("lang:python", "3572A5"), ("lang:rust", "dea584"),
-    ("lang:typescript", "2b7489"), ("lang:terraform", "844FBA"),
-    ("scenario:api-gateway", "fbca04"), ("scenario:rust-hello", "fbca04"),
-    ("scenario:ts-tictactoe", "fbca04"), ("scenario:tf-k8s", "fbca04"),
+    ("epic", "8250df"),
+    ("benchmark", "0e8a16"),
+    ("pfactory", "5319e7"),
+    ("handoff:aifactory", "1d76db"),
+    ("handoff:tfactory", "0052cc"),
+    ("handover:tfactory", "0052cc"),
+    ("kind:feature", "a2eeef"),
+    ("lang:python", "3572A5"),
+    ("lang:rust", "dea584"),
+    ("lang:typescript", "2b7489"),
+    ("lang:terraform", "844FBA"),
+    ("scenario:api-gateway", "fbca04"),
+    ("scenario:rust-hello", "fbca04"),
+    ("scenario:ts-tictactoe", "fbca04"),
+    ("scenario:tf-k8s", "fbca04"),
     ("priority:p1", "d93f0b"),
 ]
 
@@ -52,14 +60,30 @@ def sh(args: list[str], dry: bool) -> str:
     if dry:
         print("  [dry-run] " + " ".join(args))
         return ""
-    return subprocess.run(args, check=True, capture_output=True, text=True).stdout.strip()
+    return subprocess.run(
+        args, check=True, capture_output=True, text=True
+    ).stdout.strip()
 
 
 def existing_titles(owner_repo: str) -> set[str]:
     out = subprocess.run(
-        ["gh", "issue", "list", "--repo", owner_repo, "--state", "all",
-         "--limit", "200", "--json", "title"],
-        check=True, capture_output=True, text=True).stdout
+        [
+            "gh",
+            "issue",
+            "list",
+            "--repo",
+            owner_repo,
+            "--state",
+            "all",
+            "--limit",
+            "200",
+            "--json",
+            "title",
+        ],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
     return {i["title"] for i in json.loads(out or "[]")}
 
 
@@ -74,8 +98,20 @@ def main() -> int:
 
     print(f"=== labels on {owner_repo} ===")
     for name, color in PIPELINE_LABELS:
-        sh(["gh", "label", "create", name, "--repo", owner_repo,
-            "--color", color, "--force"], args.dry_run)
+        sh(
+            [
+                "gh",
+                "label",
+                "create",
+                name,
+                "--repo",
+                owner_repo,
+                "--color",
+                color,
+                "--force",
+            ],
+            args.dry_run,
+        )
 
     have = set() if args.dry_run else existing_titles(owner_repo)
     print(f"=== issues on {owner_repo} ===")
@@ -90,13 +126,29 @@ def main() -> int:
             f"> **PARR benchmark scenario** `{sc['slug']}` — plan (PFactory) → "
             f"code (AIFactory) → verify (TFactory).\n"
             f"> Build target: `{sc['subdir']}/` on branch `{sc['branch']}`. "
-            f"Framework: `{sc['framework']}`. Verify: `{sc.get('verify_level','full')}`.\n\n"
+            f"Framework: `{sc['framework']}`. Verify: `{sc.get('verify_level', 'full')}`.\n\n"
             f"Driven by `scripts/run_benchmark.py --scenario {sc['slug']}`.\n\n"
             f"---\n\n{brief}"
         )
-        labels = ",".join(sc.get("labels", []) + ["handoff:aifactory", "handoff:tfactory"])
-        sh(["gh", "issue", "create", "--repo", owner_repo, "--title", title,
-            "--body", body, "--label", labels], args.dry_run)
+        labels = ",".join(
+            sc.get("labels", []) + ["handoff:aifactory", "handoff:tfactory"]
+        )
+        sh(
+            [
+                "gh",
+                "issue",
+                "create",
+                "--repo",
+                owner_repo,
+                "--title",
+                title,
+                "--body",
+                body,
+                "--label",
+                labels,
+            ],
+            args.dry_run,
+        )
         print(f"  created: {title}")
     return 0
 

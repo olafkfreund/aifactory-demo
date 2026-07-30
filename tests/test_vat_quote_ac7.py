@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import ast
 import importlib.util
-import sys
 from pathlib import Path
 
 import pytest
@@ -83,13 +82,13 @@ def test_ac7_endpoint_returns_no_www_authenticate_challenge():
 _PAYLOAD = {"subtotal": 75.5, "vat_rate": 0.15, "discount_pct": 5}
 
 _CALLER_HEADERS = [
-    {},                                                        # anonymous
-    {"X-User-ID": "user-abc"},                                # fake user header
-    {"X-User-ID": "user-xyz", "X-Session": "sess-123"},      # different user
-    {"Authorization": "Bearer some-token"},                   # bearer token present
-    {"Authorization": "Basic dXNlcjpwYXNz"},                 # basic auth present
-    {"X-Api-Key": "key-for-user-1"},                          # API key header
-    {"X-Tenant-ID": "tenant-42"},                             # multi-tenant header
+    {},  # anonymous
+    {"X-User-ID": "user-abc"},  # fake user header
+    {"X-User-ID": "user-xyz", "X-Session": "sess-123"},  # different user
+    {"Authorization": "Bearer some-token"},  # bearer token present
+    {"Authorization": "Basic dXNlcjpwYXNz"},  # basic auth present
+    {"X-Api-Key": "key-for-user-1"},  # API key header
+    {"X-Tenant-ID": "tenant-42"},  # multi-tenant header
 ]
 
 
@@ -200,7 +199,7 @@ _FORBIDDEN_MODULES = {
     "botocore",
     "google.cloud",
     "azure",
-    "hvac",          # HashiCorp Vault
+    "hvac",  # HashiCorp Vault
     "secretsmanager",
     # File I/O (builtin ``open`` is caught separately below)
     "pathlib",
@@ -230,7 +229,7 @@ def _collect_imports(source: str) -> set[str]:
             for alias in node.names:
                 # ``import os.path`` → top-level name is ``os``
                 names.add(alias.name.split(".")[0])
-                names.add(alias.name)          # also store full dotted name
+                names.add(alias.name)  # also store full dotted name
         elif isinstance(node, ast.ImportFrom):
             if node.module:
                 names.add(node.module.split(".")[0])

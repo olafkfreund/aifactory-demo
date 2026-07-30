@@ -2,22 +2,56 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
   pull_request:
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: pip install -e '.[test]'
-      - run: pytest -q
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e '.[test]' pytest-cov
+      - run: |
+          pytest \
+            --junitxml=reports/junit.xml \
+            --cov=app \
+            --cov-report=term-missing \
+            --cov-report=html:reports/htmlcov \
+            --cov-fail-under=95
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: reports/
+          retention-days: 30
 
       - uses: actions/setup-go@v5
         with:
           go-version: "1.21"
       - run: go test ./...
+
+  security-scan:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pip-audit -e '.[test]'
+      - run: pip-audit

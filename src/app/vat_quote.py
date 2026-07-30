@@ -113,10 +113,10 @@ class QuoteResponse(BaseModel):
 async def vat_quote(body: QuoteRequest) -> dict:
     """Compute a VAT-inclusive price quote with half-up rounding (AC1–AC7)."""
     subtotal_r = _round(_d(body.subtotal))
-    discount_r = _round(subtotal_r * _d(body.discount_pct) / Decimal("100"))
-    net_r = subtotal_r - discount_r          # already 2dp: both operands are
+    discount_r = _round(subtotal_r * _d(body.discount_pct) / Decimal(100))
+    net_r = subtotal_r - discount_r  # already 2dp: both operands are
     vat_r = _round(net_r * _d(body.vat_rate))
-    total_r = net_r + vat_r                  # net + vat = total to the penny
+    total_r = net_r + vat_r  # net + vat = total to the penny
 
     return {
         "subtotal": float(subtotal_r),
