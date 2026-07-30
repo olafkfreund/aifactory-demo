@@ -1,8 +1,9 @@
-"""Tests for POST /links — AC#1 and AC#2 of the link shortener service.
+"""Tests for POST /links — AC#1, AC#2, and AC#5 of the link shortener service.
 
 AC#1: POST /links accepts a URL body and returns 201 with a ``code`` and the
       original ``url``.
 AC#2: The generated short code is exactly 7 lowercase alphanumeric characters.
+AC#5: POST /links with a non-http(s) scheme returns 422 and stores nothing.
 """
 
 import re
@@ -98,3 +99,40 @@ def test_create_link_code_is_retrievable():
     get_resp = client.get(f"/links/{code}")
     assert get_resp.status_code == 200
     assert get_resp.json()["url"] == "https://example.com"
+
+
+# AC#5 — URL scheme validation -------------------------------------------
+
+
+def test_create_link_ftp_scheme_returns_422():
+    """POST /links with ftp:// scheme returns 422 Unprocessable Entity."""
+    resp = client.post("/links", json={"url": "ftp://example.com/file.txt"})
+    assert resp.status_code == 422
+
+
+def test_create_link_javascript_scheme_returns_422():
+    """POST /links with javascript: scheme returns 422 Unprocessable Entity."""
+    resp = client.post("/links", json={"url": "javascript:alert(1)"})
+    assert resp.status_code == 422
+
+
+def test_create_link_non_http_scheme_stores_nothing():
+    """POST /links with a non-http(s) URL does not persist any link."""
+    from app.link_store import link_store
+
+    initial_count = len(link_store._links)
+    resp = client.post("/links", json={"url": "ftp://example.com"})
+    assert resp.status_code == 422
+    assert len(link_store._links) == initial_count
+
+
+def test_create_link_http_scheme_is_accepted():
+    """POST /links accepts plain http:// URLs (not just https://)."""
+    resp = client.post("/links", json={"url": "http://example.com"})
+    assert resp.status_code == 201
+
+
+def test_create_link_https_scheme_is_accepted():
+    """POST /links accepts https:// URLs."""
+    resp = client.post("/links", json={"url": "https://example.com"})
+    assert resp.status_code == 201
