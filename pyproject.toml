@@ -1,7 +1,7 @@
 [project]
 name = "aifactory-demo"
 version = "0.1.0"
-description = "Tiny FastAPI service used as the demo target for AIFactory."
+description = "FastAPI demo service — inventory reservation and link shortener."
 requires-python = ">=3.10"
 dependencies = [
   "fastapi>=0.115",
