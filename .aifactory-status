@@ -3,7 +3,7 @@
   "spec": "098-add-a-title-case-s-helper",
   "state": "building",
   "subtasks": {
-    "completed": 2,
+    "completed": 3,
     "total": 4,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 3,
+    "number": 4,
     "started_at": "2026-07-30T10:34:44.420083"
   },
-  "last_update": "2026-07-30T10:37:36.661438"
+  "last_update": "2026-07-30T10:38:26.922655"
 }
