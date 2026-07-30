@@ -21,3 +21,7 @@ htmlcov/
 dist/
 build/
 node_modules/
+
+# Factory-internal build status; must never be committed (AIFactory#1106)
+.aifactory-status
+.aifactory-security.json
