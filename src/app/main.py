@@ -1,9 +1,29 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel, Field
 
 from . import __version__
 from .models import ItemCreate, ItemView, ReservationCreate, ReservationView
 from .store import Conflict, InventoryStore, NotFound
+
+
+# ---------------------------------------------------------------------------
+# Invoice line models
+# ---------------------------------------------------------------------------
+
+
+class InvoiceLineRequest(BaseModel):
+    unit_price: float = Field(gt=0, description="Price per unit (must be positive)")
+    quantity: int = Field(ge=1, description="Number of units (at least 1)")
+    description: str | None = None
+
+
+class InvoiceLineResponse(BaseModel):
+    unit_price: float
+    quantity: int
+    description: str | None
+    total: float
+
 
 app = FastAPI(title="aifactory-demo", version=__version__)
 
@@ -60,3 +80,19 @@ async def confirm_reservation(reservation_id: str) -> dict:
 @app.delete("/reservations/{reservation_id}", response_model=ReservationView)
 async def cancel_reservation(reservation_id: str) -> dict:
     return store.cancel(reservation_id)
+
+
+# ---------------------------------------------------------------------------
+# Invoice endpoints
+# ---------------------------------------------------------------------------
+
+
+@app.post("/invoices/line-total", response_model=InvoiceLineResponse)
+async def invoice_line_total(body: InvoiceLineRequest) -> dict:
+    """Return the line total (unit_price × quantity) for a single invoice line."""
+    return {
+        "unit_price": body.unit_price,
+        "quantity": body.quantity,
+        "description": body.description,
+        "total": round(body.unit_price * body.quantity, 2),
+    }
