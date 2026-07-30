@@ -1,25 +1,25 @@
 {
   "active": true,
-  "spec": "097-inventory-reservation-service-",
+  "spec": "105-text-metrics-helpers-word-coun",
   "state": "building",
   "subtasks": {
-    "completed": 4,
-    "total": 5,
+    "completed": 1,
+    "total": 2,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "CI Verification",
-    "id": null,
-    "total": 1
+    "current": "Implementation",
+    "id": 1,
+    "total": 2
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 6,
-    "started_at": "2026-07-29T12:36:49.929765"
+    "number": 2,
+    "started_at": "2026-07-30T11:02:18.902533"
   },
-  "last_update": "2026-07-29T12:46:39.601428"
+  "last_update": "2026-07-30T11:03:36.933490"
 }
