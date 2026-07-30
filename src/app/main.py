@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from . import __version__
+from .link_store import LinkNotFound
+from .links_router import links_router
 from .models import ItemCreate, ItemView, ReservationCreate, ReservationView
 from .store import Conflict, InventoryStore, NotFound
 
@@ -9,6 +11,9 @@ app = FastAPI(title="aifactory-demo", version=__version__)
 
 # Single process-wide store instance shared across requests.
 store = InventoryStore()
+
+# Link shortener router.
+app.include_router(links_router)
 
 
 @app.exception_handler(NotFound)
@@ -19,6 +24,11 @@ async def _not_found_handler(request: Request, exc: NotFound) -> JSONResponse:
 @app.exception_handler(Conflict)
 async def _conflict_handler(request: Request, exc: Conflict) -> JSONResponse:
     return JSONResponse(status_code=409, content={"detail": str(exc)})
+
+
+@app.exception_handler(LinkNotFound)
+async def _link_not_found_handler(request: Request, exc: LinkNotFound) -> JSONResponse:
+    return JSONResponse(status_code=404, content={"detail": str(exc)})
 
 
 @app.get("/")
