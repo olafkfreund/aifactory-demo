@@ -70,14 +70,29 @@ class QuoteRequest(BaseModel):
     @field_validator("subtotal", "vat_rate", "discount_pct", mode="before")
     @classmethod
     def _must_be_finite(cls, v: object) -> object:
-        """Reject NaN and ±infinity before the ge/le constraints run.
+        """Reject NaN and ±infinity before the ge/le constraints run (AC6).
 
-        Pydantic's ge/le comparisons with NaN always return False and would
-        raise a validation error, but an explicit check produces a clearer
-        error message and guarantees 422 for any non-finite value (AC6).
+        Pydantic's ge/le comparisons with NaN silently return False, so we
+        must catch non-finite values explicitly.
+
+        Implementation note — return, do not raise:
+          Raising ``ValueError`` here would embed the original NaN/±inf
+          Python float in the Pydantic ``ValidationError``'s ``input`` field.
+          FastAPI then tries to serialise that error detail with
+          ``json.dumps``, which rejects NaN/±inf by default (they are not
+          valid JSON).  The result is a 500-level crash rather than a clean
+          422.
+
+          Instead we *return* a non-numeric sentinel string.  Pydantic's
+          subsequent float-coercion step will fail to parse it, raising the
+          type-validation error itself with ``input="non-finite"`` — a
+          JSON-safe value — so the 422 response is always serialisable.
         """
         if isinstance(v, float) and not math.isfinite(v):
-            raise ValueError("must be a finite number")
+            # The sentinel is intentionally un-coercible to float so Pydantic
+            # emits a type error.  Do NOT change to raise ValueError — see
+            # note above about response serialisation.
+            return "non-finite"
         return v
 
 
