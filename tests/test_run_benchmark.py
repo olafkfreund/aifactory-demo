@@ -80,7 +80,9 @@ def test_description_reference_has_no_embedded_plan_dict() -> None:
     assert "children" not in description
     assert "effort_estimate" not in description
     assert "{'plan_id'" not in description
-    assert "Correlation epic #016-fastapi-api-gateway-with-rate-limiting." in description
+    assert (
+        "Correlation epic #016-fastapi-api-gateway-with-rate-limiting." in description
+    )
 
 
 # --- verify poll terminal-state detection -------------------------------------
@@ -133,7 +135,9 @@ def test_no_env_means_no_pins(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_ollama_preset_pins_every_phase(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("BENCH_PHASE_MODELS", raising=False)
     monkeypatch.setenv("BENCH_OLLAMA", "1")
-    monkeypatch.setenv("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen2.5-coder:14b")
+    monkeypatch.setenv(
+        "BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen2.5-coder:14b"
+    )
     monkeypatch.setenv("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gemma4:12b")
     pm = _phase_models_from_env()
     assert set(pm) == set(run_benchmark._PHASES)
@@ -151,8 +155,8 @@ def test_explicit_pins_override_the_preset(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setenv("BENCH_OLLAMA", "1")
     monkeypatch.setenv("BENCH_PHASE_MODELS", '{"coding": "opus"}')
     pm = _phase_models_from_env()
-    assert pm["coding"] == "opus"                      # the override won
-    assert pm["qa"].startswith("openai-compatible:")   # the preset survived elsewhere
+    assert pm["coding"] == "opus"  # the override won
+    assert pm["qa"].startswith("openai-compatible:")  # the preset survived elsewhere
 
 
 def test_unknown_phase_is_rejected_not_dropped(monkeypatch: pytest.MonkeyPatch) -> None:

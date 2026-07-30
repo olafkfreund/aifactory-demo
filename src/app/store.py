@@ -13,8 +13,8 @@ from __future__ import annotations
 import threading
 import time
 import uuid
-from dataclasses import dataclass, field
-from typing import Callable
+from collections.abc import Callable
+from dataclasses import dataclass
 
 
 class StoreError(Exception):
@@ -80,9 +80,7 @@ class InventoryStore:
         return sum(
             res.quantity
             for res in self._reservations.values()
-            if res.sku == sku
-            and res.state == ACTIVE
-            and not self._is_expired(res, now)
+            if res.sku == sku and res.state == ACTIVE and not self._is_expired(res, now)
         )
 
     # -- items -----------------------------------------------------------
