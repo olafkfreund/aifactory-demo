@@ -1,0 +1,19 @@
+{
+  "name": "aifactory-demo",
+  "version": "0.1.0",
+  "description": "Tiny FastAPI service used as the demo target for AIFactory.",
+  "private": true,
+  "scripts": {
+    "test:e2e": "echo 'No e2e tests yet — add Playwright or similar here'",
+    "lint": "echo 'No JS/TS sources to lint'"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "fastapi",
+    "aifactory",
+    "demo"
+  ],
+  "license": "MIT"
+}
