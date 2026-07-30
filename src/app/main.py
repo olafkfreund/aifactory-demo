@@ -4,8 +4,12 @@ from fastapi.responses import JSONResponse
 from . import __version__
 from .models import ItemCreate, ItemView, ReservationCreate, ReservationView
 from .store import Conflict, InventoryStore, NotFound
+from .vat_quote import router as vat_quote_router
 
 app = FastAPI(title="aifactory-demo", version=__version__)
+
+# Mount the VAT quote router so POST /api/quote is reachable via the main app.
+app.include_router(vat_quote_router)
 
 # Single process-wide store instance shared across requests.
 store = InventoryStore()
