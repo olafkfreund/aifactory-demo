@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,10 +14,150 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+
+      - run: pip install ruff
+      - run: ruff check .
+      - run: ruff format --check .
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - run: pip install -e '.[test]'
-      - run: pytest -q
+      - run: |
+          pytest -q --tb=short \
+            --junitxml=reports/junit.xml \
+            --cov=app \
+            --cov-report=xml:reports/coverage.xml \
+            --cov-report=term-missing \
+            --ignore=tests/e2e
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: reports/
 
       - uses: actions/setup-go@v5
         with:
           go-version: "1.21"
       - run: go test ./...
+
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install build
+      - run: python -m build --wheel
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks needs full history
+
+      # Secret scan (RFC-0013 required)
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -e . pip-audit "bandit>=1.7"
+      - run: pip-audit
+      - run: |
+          mkdir -p reports
+          bandit -r src/ -ll -o reports/bandit.json -f json || true
+          bandit -r src/ -ll
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: reports/bandit.json
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: security-scan
+    if: github.ref == 'refs/heads/main'
+    environment: staging
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy to staging
+        run: |
+          echo "Deploy dist/ to staging environment here."
+          echo "Example: fly deploy --app my-app-staging"
+
+      - name: E2E smoke tests
+        env:
+          BASE_URL: ${{ vars.STAGING_BASE_URL }}
+        run: |
+          pip install -e '.[test]'
+          pytest tests/e2e/ -m e2e -q
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main'
+    environment: production          # manual approval required
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Deploy to production
+        run: |
+          echo "Deploy dist/ to production environment here."
+          echo "Example: fly deploy --app my-app"
+
+      - name: Production smoke test
+        env:
+          BASE_URL: ${{ vars.PRODUCTION_BASE_URL }}
+        run: |
+          pip install httpx
+          python -c "
+          import httpx, os, sys
+          base = os.environ['BASE_URL']
+          r = httpx.get(f'{base}/healthz')
+          assert r.status_code == 200, f'Expected 200, got {r.status_code}'
+          assert r.json() == {'status': 'ok'}, f'Unexpected body: {r.json()}'
+          print('Smoke test passed.')
+          "
+
+      - name: Tag release
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "deploy/production/$(date -u +%Y%m%dT%H%M%SZ)"
+          git push --tags

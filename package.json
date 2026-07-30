@@ -1,0 +1,13 @@
+{
+  "name": "aifactory-demo",
+  "version": "0.1.0",
+  "description": "FastAPI demo service — inventory reservation and link shortener.",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "uvicorn src.app.main:app --reload",
+    "test": "pytest -q"
+  }
+}
