@@ -19,9 +19,12 @@ Usage:
 
 Endpoints (override via env): PFACTORY_API, AIFACTORY_API, TFACTORY_API, CFACTORY_API.
 Auth: AIFACTORY_TOKEN / TFACTORY_TOKEN / PFACTORY_TOKEN (Bearer) if the factory needs it.
-Model: BENCH_MODEL=<model> overrides the per-scenario model (e.g. gemini-2.5-pro
-for a Gemini coding run). Running on the live cluster: see
-Factory/docs/dev/benchmark-matrix-runbook.md.
+Model: BENCH_MODEL=<model> sets the task's flat model. NOTE this does NOT switch
+provider on its own — the per-phase pins win. To actually change backend, pin the
+phases:
+    BENCH_PHASE_MODELS='{"coding": "antigravity-3-pro"}'   # any backend
+    BENCH_OLLAMA=1                                          # all-Ollama preset
+Running on the live cluster: see Factory/docs/dev/benchmark-matrix-runbook.md.
 
 NOTE: this script does not *start* anything unless invoked. The benchmark is run
 deliberately, separately from scaffolding the repo.
@@ -275,6 +278,53 @@ def stage_plan(sc: dict, defaults: dict, res: ScenarioResult, dry: bool) -> str 
         m.ended_at, m.duration_s = _now(), round(time.monotonic() - t0, 1)
 
 
+#: The phase keys AIFactory and TFactory actually honour. Both silently DROP any
+#: other key (AIFactory settings whitelist / TFactory spec-ingest whitelist), so a
+#: typo such as "testing" would run on the default model and be written up as a
+#: result for the model you thought you pinned. We reject unknown keys instead.
+_PHASES = ("spec", "planning", "coding", "qa", "qa_fixer")
+
+
+def _phase_models_from_env() -> dict[str, str]:
+    """Per-phase model pins for a backend-matrix run (Factory#295, cells B1-B4 / C1-C4).
+
+    Two optional layers:
+
+    ``BENCH_OLLAMA=1``
+        Preset: every phase on Ollama through the openai-compatible provider
+        (coding -> strong coder, everything else -> general). The endpoint comes
+        from the service's ``OPENAI_COMPATIBLE_BASE_URL``; the plain ``ollama:``
+        provider is hard-pinned to localhost and cannot reach a remote host.
+    ``BENCH_PHASE_MODELS``
+        JSON object of phase -> model, e.g. ``{"coding": "antigravity-3-pro"}``.
+        Merged last, so it overrides one phase of the preset or stands alone for
+        any other backend.
+
+    Returns ``{}`` when neither is set, which leaves the factory's own defaults in
+    charge.
+    """
+    pm: dict[str, str] = {}
+    if os.environ.get("BENCH_OLLAMA", "").strip().lower() in ("1", "true", "yes"):
+        coding = os.environ.get("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b")
+        general = os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b")
+        pm = {"spec": general, "planning": general, "coding": coding,
+              "qa": general, "qa_fixer": general}
+    raw = os.environ.get("BENCH_PHASE_MODELS", "").strip()
+    if raw:
+        try:
+            override = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            raise SystemExit(f"BENCH_PHASE_MODELS is not valid JSON: {exc}") from exc
+        if not isinstance(override, dict):
+            raise SystemExit("BENCH_PHASE_MODELS must be a JSON object of phase -> model")
+        unknown = sorted(k for k in override if k not in _PHASES)
+        if unknown:
+            raise SystemExit(f"BENCH_PHASE_MODELS has unknown phase(s) {unknown}; "
+                             f"valid phases: {list(_PHASES)}")
+        pm.update({k: str(v) for k, v in override.items()})
+    return pm
+
+
 def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, dry: bool) -> str | None:
     """AIFactory: ensure project → create task from the epic → start → poll. Returns task_id."""
     m = res.stage("code")
@@ -288,23 +338,25 @@ def stage_code(sc: dict, defaults: dict, epic: str | None, res: ScenarioResult, 
     _model_override = os.environ.get("BENCH_MODEL", "").strip()
     if _model_override:
         afopt["model"] = _model_override
-    # All-Ollama routing: BENCH_OLLAMA=1 runs every LLM phase on Ollama models via
-    # the openai-compatible provider (OPENAI_COMPATIBLE_BASE_URL=https://ollama.com).
-    # The per-phase mix (coding -> strong coder, others -> general) is set as the
-    # task's phaseModels (isAutoProfile), and propagates to TFactory's verify lanes
-    # via the handoff contract. Overridable via BENCH_OLLAMA_CODING_MODEL /
-    # BENCH_OLLAMA_GENERAL_MODEL. (PFactory's plan stage makes no LLM calls.)
+    # Per-phase model routing for the backend matrix. The task's phaseModels is the
+    # only surface that actually switches provider — a flat `model` does not — and it
+    # propagates to TFactory's verify lanes via the handoff contract. See
+    # _phase_models_from_env for the two env knobs. (PFactory's plan stage makes no
+    # LLM calls, so no backend choice reaches it.)
     metadata = {"correlation_key": epic, "github_repo": f"{owner}/{repo}",
                 "epic_issue": epic, "scenario": sc["slug"]}
-    if os.environ.get("BENCH_OLLAMA", "").strip().lower() in ("1", "true", "yes"):
-        _coding = os.environ.get("BENCH_OLLAMA_CODING_MODEL",
-                                 "openai-compatible:qwen3-coder:480b")
-        _general = os.environ.get("BENCH_OLLAMA_GENERAL_MODEL",
-                                  "openai-compatible:gpt-oss:120b")
+    _pm = _phase_models_from_env()
+    if _pm:
+        # isAutoProfile is load-bearing: AIFactory's resolver ignores phaseModels
+        # entirely unless it is truthy (apps/backend/phase_config.py).
         metadata["isAutoProfile"] = True
-        metadata["phaseModels"] = {"spec": _general, "planning": _general,
-                                   "coding": _coding, "qa": _general, "qa_fixer": _general}
+        metadata["phaseModels"] = _pm
         afopt["model"] = None  # phaseModels drives routing — don't pin a flat model
+        # Echo the pins so a --dry-run confirms them before a real run spends real
+        # money, and so the run log records what was REQUESTED. What was actually
+        # resolved is a separate question — read it from the run's token_usage.json
+        # `workers` map (provider/model/phase), never from this line.
+        print(f"  phaseModels requested: {json.dumps(_pm, sort_keys=True)}")
     try:
         project_id = _ensure_project(af, repo, f"https://github.com/{owner}/{repo}")
         task = af.call("POST", "/api/tasks", {

@@ -12,6 +12,8 @@ import importlib.util
 import sys
 from pathlib import Path
 
+import pytest
+
 _SPEC = importlib.util.spec_from_file_location(
     "run_benchmark",
     Path(__file__).resolve().parents[1] / "scripts" / "run_benchmark.py",
@@ -110,3 +112,69 @@ def test_any_phase_failure_suffix_is_terminal() -> None:
 def test_in_progress_statuses_are_not_terminal() -> None:
     for status in ("planning", "running", "pending", "in_progress", ""):
         assert _verify_is_terminal(status) is False, status
+
+
+# ── Per-phase model pinning (Factory#295 cells B1-B4 / C1-C4) ──────────────
+#
+# phaseModels is the ONLY surface that switches provider. If a pin silently
+# resolves to something else the run still completes, and gets published as a
+# result for a backend that never ran — the exact failure this validation
+# program exists to prevent. So the env parsing fails closed.
+
+_phase_models_from_env = run_benchmark._phase_models_from_env
+
+
+def test_no_env_means_no_pins(monkeypatch: pytest.MonkeyPatch) -> None:
+    for var in ("BENCH_OLLAMA", "BENCH_PHASE_MODELS"):
+        monkeypatch.delenv(var, raising=False)
+    assert _phase_models_from_env() == {}
+
+
+def test_ollama_preset_pins_every_phase(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("BENCH_PHASE_MODELS", raising=False)
+    monkeypatch.setenv("BENCH_OLLAMA", "1")
+    monkeypatch.setenv("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen2.5-coder:14b")
+    monkeypatch.setenv("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gemma4:12b")
+    pm = _phase_models_from_env()
+    assert set(pm) == set(run_benchmark._PHASES)
+    assert pm["coding"] == "openai-compatible:qwen2.5-coder:14b"
+    assert pm["planning"] == "openai-compatible:gemma4:12b"
+
+
+def test_explicit_pins_stand_alone(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("BENCH_OLLAMA", raising=False)
+    monkeypatch.setenv("BENCH_PHASE_MODELS", '{"coding": "antigravity-3-pro"}')
+    assert _phase_models_from_env() == {"coding": "antigravity-3-pro"}
+
+
+def test_explicit_pins_override_the_preset(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("BENCH_OLLAMA", "1")
+    monkeypatch.setenv("BENCH_PHASE_MODELS", '{"coding": "opus"}')
+    pm = _phase_models_from_env()
+    assert pm["coding"] == "opus"                      # the override won
+    assert pm["qa"].startswith("openai-compatible:")   # the preset survived elsewhere
+
+
+def test_unknown_phase_is_rejected_not_dropped(monkeypatch: pytest.MonkeyPatch) -> None:
+    # Both AIFactory and TFactory silently DROP unknown keys. A run pinned to
+    # "testing" would quietly use the default model and then be written up as a
+    # result for the pinned one, so refuse to start instead.
+    monkeypatch.delenv("BENCH_OLLAMA", raising=False)
+    monkeypatch.setenv("BENCH_PHASE_MODELS", '{"testing": "opus"}')
+    with pytest.raises(SystemExit) as err:
+        _phase_models_from_env()
+    assert "testing" in str(err.value)
+
+
+def test_malformed_json_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("BENCH_OLLAMA", raising=False)
+    monkeypatch.setenv("BENCH_PHASE_MODELS", "coding=opus")
+    with pytest.raises(SystemExit):
+        _phase_models_from_env()
+
+
+def test_non_object_json_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("BENCH_OLLAMA", raising=False)
+    monkeypatch.setenv("BENCH_PHASE_MODELS", '["opus"]')
+    with pytest.raises(SystemExit):
+        _phase_models_from_env()
