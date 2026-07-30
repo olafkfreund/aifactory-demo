@@ -1,0 +1,9 @@
+{
+  "name": "aifactory-demo",
+  "version": "0.1.0",
+  "description": "Tiny FastAPI service used as the demo target for AIFactory.",
+  "private": true,
+  "scripts": {
+    "test": "echo \"No JS tests configured\" && exit 0"
+  }
+}
