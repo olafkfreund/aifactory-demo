@@ -5,9 +5,13 @@ from . import __version__
 from .link_store import LinkNotFound
 from .links_router import links_router
 from .models import ItemCreate, ItemView, ReservationCreate, ReservationView
+from .request_id import RequestIDMiddleware
 from .store import Conflict, InventoryStore, NotFound
 
 app = FastAPI(title="aifactory-demo", version=__version__)
+
+# X-Request-ID correlation: echo the client-supplied header on every response.
+app.add_middleware(RequestIDMiddleware)
 
 # Single process-wide store instance shared across requests.
 store = InventoryStore()
