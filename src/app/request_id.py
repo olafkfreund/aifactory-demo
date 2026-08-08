@@ -36,8 +36,19 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 _MAX_REQUEST_ID_LENGTH = 200
+_INJECTION_CHARS = frozenset("\r\n")
 
 logger = logging.getLogger("app.request_id")
+
+
+def _contains_injection_chars(value: str) -> bool:
+    """Return ``True`` if *value* contains a carriage-return or line-feed.
+
+    Such characters can be used to forge extra lines in log output (log
+    injection), so any X-Request-ID that contains them must be rejected
+    before it is written to any log sink (AC#5).
+    """
+    return not _INJECTION_CHARS.isdisjoint(value)
 
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
@@ -73,6 +84,16 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
                         "detail": (
                             "X-Request-ID must not exceed"
                             f" {_MAX_REQUEST_ID_LENGTH} characters"
+                        )
+                    },
+                )
+            if _contains_injection_chars(raw_id):
+                return JSONResponse(
+                    status_code=400,
+                    content={
+                        "detail": (
+                            "X-Request-ID must not contain"
+                            " CR or LF characters"
                         )
                     },
                 )
