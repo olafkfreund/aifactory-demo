@@ -30,13 +30,14 @@ jobs:
           python-version: "3.12"
 
       - run: pip install -e '.[test]'
+      - run: mkdir -p reports
       - run: |
           pytest -q --tb=short \
             --junitxml=reports/junit.xml \
             --cov=app \
             --cov-report=xml:reports/coverage.xml \
             --cov-report=term-missing \
-            --ignore=tests/e2e
+            -m "not e2e"
 
       - uses: actions/upload-artifact@v4
         if: always()
@@ -118,10 +119,10 @@ jobs:
 
       - name: E2E smoke tests
         env:
-          BASE_URL: ${{ vars.STAGING_BASE_URL }}
+          TEST_SERVER_URL: ${{ vars.STAGING_BASE_URL }}
         run: |
           pip install -e '.[test]'
-          pytest tests/e2e/ -m e2e -q
+          pytest -m e2e -q
 
   deploy-production:
     runs-on: ubuntu-latest
