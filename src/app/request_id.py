@@ -11,12 +11,24 @@ Validation rules applied to client-supplied IDs
 * Maximum length: 200 characters — longer values are rejected with HTTP 400
   so the header cannot inject unbounded data into the logs.
 
+Logging (AC#3)
+--------------
+After each request completes the middleware emits one ``INFO`` log line via
+the ``app.request_id`` logger.  The log record carries these extra fields on
+its ``LogRecord`` so structured handlers (JSON, ECS, …) can forward them::
+
+    request_id  – the correlation token used for this exchange
+    method      – HTTP verb (GET, POST, …)
+    path        – URL path (e.g. ``/healthz``)
+    status_code – integer HTTP status returned to the client
+
 Usage (in main.py)::
 
     from .request_id import RequestIDMiddleware
     app.add_middleware(RequestIDMiddleware)
 """
 
+import logging
 import uuid
 
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -25,9 +37,11 @@ from starlette.responses import JSONResponse, Response
 
 _MAX_REQUEST_ID_LENGTH = 200
 
+logger = logging.getLogger("app.request_id")
+
 
 class RequestIDMiddleware(BaseHTTPMiddleware):
-    """Attach an ``X-Request-ID`` header to every response.
+    """Attach an ``X-Request-ID`` header to every response and emit a log line.
 
     If the client supplies an ``X-Request-ID`` request header the
     middleware validates and then copies its value verbatim into the
@@ -41,6 +55,12 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
     If the client supplies no ``X-Request-ID`` header the middleware
     generates a UUID4 and returns it in the ``X-Request-ID`` response
     header so the caller still has a correlation token.
+
+    Logging (AC#3):
+    After the response is produced the middleware logs one INFO record
+    through the ``app.request_id`` logger.  The record's message contains
+    the correlation token, verb, path, and status code, and the same values
+    are attached as extra fields for structured log handlers.
     """
 
     async def dispatch(self, request: Request, call_next) -> Response:
@@ -51,7 +71,8 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
                     status_code=400,
                     content={
                         "detail": (
-                            f"X-Request-ID must not exceed {_MAX_REQUEST_ID_LENGTH} characters"
+                            "X-Request-ID must not exceed"
+                            f" {_MAX_REQUEST_ID_LENGTH} characters"
                         )
                     },
                 )
@@ -60,4 +81,17 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
             request_id = str(uuid.uuid4())
         response = await call_next(request)
         response.headers["X-Request-ID"] = request_id
+        logger.info(
+            "%s %s %s %d",
+            request_id,
+            request.method,
+            request.url.path,
+            response.status_code,
+            extra={
+                "request_id": request_id,
+                "method": request.method,
+                "path": request.url.path,
+                "status_code": response.status_code,
+            },
+        )
         return response
