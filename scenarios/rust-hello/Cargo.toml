@@ -1,0 +1,13 @@
+[package]
+name = "rust-hello"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+# default lib name is crate name with hyphen replaced by underscore
+
+[[bin]]
+name = "rust-hello"
+path = "src/main.rs"
