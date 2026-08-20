@@ -9,10 +9,9 @@ into a ``Correlation epic #<id>`` task description — never ``str()`` the dict.
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
-
-import json
 
 import pytest
 
@@ -232,7 +231,7 @@ def test_the_warmup_probes_the_same_models_the_run_pins(
         def read(self) -> bytes:
             return b'{"choices":[{"message":{"content":"ok"}}]}'
 
-        def __enter__(self) -> "_Resp":
+        def __enter__(self) -> _Resp:
             return self
 
         def __exit__(self, *a: object) -> None:
