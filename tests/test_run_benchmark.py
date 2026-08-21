@@ -9,6 +9,7 @@ into a ``Correlation epic #<id>`` task description — never ``str()`` the dict.
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -182,3 +183,70 @@ def test_non_object_json_is_rejected(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BENCH_PHASE_MODELS", '["opus"]')
     with pytest.raises(SystemExit):
         _phase_models_from_env()
+
+
+def test_ollama_defaults_do_not_point_at_a_retired_model(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """qwen3-coder:480b was retired upstream on 2026-07-15 and answers HTTP 410.
+
+    It was the coding default, so `BENCH_OLLAMA=1` failed the coding phase while
+    the general phases ran fine — a partial failure that reads as "this model is
+    bad at coding" rather than "this model does not exist".
+    """
+    for var in ("BENCH_OLLAMA_CODING_MODEL", "BENCH_OLLAMA_GENERAL_MODEL"):
+        monkeypatch.delenv(var, raising=False)
+    monkeypatch.delenv("BENCH_PHASE_MODELS", raising=False)
+    monkeypatch.setenv("BENCH_OLLAMA", "1")
+    pm = _phase_models_from_env()
+    assert "qwen3-coder:480b" not in " ".join(pm.values())
+    assert set(pm.values()) == {"openai-compatible:gpt-oss:120b"}
+
+
+def test_the_warmup_probes_the_same_models_the_run_pins(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """One source of truth: an override must reach the warmup probe too.
+
+    These were duplicated literals, so overriding one and not the other warmed a
+    different model than the run actually used, and nothing in the log said so.
+    Asserted against the models the warmup really POSTs, not against the helper
+    -- comparing two callers of the same helper would pass even if the warmup
+    went back to its own literals.
+    """
+    monkeypatch.delenv("BENCH_PHASE_MODELS", raising=False)
+    monkeypatch.setenv("BENCH_OLLAMA", "1")
+    monkeypatch.setenv("OPENAI_COMPATIBLE_BASE_URL", "http://stub.invalid")
+    monkeypatch.setenv("BENCH_OLLAMA_WARMUP_TIMEOUT", "30")
+    monkeypatch.setenv(
+        "BENCH_OLLAMA_CODING_MODEL", "openai-compatible:nemotron-3-super"
+    )
+    monkeypatch.setenv("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gemma4:31b")
+
+    posted: list[str] = []
+
+    class _Resp:
+        status = 200
+
+        def read(self) -> bytes:
+            return b'{"choices":[{"message":{"content":"ok"}}]}'
+
+        def __enter__(self) -> _Resp:
+            return self
+
+        def __exit__(self, *a: object) -> None:
+            return None
+
+    def fake_urlopen(req, timeout=None):  # type: ignore[no-untyped-def]
+        data = getattr(req, "data", None)
+        if data:
+            posted.append(json.loads(data)["model"])
+        return _Resp()
+
+    monkeypatch.setattr(run_benchmark.urllib.request, "urlopen", fake_urlopen)
+    run_benchmark._warm_ollama_models()
+
+    # The provider prefix is stripped before the call; compare bare names.
+    assert set(posted) == {"nemotron-3-super", "gemma4:31b"}, posted
+    pinned = {m.split(":", 1)[1] for m in _phase_models_from_env().values()}
+    assert set(posted) == pinned, (posted, pinned)

@@ -60,6 +60,39 @@ TOKENS = {
 }
 
 # Build/verify can be long; poll budgets (seconds).
+# Default models for the BENCH_OLLAMA=1 preset. Defined ONCE and read by both
+# the phase-pin builder and the warmup probe -- they were duplicated literals,
+# so overriding one and not the other warmed a different model than the run
+# used, and the mismatch was invisible in the log.
+#
+# gpt-oss:120b is the largest model reachable on Ollama Cloud's free tier. The
+# previous coding default, qwen3-coder:480b, was RETIRED upstream on 2026-07-15
+# and now answers HTTP 410, so `BENCH_OLLAMA=1` failed the coding phase outright
+# while the general phases ran fine -- a partial failure that reads as "this
+# model is bad at coding" rather than "this model does not exist".
+#
+# Probed 2026-08-20: of the 19 models Ollama Cloud lists, only 7 are reachable
+# without a paid plan -- gpt-oss:120b, gpt-oss:20b, gemma4:31b, minimax-m3,
+# nemotron-3-nano:30b, nemotron-3-super, nemotron-3-ultra. The rest
+# (qwen3.5:397b, kimi-k2.7-code, kimi-k3, deepseek-v4-*, glm-5.*,
+# mistral-large-3:675b, minimax-m2.7) answer HTTP 403 "requires a subscription".
+# Listing a model is not access to it: probe with a real completion before
+# pinning one here.
+# Default literals only -- the env is still read at CALL time by both sites, so
+# BENCH_OLLAMA_CODING_MODEL / BENCH_OLLAMA_GENERAL_MODEL keep working after
+# import (resolving them here would silently ignore any override set later).
+DEFAULT_OLLAMA_CODING_MODEL = "openai-compatible:gpt-oss:120b"
+DEFAULT_OLLAMA_GENERAL_MODEL = "openai-compatible:gpt-oss:120b"
+
+
+def _ollama_models() -> tuple[str, str]:
+    """(coding, general) for the BENCH_OLLAMA preset, env-overridable."""
+    return (
+        os.environ.get("BENCH_OLLAMA_CODING_MODEL", DEFAULT_OLLAMA_CODING_MODEL),
+        os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", DEFAULT_OLLAMA_GENERAL_MODEL),
+    )
+
+
 BUILD_TIMEOUT = int(os.environ.get("BENCH_BUILD_TIMEOUT", "5400"))   # 90 min
 VERIFY_TIMEOUT = int(os.environ.get("BENCH_VERIFY_TIMEOUT", "3600"))  # 60 min — TFactory test-gen on a large build can take 30-35 min
 POLL_INTERVAL = int(os.environ.get("BENCH_POLL_INTERVAL", "15"))
@@ -305,8 +338,7 @@ def _phase_models_from_env() -> dict[str, str]:
     """
     pm: dict[str, str] = {}
     if os.environ.get("BENCH_OLLAMA", "").strip().lower() in ("1", "true", "yes"):
-        coding = os.environ.get("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b")
-        general = os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b")
+        coding, general = _ollama_models()
         pm = {"spec": general, "planning": general, "coding": coding,
               "qa": general, "qa_fixer": general}
     raw = os.environ.get("BENCH_PHASE_MODELS", "").strip()
@@ -583,10 +615,7 @@ def _warm_ollama_models() -> None:
     if not base:
         print("[warmup] OPENAI_COMPATIBLE_BASE_URL unset — skipping Ollama warmup")
         return
-    models = {
-        os.environ.get("BENCH_OLLAMA_CODING_MODEL", "openai-compatible:qwen3-coder:480b"),
-        os.environ.get("BENCH_OLLAMA_GENERAL_MODEL", "openai-compatible:gpt-oss:120b"),
-    }
+    models = set(_ollama_models())
     deadline = time.monotonic() + float(
         os.environ.get("BENCH_OLLAMA_WARMUP_TIMEOUT", "900")
     )
