@@ -8,6 +8,10 @@
   },
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
-    "test": "pytest -q"
+    "test": "jest",
+    "test:py": "pytest -q"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
   }
 }
