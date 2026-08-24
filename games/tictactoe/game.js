@@ -73,12 +73,39 @@
     };
   }
 
+  // Given a focused cell index (0-8) and a keyboard key name, return the
+  // index the grid focus should move to. Arrow keys move within the row/
+  // column and wrap at the edges; Home/End jump to the first/last cell;
+  // any other key leaves the focus where it is.
+  function nextFocusIndex(current, key) {
+    var row = Math.floor(current / 3);
+    var col = current % 3;
+
+    switch (key) {
+      case "ArrowRight":
+        return row * 3 + ((col + 1) % 3);
+      case "ArrowLeft":
+        return row * 3 + ((col + 2) % 3);
+      case "ArrowDown":
+        return ((row + 1) % 3) * 3 + col;
+      case "ArrowUp":
+        return ((row + 2) % 3) * 3 + col;
+      case "Home":
+        return 0;
+      case "End":
+        return 8;
+      default:
+        return current;
+    }
+  }
+
   var api = {
     WIN_LINES: WIN_LINES,
     createGame: createGame,
     checkWinner: checkWinner,
     isBoardFull: isBoardFull,
     makeMove: makeMove,
+    nextFocusIndex: nextFocusIndex,
   };
 
   if (typeof module !== "undefined" && module.exports) {

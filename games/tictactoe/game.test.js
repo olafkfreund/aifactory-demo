@@ -1,10 +1,8 @@
 // Run from the repo root with:
-//   node --test games/tictactoe/game.test.js
+//   npx jest games/tictactoe/game.test.js
 "use strict";
 
-const test = require("node:test");
-const assert = require("node:assert/strict");
-const { createGame, checkWinner, isBoardFull, makeMove, WIN_LINES } = require("./game.js");
+const { createGame, checkWinner, isBoardFull, makeMove, nextFocusIndex, WIN_LINES } = require("./game.js");
 
 // Apply a sequence of cell indexes to a fresh game, alternating players.
 function play(indexes) {
@@ -17,37 +15,37 @@ function play(indexes) {
 
 test("createGame returns an empty board with X to move and no winner", () => {
   const state = createGame();
-  assert.deepEqual(state.board, new Array(9).fill(null));
-  assert.equal(state.currentPlayer, "X");
-  assert.equal(state.winner, null);
-  assert.equal(state.winningLine, null);
-  assert.equal(state.isDraw, false);
+  expect(state.board).toEqual(new Array(9).fill(null));
+  expect(state.currentPlayer).toBe("X");
+  expect(state.winner).toBe(null);
+  expect(state.winningLine).toBe(null);
+  expect(state.isDraw).toBe(false);
 });
 
 test("placing a mark on an empty cell fills it and passes the turn", () => {
   const state = makeMove(createGame(), 4);
-  assert.equal(state.board[4], "X");
-  assert.equal(state.currentPlayer, "O");
+  expect(state.board[4]).toBe("X");
+  expect(state.currentPlayer).toBe("O");
 });
 
 test("clicking an occupied cell is a no-op: no turn change, no error", () => {
   const afterFirst = makeMove(createGame(), 0); // X at 0, O to move
   const afterSecond = makeMove(afterFirst, 0); // O tries the same cell
-  assert.deepEqual(afterSecond, afterFirst);
-  assert.equal(afterSecond.board[0], "X");
-  assert.equal(afterSecond.currentPlayer, "O");
+  expect(afterSecond).toEqual(afterFirst);
+  expect(afterSecond.board[0]).toBe("X");
+  expect(afterSecond.currentPlayer).toBe("O");
 });
 
 test("an out-of-range index is rejected without throwing or mutating state", () => {
   const before = createGame();
-  assert.doesNotThrow(() => makeMove(before, 9));
-  assert.doesNotThrow(() => makeMove(before, -1));
+  expect(() => makeMove(before, 9)).not.toThrow();
+  expect(() => makeMove(before, -1)).not.toThrow();
   const after = makeMove(before, 9);
-  assert.deepEqual(after, before);
+  expect(after).toEqual(before);
 });
 
 test("checkWinner reports no winner on an empty board", () => {
-  assert.deepEqual(checkWinner(new Array(9).fill(null)), { winner: null, line: null });
+  expect(checkWinner(new Array(9).fill(null))).toEqual({ winner: null, line: null });
 });
 
 test("all 8 winning lines are detected", () => {
@@ -55,8 +53,8 @@ test("all 8 winning lines are detected", () => {
     const board = new Array(9).fill(null);
     for (const index of line) board[index] = "X";
     const result = checkWinner(board);
-    assert.equal(result.winner, "X");
-    assert.deepEqual(result.line, line);
+    expect(result.winner).toBe("X");
+    expect(result.line).toEqual(line);
   }
 });
 
@@ -68,8 +66,8 @@ test("each of the 8 winning lines ends the game via makeMove and marks the line"
 
     const state = play(moves);
 
-    assert.equal(state.winner, "X");
-    assert.deepEqual([...state.winningLine].sort(), [...line].sort());
+    expect(state.winner).toBe("X");
+    expect([...state.winningLine].sort()).toEqual([...line].sort());
   }
 });
 
@@ -80,46 +78,76 @@ test("a full board with no three-in-a-row is a draw", () => {
   const moves = [0, 1, 2, 4, 3, 5, 7, 6, 8];
   const state = play(moves);
 
-  assert.equal(state.winner, null);
-  assert.equal(state.winningLine, null);
-  assert.equal(state.isDraw, true);
-  assert.equal(isBoardFull(state.board), true);
+  expect(state.winner).toBe(null);
+  expect(state.winningLine).toBe(null);
+  expect(state.isDraw).toBe(true);
+  expect(isBoardFull(state.board)).toBe(true);
 });
 
 test("play stops once a game is won: further clicks do nothing", () => {
   // X wins the top row on move 5 (index 2); O then tries to play cell 8.
   const moves = [0, 3, 1, 4, 2];
   const wonState = play(moves);
-  assert.equal(wonState.winner, "X");
+  expect(wonState.winner).toBe("X");
 
   const afterExtraClick = makeMove(wonState, 8);
-  assert.deepEqual(afterExtraClick, wonState);
-  assert.equal(afterExtraClick.board[8], null);
+  expect(afterExtraClick).toEqual(wonState);
+  expect(afterExtraClick.board[8]).toBe(null);
 });
 
 test("play stops once a game is drawn: further clicks do nothing", () => {
   const moves = [0, 1, 2, 4, 3, 5, 7, 6, 8];
   const drawnState = play(moves);
-  assert.equal(drawnState.isDraw, true);
+  expect(drawnState.isDraw).toBe(true);
 
   // Board is full, so there is no empty cell left to click — reapplying the
   // last move must still be rejected without changing state.
   const afterExtraClick = makeMove(drawnState, 8);
-  assert.deepEqual(afterExtraClick, drawnState);
+  expect(afterExtraClick).toEqual(drawnState);
 });
 
 test("isBoardFull is false until every cell is filled", () => {
   const board = new Array(9).fill(null);
-  assert.equal(isBoardFull(board), false);
+  expect(isBoardFull(board)).toBe(false);
   board.fill("X");
-  assert.equal(isBoardFull(board), true);
+  expect(isBoardFull(board)).toBe(true);
 });
 
 test("New game resets to an empty board with X to move", () => {
   const played = play([0, 1, 2, 4, 3]); // X has won
   const reset = createGame();
-  assert.deepEqual(reset.board, new Array(9).fill(null));
-  assert.equal(reset.currentPlayer, "X");
-  assert.equal(reset.winner, null);
-  assert.notDeepEqual(reset, played);
+  expect(reset.board).toEqual(new Array(9).fill(null));
+  expect(reset.currentPlayer).toBe("X");
+  expect(reset.winner).toBe(null);
+  expect(reset).not.toEqual(played);
+});
+
+describe("nextFocusIndex", () => {
+  test("moves right/left within a row and up/down within a column", () => {
+    expect(nextFocusIndex(4, "ArrowRight")).toBe(5);
+    expect(nextFocusIndex(4, "ArrowLeft")).toBe(3);
+    expect(nextFocusIndex(4, "ArrowUp")).toBe(1);
+    expect(nextFocusIndex(4, "ArrowDown")).toBe(7);
+  });
+
+  test("wraps at the edges", () => {
+    expect(nextFocusIndex(2, "ArrowRight")).toBe(0);
+    expect(nextFocusIndex(0, "ArrowLeft")).toBe(2);
+    expect(nextFocusIndex(0, "ArrowUp")).toBe(6);
+    expect(nextFocusIndex(6, "ArrowDown")).toBe(0);
+  });
+
+  test("Home returns 0 and End returns 8, from any cell", () => {
+    for (let index = 0; index <= 8; index++) {
+      expect(nextFocusIndex(index, "Home")).toBe(0);
+      expect(nextFocusIndex(index, "End")).toBe(8);
+    }
+  });
+
+  test("returns the current index unchanged for any other key", () => {
+    expect(nextFocusIndex(4, "Tab")).toBe(4);
+    expect(nextFocusIndex(0, "a")).toBe(0);
+    expect(nextFocusIndex(8, "Enter")).toBe(8);
+    expect(nextFocusIndex(3, " ")).toBe(3);
+  });
 });
