@@ -1,3 +1,13 @@
+// AC#6: games/tictactoe/game.test.js covers every nextFocusIndex case and
+// passes under `npx jest`. The nextFocusIndex suite below exercises:
+//   AC#2 — arrow moves within a row/column: from 4, ArrowRight=5, ArrowLeft=3,
+//          ArrowUp=1, ArrowDown=7.
+//   AC#3 — edge wrapping: from 2 ArrowRight=0; from 0 ArrowLeft=2;
+//          from 0 ArrowUp=6; from 6 ArrowDown=0.
+//   AC#4 — Home returns 0 and End returns 8, from any cell (0-8).
+//   AC#5 — any other key returns the current index unchanged.
+// The remaining tests exercise the pure game engine the same module exports.
+//
 // Run from the repo root with:
 //   npx jest games/tictactoe/game.test.js
 "use strict";
@@ -123,31 +133,59 @@ test("New game resets to an empty board with X to move", () => {
 });
 
 describe("nextFocusIndex", () => {
-  test("moves right/left within a row and up/down within a column", () => {
+  // AC#2: moves right/left within a row and up/down within a column.
+  test("ArrowRight from 4 moves right within the row to 5", () => {
     expect(nextFocusIndex(4, "ArrowRight")).toBe(5);
+  });
+
+  test("ArrowLeft from 4 moves left within the row to 3", () => {
     expect(nextFocusIndex(4, "ArrowLeft")).toBe(3);
+  });
+
+  test("ArrowUp from 4 moves up within the column to 1", () => {
     expect(nextFocusIndex(4, "ArrowUp")).toBe(1);
+  });
+
+  test("ArrowDown from 4 moves down within the column to 7", () => {
     expect(nextFocusIndex(4, "ArrowDown")).toBe(7);
   });
 
-  test("wraps at the edges", () => {
+  // AC#3: wraps at the edges.
+  test("ArrowRight from 2 wraps to the start of the row at 0", () => {
     expect(nextFocusIndex(2, "ArrowRight")).toBe(0);
+  });
+
+  test("ArrowLeft from 0 wraps to the end of the row at 2", () => {
     expect(nextFocusIndex(0, "ArrowLeft")).toBe(2);
+  });
+
+  test("ArrowUp from 0 wraps to the bottom of the column at 6", () => {
     expect(nextFocusIndex(0, "ArrowUp")).toBe(6);
+  });
+
+  test("ArrowDown from 6 wraps to the top of the column at 0", () => {
     expect(nextFocusIndex(6, "ArrowDown")).toBe(0);
   });
 
-  test("Home returns 0 and End returns 8, from any cell", () => {
+  // AC#4: Home returns 0 and End returns 8, from any cell.
+  test("Home returns 0 from any cell", () => {
     for (let index = 0; index <= 8; index++) {
       expect(nextFocusIndex(index, "Home")).toBe(0);
+    }
+  });
+
+  test("End returns 8 from any cell", () => {
+    for (let index = 0; index <= 8; index++) {
       expect(nextFocusIndex(index, "End")).toBe(8);
     }
   });
 
+  // AC#5: any other key returns the current index unchanged.
   test("returns the current index unchanged for any other key", () => {
     expect(nextFocusIndex(4, "Tab")).toBe(4);
     expect(nextFocusIndex(0, "a")).toBe(0);
     expect(nextFocusIndex(8, "Enter")).toBe(8);
     expect(nextFocusIndex(3, " ")).toBe(3);
+    expect(nextFocusIndex(5, "Escape")).toBe(5);
   });
 });
