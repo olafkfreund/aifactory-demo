@@ -9,5 +9,8 @@
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
     "test": "pytest -q"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0"
   }
 }
