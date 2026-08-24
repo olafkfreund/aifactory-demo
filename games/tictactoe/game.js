@@ -84,6 +84,67 @@
     };
   }
 
+  // Order candidate moves so that, among equally-good options, the centre
+  // is preferred over corners, which are preferred over edges. This gives
+  // deterministic, intuitively-strong play (e.g. taking the centre on an
+  // empty board) without changing the minimax-optimal value of any move.
+  var MOVE_PREFERENCE = [4, 0, 2, 6, 8, 1, 3, 5, 7];
+
+  // Score a terminal state from `aiPlayer`'s point of view. Wins closer to
+  // the present (smaller depth) score higher/lower so the AI prefers the
+  // fastest win and the slowest loss.
+  function terminalScore(state, aiPlayer, depth) {
+    if (state.winner === aiPlayer) return 10 - depth;
+    if (state.winner) return depth - 10;
+    return 0;
+  }
+
+  // Minimax over the (tiny, <=9-ply) game tree. Returns the value of
+  // `state` from `aiPlayer`'s perspective, assuming both sides play
+  // optimally from here on.
+  function minimax(state, aiPlayer, depth) {
+    if (isGameOver(state)) return terminalScore(state, aiPlayer, depth);
+
+    var maximizing = state.currentPlayer === aiPlayer;
+    var best = maximizing ? -Infinity : Infinity;
+
+    for (var i = 0; i < MOVE_PREFERENCE.length; i++) {
+      var idx = MOVE_PREFERENCE[i];
+      if (state.board[idx] !== null) continue;
+      var score = minimax(move(state, idx), aiPlayer, depth + 1);
+      if (maximizing) {
+        if (score > best) best = score;
+      } else {
+        if (score < best) best = score;
+      }
+    }
+
+    return best;
+  }
+
+  // Return the minimax-optimal move index for the player to move in
+  // `state`, or null if the game is already over. Never loses: at worst it
+  // forces a draw against any opponent play.
+  function bestMove(state) {
+    if (isGameOver(state)) return null;
+
+    var player = state.currentPlayer;
+    var bestIndex = null;
+    var bestScore = -Infinity;
+
+    for (var i = 0; i < MOVE_PREFERENCE.length; i++) {
+      var idx = MOVE_PREFERENCE[i];
+      if (state.board[idx] !== null) continue;
+      var score = minimax(move(state, idx), player, 1);
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = idx;
+      }
+    }
+
+    return bestIndex;
+  }
+
   return {
     WIN_LINES: WIN_LINES,
     newGame: newGame,
@@ -91,5 +152,6 @@
     isBoardFull: isBoardFull,
     isGameOver: isGameOver,
     move: move,
+    bestMove: bestMove,
   };
 });

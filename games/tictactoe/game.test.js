@@ -10,6 +10,7 @@ const {
   isBoardFull,
   isGameOver,
   move,
+  bestMove,
 } = require("./game.js");
 
 // Build a board from a compact array, using '.' for empty cells.
@@ -120,6 +121,93 @@ test("play stops once decided: further clicks do nothing after a draw", () => {
   assert.equal(state.isDraw, true);
   const after = move(state, 0); // occupied anyway, but also game-over
   assert.equal(after, state);
+});
+
+// Build a full game state (not just a board) for exercising bestMove
+// directly against a hand-picked position.
+function stateFrom(cells, currentPlayer) {
+  const b = board(cells);
+  const result = checkWinner(b);
+  return {
+    board: b,
+    currentPlayer,
+    winner: result.winner,
+    winningLine: result.line,
+    isDraw: !result.winner && isBoardFull(b),
+  };
+}
+
+test("bestMove takes the winning move when one is available in one ply", () => {
+  // X has two in a row (0,1); cell 2 completes it.
+  const state = stateFrom(["X", "X", ".", "O", "O", ".", ".", ".", "."], "X");
+  assert.equal(bestMove(state), 2);
+});
+
+test("bestMove blocks the opponent's immediate winning threat", () => {
+  // O has two in a row (3,4) threatening to win at 5; X cannot win itself.
+  const state = stateFrom(["X", ".", ".", "O", "O", ".", ".", ".", "."], "X");
+  assert.equal(bestMove(state), 5);
+});
+
+test("bestMove takes the centre on an empty board", () => {
+  assert.equal(bestMove(newGame()), 4);
+});
+
+test("bestMove returns null once the game is decided", () => {
+  let state = newGame();
+  for (const m of [0, 3, 1, 4, 2]) state = move(state, m); // X wins
+  assert.equal(bestMove(state), null);
+});
+
+// --- Exhaustive proof: the AI never loses -------------------------------
+//
+// For each choice of which mark the AI plays, recursively explore EVERY
+// possible sequence of opponent moves (the opponent is adversarial and
+// free to pick any legal move, not just "reasonable" ones), with the AI
+// always responding via bestMove. Assert that no reachable terminal state
+// is ever a loss for the AI.
+function exhaustiveNeverLoses(aiMark) {
+  const opponentMark = aiMark === "X" ? "O" : "X";
+  let statesExplored = 0;
+
+  function play(state) {
+    if (isGameOver(state)) {
+      statesExplored++;
+      assert.notEqual(
+        state.winner,
+        opponentMark,
+        `AI (${aiMark}) lost from a reachable line: ${JSON.stringify(state.board)}`
+      );
+      return;
+    }
+
+    if (state.currentPlayer === aiMark) {
+      // AI always plays its single computed best move.
+      const idx = bestMove(state);
+      assert.notEqual(idx, null);
+      play(move(state, idx));
+    } else {
+      // Opponent is adversarial: try every legal move.
+      for (let i = 0; i < 9; i++) {
+        if (state.board[i] === null) {
+          play(move(state, i));
+        }
+      }
+    }
+  }
+
+  play(newGame());
+  return statesExplored;
+}
+
+test("exhaustive proof: AI playing X never loses to any opponent move sequence", () => {
+  const explored = exhaustiveNeverLoses("X");
+  assert.ok(explored > 0);
+});
+
+test("exhaustive proof: AI playing O never loses to any opponent move sequence", () => {
+  const explored = exhaustiveNeverLoses("O");
+  assert.ok(explored > 0);
 });
 
 test("New game resets to an empty board with X to move", () => {
