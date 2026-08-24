@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .status {
+            font-size: 18px;
+            margin-bottom: 20px;
+            min-height: 25px;
+            color: #666;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+            margin-bottom: 30px;
+            background: #333;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: none;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: all 0.2s;
+        }
+
+        .cell:hover:not(:disabled) {
+            background: #f0f0f0;
+        }
+
+        .cell:disabled {
+            cursor: not-allowed;
+        }
+
+        .cell.winner {
+            background: #4CAF50;
+            color: white;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 12px 30px;
+            font-size: 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <div class="status" id="status">X's turn</div>
+        <div class="board" id="board"></div>
+        <button onclick="newGame()">New Game</button>
+    </div>
+
+    <script>
+        // Game state
+        const game = {
+            board: [null, null, null, null, null, null, null, null, null],
+            currentPlayer: 'X',
+            gameOver: false,
+            winner: null,
+            winningLine: []
+        };
+
+        // All winning lines (indices)
+        const WINNING_LINES = [
+            [0, 1, 2], // row 1
+            [3, 4, 5], // row 2
+            [6, 7, 8], // row 3
+            [0, 3, 6], // col 1
+            [1, 4, 7], // col 2
+            [2, 5, 8], // col 3
+            [0, 4, 8], // diagonal 1
+            [2, 4, 6]  // diagonal 2
+        ];
+
+        // Check for winner or draw
+        function checkGameStatus() {
+            // Check for winner
+            for (let line of WINNING_LINES) {
+                const [a, b, c] = line;
+                if (game.board[a] && game.board[a] === game.board[b] && game.board[a] === game.board[c]) {
+                    game.winner = game.board[a];
+                    game.winningLine = line;
+                    game.gameOver = true;
+                    return;
+                }
+            }
+
+            // Check for draw
+            if (game.board.every(cell => cell !== null)) {
+                game.gameOver = true;
+                return;
+            }
+        }
+
+        // Handle cell click
+        function handleCellClick(index) {
+            if (game.gameOver || game.board[index] !== null) {
+                return;
+            }
+
+            game.board[index] = game.currentPlayer;
+            checkGameStatus();
+
+            if (!game.gameOver) {
+                game.currentPlayer = game.currentPlayer === 'X' ? 'O' : 'X';
+            }
+
+            updateUI();
+        }
+
+        // Update UI
+        function updateUI() {
+            const boardElement = document.getElementById('board');
+            const statusElement = document.getElementById('status');
+
+            // Clear and rebuild board
+            boardElement.innerHTML = '';
+
+            game.board.forEach((cell, index) => {
+                const cellElement = document.createElement('button');
+                cellElement.className = 'cell';
+                cellElement.textContent = cell || '';
+                cellElement.onclick = () => handleCellClick(index);
+                cellElement.disabled = game.gameOver;
+
+                if (game.winningLine.includes(index)) {
+                    cellElement.classList.add('winner');
+                }
+
+                boardElement.appendChild(cellElement);
+            });
+
+            // Update status
+            if (game.winner) {
+                statusElement.textContent = `Player ${game.winner} wins!`;
+            } else if (game.gameOver) {
+                statusElement.textContent = "It's a draw!";
+            } else {
+                statusElement.textContent = `${game.currentPlayer}'s turn`;
+            }
+        }
+
+        // New game
+        function newGame() {
+            game.board = [null, null, null, null, null, null, null, null, null];
+            game.currentPlayer = 'X';
+            game.gameOver = false;
+            game.winner = null;
+            game.winningLine = [];
+            updateUI();
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
