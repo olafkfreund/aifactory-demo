@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 32px;
+        }
+
+        .game-info {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #666;
+            min-height: 30px;
+        }
+
+        .game-info.status-x {
+            color: #667eea;
+        }
+
+        .game-info.status-o {
+            color: #764ba2;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 5px;
+            margin-bottom: 20px;
+            background: #ddd;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: none;
+            font-size: 32px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.2s;
+        }
+
+        .cell:hover:not(:disabled) {
+            background: #f5f5f5;
+            transform: scale(0.98);
+        }
+
+        .cell:disabled {
+            cursor: not-allowed;
+        }
+
+        .cell.x {
+            color: #667eea;
+        }
+
+        .cell.o {
+            color: #764ba2;
+        }
+
+        .cell.winning {
+            background: #ffd700;
+            font-weight: bolder;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .status-message {
+            font-size: 20px;
+            font-weight: bold;
+            margin-top: 15px;
+            color: #333;
+            min-height: 30px;
+        }
+
+        .status-message.win {
+            color: #28a745;
+        }
+
+        .status-message.draw {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <div class="game-info" id="gameInfo">Player X's turn</div>
+        <div class="board" id="board">
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+        </div>
+        <div class="status-message" id="statusMessage"></div>
+        <div class="controls">
+            <button id="newGameBtn">New Game</button>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        // UI state
+        let game = createGame();
+
+        // Handle cell click
+        function handleCellClick(e) {
+            const index = parseInt(e.target.dataset.index);
+            game = makeMove(game, index);
+            updateUI();
+        }
+
+        // Update the UI
+        function updateUI() {
+            const cells = document.querySelectorAll('.cell');
+            cells.forEach((cell, index) => {
+                const mark = game.board[index];
+                cell.textContent = mark;
+                cell.className = 'cell';
+                if (mark === 'X') {
+                    cell.classList.add('x');
+                } else if (mark === 'O') {
+                    cell.classList.add('o');
+                }
+
+                // Highlight winning line
+                if (game.winningLine && game.winningLine.includes(index)) {
+                    cell.classList.add('winning');
+                }
+            });
+
+            // Update game info
+            const gameInfoDiv = document.getElementById('gameInfo');
+            if (!game.gameOver) {
+                gameInfoDiv.textContent = `Player ${game.currentPlayer}'s turn`;
+                gameInfoDiv.className = game.currentPlayer === 'X' ? 'game-info status-x' : 'game-info status-o';
+            } else {
+                gameInfoDiv.textContent = '';
+            }
+
+            // Update status message
+            const statusDiv = document.getElementById('statusMessage');
+            if (game.winner) {
+                statusDiv.textContent = `Player ${game.winner} wins!`;
+                statusDiv.className = 'status-message win';
+            } else if (game.gameOver && isBoardFull(game.board)) {
+                statusDiv.textContent = "It's a draw!";
+                statusDiv.className = 'status-message draw';
+            } else {
+                statusDiv.textContent = '';
+            }
+        }
+
+        // Reset the game
+        function handleNewGame() {
+            game = resetGame();
+            updateUI();
+        }
+
+        // Event listeners
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        document.getElementById('newGameBtn').addEventListener('click', handleNewGame);
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
