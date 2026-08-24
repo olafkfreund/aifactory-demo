@@ -30,7 +30,7 @@ test("real playthrough produces screenshot + screencast evidence", async () => {
   // Clear any stale artifacts from a previous run so assertions below only
   // ever see fresh output from this run.
   for (const f of fs.readdirSync(EVIDENCE_DIR)) {
-    fs.rmSync(path.join(EVIDENCE_DIR, f), { force: true });
+    fs.rmSync(path.join(EVIDENCE_DIR, f), { force: true, recursive: true });
   }
 
   const browser = await chromium.launch();
