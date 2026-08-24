@@ -9,6 +9,7 @@ const {
   isGameOver,
   move,
   nextFocusIndex,
+  bestMove,
 } = require("./game.js");
 
 // Build a board from a compact array, using '.' for empty cells.
@@ -160,5 +161,65 @@ describe("nextFocusIndex", () => {
     expect(nextFocusIndex(0, " ")).toBe(0);
     expect(nextFocusIndex(7, "a")).toBe(7);
     expect(nextFocusIndex(3, "Tab")).toBe(3);
+  });
+});
+
+// bestMove: the minimax AI. Fast, targeted checks first; the exhaustive
+// proof below is the acceptance criterion that actually matters.
+describe("bestMove", () => {
+  test("returns null once the game is decided", () => {
+    let state = newGame();
+    for (const m of [0, 3, 1, 4, 2]) state = move(state, m); // X wins
+    expect(bestMove(state)).toBe(null);
+  });
+
+  test("takes the centre on an empty board", () => {
+    expect(bestMove(newGame())).toBe(4);
+  });
+
+  test("takes the winning move when one is available in one ply", () => {
+    // X: 0, 1 already placed; O: 3, 4. X to move and can win at 2.
+    const cells = ["X", "X", ".", "O", "O", ".", ".", ".", "."];
+    const state = { board: board(cells), currentPlayer: "X", winner: null, winningLine: null, isDraw: false };
+    expect(bestMove(state)).toBe(2);
+  });
+
+  test("blocks the opponent's immediate winning threat when it cannot win itself", () => {
+    // O: 0, 1 already placed, threatening to win at 2. X: 3, 6 (no threat of its own).
+    const cells = ["O", "O", ".", "X", ".", ".", "X", ".", "."];
+    const state = { board: board(cells), currentPlayer: "X", winner: null, winningLine: null, isDraw: false };
+    expect(bestMove(state)).toBe(2);
+  });
+
+  // Exhaustive proof it never loses: play the AI against EVERY possible
+  // sequence of opponent moves (the opponent branches over every empty
+  // cell at each of its turns; the AI always answers with bestMove). This
+  // walks the full game tree, so if any path let the AI lose, it would be
+  // found here. Run once with the AI moving first (as X) and once with the
+  // AI moving second (as O).
+  function assertAiNeverLoses(state, aiSymbol) {
+    if (isGameOver(state)) {
+      const opponentSymbol = aiSymbol === "X" ? "O" : "X";
+      expect(state.winner).not.toBe(opponentSymbol);
+      return;
+    }
+    if (state.currentPlayer === aiSymbol) {
+      const idx = bestMove(state);
+      assertAiNeverLoses(move(state, idx), aiSymbol);
+    } else {
+      for (let i = 0; i < 9; i++) {
+        if (state.board[i] === null) {
+          assertAiNeverLoses(move(state, i), aiSymbol);
+        }
+      }
+    }
+  }
+
+  test("exhaustive proof: AI playing O never loses to any sequence of X moves", () => {
+    assertAiNeverLoses(newGame(), "O");
+  });
+
+  test("exhaustive proof: AI playing X never loses to any sequence of O moves", () => {
+    assertAiNeverLoses(newGame(), "X");
   });
 });
