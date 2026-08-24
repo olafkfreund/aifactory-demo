@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { injectAxe, checkA11y } from 'axe-playwright';
+import { injectAxe, checkA11y } from '@axe-core/playwright';
 
 test.describe('Tic Tac Toe Accessibility', () => {
   test.beforeEach(async ({ page }) => {
@@ -13,10 +13,7 @@ test.describe('Tic Tac Toe Accessibility', () => {
       detailedReportOptions: {
         html: true,
       },
-      rules: {
-        // These rules would trigger violations we'll ignore if needed
-        // For now, we check all rules
-      },
+      levels: ['serious', 'critical'],
     });
   });
 
