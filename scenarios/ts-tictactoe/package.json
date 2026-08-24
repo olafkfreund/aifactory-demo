@@ -1,0 +1,21 @@
+{
+  "name": "ts-tictactoe",
+  "version": "0.1.0",
+  "description": "TypeScript console/browser Tic-Tac-Toe with a pure, unit-testable game engine and an unbeatable minimax AI opponent.",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2",
+    "vitest": "^2.0.5"
+  }
+}
