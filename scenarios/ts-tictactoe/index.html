@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe</title>
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <h1 class="app__title">Tic-Tac-Toe</h1>
+
+      <div class="controls">
+        <label class="mode-toggle">
+          <input id="mode-toggle" type="checkbox" />
+          <span class="mode-toggle__label">Play vs Computer</span>
+        </label>
+        <span class="mode-toggle__hint">Off = Two-player, On = Play vs Computer (AI)</span>
+      </div>
+
+      <p id="status" class="status" role="status" aria-live="polite">
+        X to move
+      </p>
+
+      <div id="board" class="board" role="grid" aria-label="Tic-Tac-Toe board">
+        <button class="cell" data-index="0" role="gridcell" aria-label="Cell 1"></button>
+        <button class="cell" data-index="1" role="gridcell" aria-label="Cell 2"></button>
+        <button class="cell" data-index="2" role="gridcell" aria-label="Cell 3"></button>
+        <button class="cell" data-index="3" role="gridcell" aria-label="Cell 4"></button>
+        <button class="cell" data-index="4" role="gridcell" aria-label="Cell 5"></button>
+        <button class="cell" data-index="5" role="gridcell" aria-label="Cell 6"></button>
+        <button class="cell" data-index="6" role="gridcell" aria-label="Cell 7"></button>
+        <button class="cell" data-index="7" role="gridcell" aria-label="Cell 8"></button>
+        <button class="cell" data-index="8" role="gridcell" aria-label="Cell 9"></button>
+      </div>
+
+      <button id="new-game" class="new-game" type="button">New game</button>
+    </main>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>
