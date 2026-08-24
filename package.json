@@ -10,5 +10,8 @@
     "start": "uvicorn src.app.main:app --reload",
     "test": "pytest -q",
     "test:tictactoe": "node --test games/tictactoe/*.test.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
   }
 }

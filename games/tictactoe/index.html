@@ -27,14 +27,19 @@
     min-height: 1.5em;
   }
   #board {
-    display: grid;
-    grid-template-columns: repeat(3, 90px);
-    grid-template-rows: repeat(3, 90px);
+    display: flex;
+    flex-direction: column;
     gap: 4px;
     background: var(--line);
     border: 4px solid var(--line);
   }
+  .row {
+    display: flex;
+    gap: 4px;
+  }
   .cell {
+    width: 90px;
+    height: 90px;
     background: Canvas;
     color: CanvasText;
     font-size: 2.5rem;
@@ -46,8 +51,12 @@
     border: none;
     padding: 0;
   }
-  .cell:disabled {
+  .cell[aria-disabled="true"] {
     cursor: default;
+  }
+  .cell:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: -3px;
   }
   .cell.win {
     background: var(--win-bg);
@@ -73,7 +82,7 @@
     Play vs Computer (O)
   </label>
   <div id="status" role="status" aria-live="polite"></div>
-  <div id="board"></div>
+  <div id="board" role="grid" aria-label="Tic-tac-toe board"></div>
   <button id="new-game" type="button">New game</button>
 
   <script src="game.js"></script>
@@ -86,14 +95,30 @@
 
       var state = TicTacToe.createGame();
       var cellButtons = [];
+      var focusedIndex = 0;
+
+      function positionLabel(index) {
+        var row = Math.floor(index / 3) + 1;
+        var col = (index % 3) + 1;
+        return "row " + row + ", column " + col;
+      }
+
+      function setFocusedIndex(index) {
+        focusedIndex = index;
+        for (var i = 0; i < 9; i++) {
+          cellButtons[i].tabIndex = i === index ? 0 : -1;
+        }
+      }
 
       function render() {
         var winningLine = state.winningLine || [];
+        var gameOver = state.winner !== null || state.isDraw;
         for (var i = 0; i < 9; i++) {
           var btn = cellButtons[i];
           var mark = state.board[i];
           btn.textContent = mark || "";
-          btn.disabled = mark !== null || state.winner !== null || state.isDraw;
+          btn.setAttribute("aria-disabled", mark !== null || gameOver ? "true" : "false");
+          btn.setAttribute("aria-label", positionLabel(i) + ", " + (mark || "empty"));
           btn.classList.toggle("win", winningLine.indexOf(i) !== -1);
         }
 
@@ -124,22 +149,44 @@
         maybeComputerMove();
       }
 
-      for (var i = 0; i < 9; i++) {
-        (function (index) {
-          var btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "cell";
-          btn.setAttribute("aria-label", "Cell " + (index + 1));
-          btn.addEventListener("click", function () {
-            handleCellClick(index);
-          });
-          boardEl.appendChild(btn);
-          cellButtons.push(btn);
-        })(i);
+      for (var row = 0; row < 3; row++) {
+        var rowEl = document.createElement("div");
+        rowEl.className = "row";
+        rowEl.setAttribute("role", "row");
+        boardEl.appendChild(rowEl);
+
+        for (var col = 0; col < 3; col++) {
+          (function (index) {
+            var btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "cell";
+            btn.setAttribute("role", "gridcell");
+            btn.tabIndex = index === 0 ? 0 : -1;
+            btn.addEventListener("click", function () {
+              setFocusedIndex(index);
+              handleCellClick(index);
+            });
+            rowEl.appendChild(btn);
+            cellButtons.push(btn);
+          })(row * 3 + col);
+        }
       }
+
+      boardEl.addEventListener("keydown", function (event) {
+        var currentIndex = cellButtons.indexOf(document.activeElement);
+        if (currentIndex === -1) return;
+
+        var nextIndex = TicTacToe.nextFocusIndex(currentIndex, event.key);
+        if (nextIndex !== currentIndex) {
+          event.preventDefault();
+          setFocusedIndex(nextIndex);
+          cellButtons[nextIndex].focus();
+        }
+      });
 
       newGameBtn.addEventListener("click", function () {
         state = TicTacToe.createGame();
+        setFocusedIndex(0);
         render();
       });
 
