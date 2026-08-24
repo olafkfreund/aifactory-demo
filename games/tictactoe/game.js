@@ -73,12 +73,99 @@
     };
   }
 
+  function other(player) {
+    return player === "X" ? "O" : "X";
+  }
+
+  function filledCount(board) {
+    var count = 0;
+    for (var i = 0; i < 9; i++) {
+      if (board[i] !== null) count++;
+    }
+    return count;
+  }
+
+  // Cache of minimax scores keyed by "board|playerToMove|aiPlayer". Board
+  // states recur often via different move orders (transpositions), so this
+  // cache keeps the exhaustive search below fast without changing results.
+  // Depth is derived from the board itself (its filled-cell count), so a
+  // cached value is exact and safe to reuse from any call site.
+  var minimaxCache = new Map();
+
+  // Score `board` from `aiPlayer`'s perspective, assuming both sides play
+  // perfectly from here on. `player` is whose turn it is to move.
+  // +10/-10 (scaled by how many moves it took, so faster wins and slower
+  // losses are preferred), 0 for a drawn outcome.
+  function minimax(board, player, aiPlayer) {
+    var result = checkWinner(board);
+    if (result.winner === aiPlayer) return 10 - filledCount(board);
+    if (result.winner === other(aiPlayer)) return filledCount(board) - 10;
+    if (isBoardFull(board)) return 0;
+
+    var key = board.join(",") + "|" + player + "|" + aiPlayer;
+    if (minimaxCache.has(key)) return minimaxCache.get(key);
+
+    var maximizing = player === aiPlayer;
+    var best = maximizing ? -Infinity : Infinity;
+
+    for (var i = 0; i < 9; i++) {
+      if (board[i] !== null) continue;
+      board[i] = player;
+      var score = minimax(board, other(player), aiPlayer);
+      board[i] = null;
+
+      if (maximizing ? score > best : score < best) {
+        best = score;
+      }
+    }
+
+    minimaxCache.set(key, best);
+    return best;
+  }
+
+  // Return the index of an optimal move for the player to move in `state`,
+  // or null if the game is already over. Never picks a move that lets a
+  // perfectly-playing opponent win.
+  function bestMove(state) {
+    if (state.winner !== null || state.isDraw) return null;
+
+    var board = state.board.slice();
+    var aiPlayer = state.currentPlayer;
+
+    var emptyCells = [];
+    for (var i = 0; i < 9; i++) {
+      if (board[i] === null) emptyCells.push(i);
+    }
+
+    // Opening move on an empty board: every cell scores equal (a perfectly
+    // played game is a draw), so break the tie in favour of the centre.
+    if (emptyCells.length === 9) return 4;
+
+    var bestScore = -Infinity;
+    var bestIndex = emptyCells[0];
+
+    for (var j = 0; j < emptyCells.length; j++) {
+      var index = emptyCells[j];
+      board[index] = aiPlayer;
+      var score = minimax(board, other(aiPlayer), aiPlayer);
+      board[index] = null;
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestIndex = index;
+      }
+    }
+
+    return bestIndex;
+  }
+
   var api = {
     WIN_LINES: WIN_LINES,
     createGame: createGame,
     checkWinner: checkWinner,
     isBoardFull: isBoardFull,
     makeMove: makeMove,
+    bestMove: bestMove,
   };
 
   if (typeof module !== "undefined" && module.exports) {

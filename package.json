@@ -8,6 +8,7 @@
   },
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
-    "test": "pytest -q"
+    "test": "pytest -q",
+    "test:tictactoe": "node --test games/tictactoe/*.test.js"
   }
 }
