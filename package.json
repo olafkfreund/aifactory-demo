@@ -9,5 +9,11 @@
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
     "test": "pytest -q"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "canvas": "^3.2.3",
+    "http-server": "^14.1.1",
+    "sharp": "^0.35.3"
   }
 }
