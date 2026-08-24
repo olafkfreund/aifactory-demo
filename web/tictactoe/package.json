@@ -1,0 +1,14 @@
+{
+  "name": "tictactoe-web",
+  "version": "0.1.0",
+  "description": "Tic Tac Toe game with unbeatable minimax AI opponent.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test src/",
+    "serve": "http-server --port 8000 --gzip --cache -1"
+  }
+}
