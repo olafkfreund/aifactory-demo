@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Tic-Tac-Toe</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-top: 0;
+            font-size: 2em;
+        }
+
+        .game-info {
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            color: #666;
+        }
+
+        .turn-indicator {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .status-indicator {
+            font-weight: bold;
+            margin-bottom: 20px;
+            min-height: 1.5em;
+        }
+
+        .status-indicator.x-wins {
+            color: #2ecc71;
+        }
+
+        .status-indicator.o-wins {
+            color: #e74c3c;
+        }
+
+        .status-indicator.draw {
+            color: #f39c12;
+        }
+
+        /* Live region for screen readers */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        .live-region {
+            position: absolute;
+            left: -10000px;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+        }
+
+        /* Grid styling */
+        .grid {
+            display: inline-grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-gap: 8px;
+            margin-bottom: 30px;
+            background: #f0f0f0;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        button {
+            width: 100px;
+            height: 100px;
+            font-size: 2em;
+            font-weight: bold;
+            border: 2px solid #667eea;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        button:hover:not(:disabled) {
+            background: #f5f5f5;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Focus indicator - visible outline with box-shadow for extra visibility */
+        button:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.5), 0 0 0 2px #667eea;
+        }
+
+        /* Fallback for browsers that don't support focus-visible */
+        button:focus {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.5), 0 0 0 2px #667eea;
+        }
+
+        /* Player colors */
+        button[data-player="X"] {
+            color: #2ecc71;
+        }
+
+        button[data-player="O"] {
+            color: #e74c3c;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .reset-button {
+            padding: 12px 30px;
+            font-size: 1em;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s ease;
+        }
+
+        .reset-button:hover {
+            background: #764ba2;
+        }
+
+        .reset-button:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.5), 0 0 0 2px #667eea;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            font-size: 0.9em;
+            color: #666;
+            text-align: left;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .instructions ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+
+        <!-- Live region for announcements -->
+        <div class="live-region" aria-live="polite" aria-atomic="true" id="announcer"></div>
+
+        <div class="game-info">
+            <div class="turn-indicator" id="turnIndicator">Turn: X</div>
+            <div class="status-indicator" id="statusIndicator"></div>
+        </div>
+
+        <!-- Grid container -->
+        <div class="grid" role="grid" id="gameGrid" aria-label="Tic-tac-toe game board">
+            <!-- Cells will be generated by JavaScript -->
+        </div>
+
+        <div class="controls">
+            <button class="reset-button" id="resetButton">New Game</button>
+        </div>
+
+        <div class="instructions">
+            <h3>How to Play:</h3>
+            <ul>
+                <li><strong>Keyboard:</strong> Use arrow keys to move between cells, Home/End to jump</li>
+                <li><strong>Place Mark:</strong> Press Enter or Space on the focused cell</li>
+                <li><strong>Mouse:</strong> Click any empty cell to place your mark</li>
+                <li><strong>Accessibility:</strong> Each cell announces its position and contents</li>
+            </ul>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+    <script>
+        /**
+         * Tic-Tac-Toe UI Controller
+         */
+        class TicTacToeUI {
+            constructor() {
+                this.board = createBoard();
+                this.currentPlayer = 'X';
+                this.focusedCellIndex = 0;
+                this.gameOver = false;
+
+                this.gridElement = document.getElementById('gameGrid');
+                this.turnIndicator = document.getElementById('turnIndicator');
+                this.statusIndicator = document.getElementById('statusIndicator');
+                this.resetButton = document.getElementById('resetButton');
+                this.announcer = document.getElementById('announcer');
+
+                this.initializeGrid();
+                this.setupEventListeners();
+                this.announceGameStart();
+            }
+
+            initializeGrid() {
+                this.gridElement.innerHTML = '';
+                const cells = [];
+
+                for (let i = 0; i < 9; i++) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.role = 'gridcell';
+                    button.id = `cell-${i}`;
+                    button.dataset.index = i;
+
+                    // Set roving tabindex - only first cell is tabbable
+                    button.tabIndex = i === 0 ? 0 : -1;
+
+                    // Update accessible name
+                    this.updateCellAccessibleName(button, i);
+
+                    // Add click handler for mouse
+                    button.addEventListener('click', () => this.handleCellClick(i));
+
+                    this.gridElement.appendChild(button);
+                    cells.push(button);
+                }
+
+                this.cells = cells;
+            }
+
+            updateCellAccessibleName(cellElement, index) {
+                const row = Math.floor(index / 3) + 1;
+                const col = (index % 3) + 1;
+                const player = this.board[index];
+                const content = player ? (player === 'X' ? 'X' : 'O') : 'empty';
+
+                cellElement.setAttribute('aria-label', `row ${row}, column ${col}, ${content}`);
+            }
+
+            updateAllCellNames() {
+                this.cells.forEach((cell, index) => {
+                    this.updateCellAccessibleName(cell, index);
+                    // Update display
+                    const player = this.board[index];
+                    cell.textContent = player || '';
+                    if (player) {
+                        cell.dataset.player = player;
+                    } else {
+                        delete cell.dataset.player;
+                    }
+                });
+            }
+
+            setupEventListeners() {
+                // Grid keyboard navigation
+                this.gridElement.addEventListener('keydown', (e) => this.handleKeyDown(e));
+
+                // Reset button
+                this.resetButton.addEventListener('click', () => this.resetGame());
+            }
+
+            handleKeyDown(e) {
+                if (this.gameOver) {
+                    return;
+                }
+
+                const key = e.key;
+
+                // Check if it's a navigation key
+                if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(key)) {
+                    e.preventDefault();
+                    const nextIndex = nextFocusIndex(this.focusedCellIndex, key);
+                    this.moveFocus(nextIndex);
+                }
+                // Check if it's a placement key (Enter or Space)
+                else if (key === 'Enter' || key === ' ') {
+                    e.preventDefault();
+                    this.handleCellClick(this.focusedCellIndex);
+                }
+            }
+
+            moveFocus(newIndex) {
+                // Update roving tabindex
+                this.cells[this.focusedCellIndex].tabIndex = -1;
+                this.cells[newIndex].tabIndex = 0;
+
+                // Move focus
+                this.focusedCellIndex = newIndex;
+                this.cells[newIndex].focus();
+            }
+
+            handleCellClick(index) {
+                if (this.gameOver || this.board[index] !== '') {
+                    return;
+                }
+
+                const result = makeMove(this.board, index, this.currentPlayer);
+                if (result.error) {
+                    return;
+                }
+
+                this.board = result.board;
+                this.updateAllCellNames();
+
+                // Check game status
+                const status = getGameStatus(this.board);
+
+                if (status === 'x_wins') {
+                    this.gameOver = true;
+                    this.announceGameResult('X wins!');
+                    this.statusIndicator.textContent = 'X wins!';
+                    this.statusIndicator.className = 'status-indicator x-wins';
+                } else if (status === 'o_wins') {
+                    this.gameOver = true;
+                    this.announceGameResult('O wins!');
+                    this.statusIndicator.textContent = 'O wins!';
+                    this.statusIndicator.className = 'status-indicator o-wins';
+                } else if (status === 'draw') {
+                    this.gameOver = true;
+                    this.announceGameResult("It's a draw!");
+                    this.statusIndicator.textContent = "It's a draw!";
+                    this.statusIndicator.className = 'status-indicator draw';
+                } else {
+                    // Switch player
+                    this.currentPlayer = this.currentPlayer === 'X' ? 'O' : 'X';
+                    const nextPlayer = this.currentPlayer === 'X' ? 'X' : 'O';
+                    this.announceTurnChange(nextPlayer);
+                    this.turnIndicator.textContent = `Turn: ${this.currentPlayer}`;
+                }
+            }
+
+            resetGame() {
+                this.board = createBoard();
+                this.currentPlayer = 'X';
+                this.focusedCellIndex = 0;
+                this.gameOver = false;
+
+                this.statusIndicator.textContent = '';
+                this.statusIndicator.className = 'status-indicator';
+                this.turnIndicator.textContent = 'Turn: X';
+
+                this.updateAllCellNames();
+
+                // Reset focus to first cell
+                this.cells[0].tabIndex = 0;
+                this.cells[0].focus();
+
+                this.announceGameStart();
+            }
+
+            announceTurnChange(player) {
+                const message = `${player}'s turn`;
+                this.announcer.textContent = message;
+            }
+
+            announceGameResult(result) {
+                this.announcer.textContent = result;
+            }
+
+            announceGameStart() {
+                this.announcer.textContent = "New game started. X's turn.";
+            }
+        }
+
+        // Initialize the game when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            new TicTacToeUI();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "name": "tictactoe-game",
+  "version": "1.0.0",
+  "description": "Accessible keyboard-playable tic-tac-toe game",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0"
+  }
+}
