@@ -8,6 +8,11 @@
   },
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
-    "test": "pytest -q"
+    "test": "pytest -q",
+    "test:a11y": "playwright test games/tictactoe/a11y.spec.js"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.8.0",
+    "@playwright/test": "^1.40.0"
   }
 }
