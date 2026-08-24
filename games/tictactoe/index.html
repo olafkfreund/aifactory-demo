@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tic Tac Toe</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    .container {
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 0.5em;
+    }
+
+    .info {
+      font-size: 18px;
+      margin-bottom: 1em;
+      color: #666;
+      min-height: 1.5em;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 5px;
+      margin: 0 auto 2em;
+      background-color: #999;
+      padding: 5px;
+      border-radius: 8px;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 36px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: white;
+      border: none;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease;
+      outline: 2px solid transparent;
+      outline-offset: 2px;
+    }
+
+    .cell:hover {
+      background-color: #f0f0f0;
+    }
+
+    .cell:focus {
+      outline: 3px solid #4A90E2;
+      outline-offset: 2px;
+    }
+
+    .cell.disabled {
+      cursor: not-allowed;
+    }
+
+    .controls {
+      margin-top: 2em;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    button:focus {
+      outline: 3px solid #4A90E2;
+      outline-offset: 2px;
+    }
+
+    .instructions {
+      margin-top: 2em;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .live-region {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Tic Tac Toe</h1>
+    <div class="info" id="gameInfo" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="board" id="board" role="grid" aria-label="Tic tac toe game board">
+      <button class="cell" data-index="0" aria-label="Cell 1,1, row 1 column 1" role="gridcell"></button>
+      <button class="cell" data-index="1" aria-label="Cell 1,2, row 1 column 2" role="gridcell"></button>
+      <button class="cell" data-index="2" aria-label="Cell 1,3, row 1 column 3" role="gridcell"></button>
+      <button class="cell" data-index="3" aria-label="Cell 2,1, row 2 column 1" role="gridcell"></button>
+      <button class="cell" data-index="4" aria-label="Cell 2,2, row 2 column 2" role="gridcell"></button>
+      <button class="cell" data-index="5" aria-label="Cell 2,3, row 2 column 3" role="gridcell"></button>
+      <button class="cell" data-index="6" aria-label="Cell 3,1, row 3 column 1" role="gridcell"></button>
+      <button class="cell" data-index="7" aria-label="Cell 3,2, row 3 column 2" role="gridcell"></button>
+      <button class="cell" data-index="8" aria-label="Cell 3,3, row 3 column 3" role="gridcell"></button>
+    </div>
+
+    <div class="controls">
+      <button id="resetBtn">New Game</button>
+    </div>
+
+    <div class="instructions">
+      <p><strong>How to play:</strong></p>
+      <p>Keyboard: Use arrow keys to navigate cells, press Enter to make a move</p>
+      <p>Mouse: Click any empty cell to make a move</p>
+    </div>
+  </div>
+
+  <div class="live-region" id="liveRegion" role="status" aria-live="assertive" aria-atomic="true"></div>
+
+  <script>
+    const gameState = {
+      board: Array(9).fill(null),
+      currentPlayer: 'X',
+      gameOver: false,
+      winner: null,
+    };
+
+    const cells = document.querySelectorAll('.cell');
+    const gameInfo = document.getElementById('gameInfo');
+    const resetBtn = document.getElementById('resetBtn');
+    const liveRegion = document.getElementById('liveRegion');
+    const boardElement = document.getElementById('board');
+
+    let focusedCellIndex = 0;
+
+    const winningCombinations = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+
+    function getRowCol(index) {
+      return { row: Math.floor(index / 3) + 1, col: (index % 3) + 1 };
+    }
+
+    function updateAriaLabel(index) {
+      const { row, col } = getRowCol(index);
+      const content = gameState.board[index] || 'empty';
+      cells[index].setAttribute('aria-label', `Cell ${row},${col}, row ${row} column ${col}, ${content}`);
+    }
+
+    function checkWinner() {
+      for (const [a, b, c] of winningCombinations) {
+        if (gameState.board[a] && gameState.board[a] === gameState.board[b] && gameState.board[a] === gameState.board[c]) {
+          return gameState.board[a];
+        }
+      }
+      return null;
+    }
+
+    function checkDraw() {
+      return gameState.board.every(cell => cell !== null);
+    }
+
+    function updateDisplay() {
+      cells.forEach((cell, index) => {
+        cell.textContent = gameState.board[index] || '';
+        cell.disabled = gameState.gameOver || gameState.board[index] !== null;
+        updateAriaLabel(index);
+      });
+
+      if (gameState.gameOver) {
+        if (gameState.winner) {
+          gameInfo.textContent = `🎉 ${gameState.winner} wins!`;
+          liveRegion.textContent = `${gameState.winner} wins the game!`;
+        } else {
+          gameInfo.textContent = `It's a draw!`;
+          liveRegion.textContent = `Game is a draw!`;
+        }
+      } else {
+        gameInfo.textContent = `Current player: ${gameState.currentPlayer}`;
+        liveRegion.textContent = `${gameState.currentPlayer} player's turn`;
+      }
+    }
+
+    function makeMove(index) {
+      if (gameState.gameOver || gameState.board[index] !== null || index < 0 || index > 8) {
+        return;
+      }
+
+      gameState.board[index] = gameState.currentPlayer;
+      gameState.winner = checkWinner();
+
+      if (gameState.winner) {
+        gameState.gameOver = true;
+      } else if (checkDraw()) {
+        gameState.gameOver = true;
+      } else {
+        gameState.currentPlayer = gameState.currentPlayer === 'X' ? 'O' : 'X';
+      }
+
+      updateDisplay();
+    }
+
+    function resetGame() {
+      gameState.board = Array(9).fill(null);
+      gameState.currentPlayer = 'X';
+      gameState.gameOver = false;
+      gameState.winner = null;
+      focusedCellIndex = 0;
+      updateDisplay();
+      cells[focusedCellIndex].focus();
+      liveRegion.textContent = 'Game reset. X player starts.';
+    }
+
+    function moveFocus(direction) {
+      const previousFocus = focusedCellIndex;
+
+      switch(direction) {
+        case 'ArrowUp':
+          focusedCellIndex = Math.max(0, focusedCellIndex - 3);
+          break;
+        case 'ArrowDown':
+          focusedCellIndex = Math.min(8, focusedCellIndex + 3);
+          break;
+        case 'ArrowLeft':
+          if (focusedCellIndex % 3 > 0) focusedCellIndex--;
+          break;
+        case 'ArrowRight':
+          if (focusedCellIndex % 3 < 2) focusedCellIndex++;
+          break;
+      }
+
+      if (focusedCellIndex !== previousFocus) {
+        cells[focusedCellIndex].focus();
+      }
+    }
+
+    cells.forEach((cell, index) => {
+      cell.addEventListener('click', () => {
+        makeMove(index);
+        focusedCellIndex = index;
+      });
+
+      cell.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          makeMove(index);
+        } else if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+          e.preventDefault();
+          moveFocus(e.key);
+        }
+      });
+
+      cell.addEventListener('focus', () => {
+        focusedCellIndex = index;
+      });
+    });
+
+    resetBtn.addEventListener('click', resetGame);
+
+    resetBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        resetGame();
+      }
+    });
+
+    // Initialize
+    updateDisplay();
+    cells[0].focus();
+  </script>
+</body>
+</html>
