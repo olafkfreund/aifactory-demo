@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tic-Tac-Toe</title>
+<style>
+  :root {
+    color-scheme: light dark;
+    --gap: 8px;
+    --cell: 100px;
+  }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px 16px;
+    margin: 0;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  #status {
+    font-size: 1.1rem;
+    min-height: 1.5em;
+  }
+  #board {
+    display: grid;
+    grid-template-columns: repeat(3, var(--cell));
+    grid-template-rows: repeat(3, var(--cell));
+    gap: var(--gap);
+  }
+  .cell {
+    width: var(--cell);
+    height: var(--cell);
+    font-size: 2.5rem;
+    font-weight: 600;
+    line-height: 1;
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #222;
+  }
+  .cell:disabled {
+    cursor: default;
+  }
+  .cell.win {
+    background: #a8e6a1;
+    border-color: #4caf50;
+  }
+  #new-game {
+    font-size: 1rem;
+    padding: 8px 20px;
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid #888;
+    background: #fff;
+  }
+</style>
+</head>
+<body>
+  <h1>Tic-Tac-Toe</h1>
+  <div id="status" role="status" aria-live="polite"></div>
+  <div id="board"></div>
+  <button id="new-game" type="button">New game</button>
+
+  <script src="game.js"></script>
+  <script>
+    (function () {
+      var boardEl = document.getElementById("board");
+      var statusEl = document.getElementById("status");
+      var newGameBtn = document.getElementById("new-game");
+
+      var state = TicTacToe.newGame();
+      var cellButtons = [];
+
+      for (var i = 0; i < 9; i++) {
+        var btn = document.createElement("button");
+        btn.className = "cell";
+        btn.type = "button";
+        btn.setAttribute("aria-label", "Cell " + (i + 1));
+        (function (index) {
+          btn.addEventListener("click", function () {
+            state = TicTacToe.move(state, index);
+            render();
+          });
+        })(i);
+        boardEl.appendChild(btn);
+        cellButtons.push(btn);
+      }
+
+      newGameBtn.addEventListener("click", function () {
+        state = TicTacToe.newGame();
+        render();
+      });
+
+      function render() {
+        var gameOver = TicTacToe.isGameOver(state);
+        for (var i = 0; i < 9; i++) {
+          var btn = cellButtons[i];
+          var mark = state.board[i];
+          btn.textContent = mark || "";
+          btn.disabled = mark !== null || gameOver;
+          var isWinCell =
+            state.winningLine && state.winningLine.indexOf(i) !== -1;
+          btn.classList.toggle("win", !!isWinCell);
+        }
+
+        if (state.winner) {
+          statusEl.textContent = state.winner + " wins!";
+        } else if (state.isDraw) {
+          statusEl.textContent = "Draw!";
+        } else {
+          statusEl.textContent = state.currentPlayer + "'s turn";
+        }
+      }
+
+      render();
+    })();
+  </script>
+</body>
+</html>
