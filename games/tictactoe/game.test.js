@@ -1,3 +1,14 @@
+// AC#6: games/tictactoe/game.test.js covers every nextFocusIndex case above
+// (movement, wrapping, Home/End, passthrough) and passes under `npx jest`.
+//
+// This traces AC#1-AC#5 for nextFocusIndex(current, key):
+//   AC#1: given a cell index 0-8 and a key name.
+//   AC#2: from 4, ArrowRight is 5, ArrowLeft is 3, ArrowUp is 1, ArrowDown is 7.
+//   AC#3: from 2, ArrowRight is 0; from 0, ArrowLeft is 2; from 0, ArrowUp is 6;
+//         from 6, ArrowDown is 0.
+//   AC#4: returns 0 for Home and 8 for End, from any cell.
+//   AC#5: returns the current index unchanged for any other key.
+//
 // Run from repo root with: npx jest games/tictactoe/game.test.js
 "use strict";
 
@@ -132,8 +143,9 @@ test("New game resets to an empty board with X to move", () => {
   expect(isGameOver(reset)).toBe(false);
 });
 
-// nextFocusIndex: keyboard navigation for the 3x3 grid.
+// nextFocusIndex: keyboard navigation for the 3x3 grid (AC#1-AC#5).
 describe("nextFocusIndex", () => {
+  // AC#2: movement within a row/column from the centre cell.
   test("moves right/left within a row and up/down within a column", () => {
     expect(nextFocusIndex(4, "ArrowRight")).toBe(5);
     expect(nextFocusIndex(4, "ArrowLeft")).toBe(3);
@@ -141,6 +153,7 @@ describe("nextFocusIndex", () => {
     expect(nextFocusIndex(4, "ArrowDown")).toBe(7);
   });
 
+  // AC#3: wrapping at every edge.
   test("wraps at the edges", () => {
     expect(nextFocusIndex(2, "ArrowRight")).toBe(0);
     expect(nextFocusIndex(0, "ArrowLeft")).toBe(2);
@@ -148,6 +161,7 @@ describe("nextFocusIndex", () => {
     expect(nextFocusIndex(6, "ArrowDown")).toBe(0);
   });
 
+  // AC#4: Home jumps to the first cell, End to the last, from any cell.
   test("Home returns 0 and End returns 8 from any cell", () => {
     for (let i = 0; i < 9; i++) {
       expect(nextFocusIndex(i, "Home")).toBe(0);
@@ -155,6 +169,7 @@ describe("nextFocusIndex", () => {
     }
   });
 
+  // AC#5: any other key leaves focus where it is.
   test("returns the current index unchanged for any other key", () => {
     expect(nextFocusIndex(4, "Enter")).toBe(4);
     expect(nextFocusIndex(0, " ")).toBe(0);
