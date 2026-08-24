@@ -55,6 +55,36 @@
     return state.winner !== null || state.isDraw;
   }
 
+  // Given a focused cell index (0-8) and a keyboard key name, return the
+  // index that keyboard focus should move to. Arrow keys move within the
+  // 3x3 grid and wrap at the edges; Home/End jump to the first/last cell;
+  // any other key leaves focus where it is.
+  function nextFocusIndex(current, key) {
+    var row = Math.floor(current / 3);
+    var col = current % 3;
+    switch (key) {
+      case "ArrowRight":
+        col = (col + 1) % 3;
+        break;
+      case "ArrowLeft":
+        col = (col + 2) % 3;
+        break;
+      case "ArrowDown":
+        row = (row + 1) % 3;
+        break;
+      case "ArrowUp":
+        row = (row + 2) % 3;
+        break;
+      case "Home":
+        return 0;
+      case "End":
+        return 8;
+      default:
+        return current;
+    }
+    return row * 3 + col;
+  }
+
   // Apply a move at `index` to `state`, returning a NEW state.
   // If the game is already decided, the index is out of range, or the cell
   // is occupied, the original state object is returned unchanged (no-op).
@@ -91,5 +121,6 @@
     isBoardFull: isBoardFull,
     isGameOver: isGameOver,
     move: move,
+    nextFocusIndex: nextFocusIndex,
   };
 });

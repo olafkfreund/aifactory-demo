@@ -19,6 +19,9 @@
     padding: 32px 16px;
     margin: 0;
   }
+  main {
+    display: contents;
+  }
   h1 {
     margin: 0;
     font-size: 1.5rem;
@@ -28,9 +31,12 @@
     min-height: 1.5em;
   }
   #board {
-    display: grid;
-    grid-template-columns: repeat(3, var(--cell));
-    grid-template-rows: repeat(3, var(--cell));
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap);
+  }
+  .row {
+    display: flex;
     gap: var(--gap);
   }
   .cell {
@@ -48,12 +54,13 @@
     justify-content: center;
     color: #222;
   }
-  .cell:disabled {
-    cursor: default;
-  }
   .cell.win {
     background: #a8e6a1;
     border-color: #4caf50;
+  }
+  .cell:focus-visible {
+    outline: 3px solid #1a73e8;
+    outline-offset: 2px;
   }
   #new-game {
     font-size: 1rem;
@@ -66,10 +73,12 @@
 </style>
 </head>
 <body>
-  <h1>Tic-Tac-Toe</h1>
-  <div id="status" role="status" aria-live="polite"></div>
-  <div id="board"></div>
-  <button id="new-game" type="button">New game</button>
+  <main>
+    <h1>Tic-Tac-Toe</h1>
+    <div id="status" role="status" aria-live="polite"></div>
+    <div id="board" role="grid" aria-label="Tic-Tac-Toe board"></div>
+    <button id="new-game" type="button">New game</button>
+  </main>
 
   <script src="game.js"></script>
   <script>
@@ -80,38 +89,68 @@
 
       var state = TicTacToe.newGame();
       var cellButtons = [];
+      var focusedIndex = 0;
+      var NAV_KEYS = ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "Home", "End"];
 
-      for (var i = 0; i < 9; i++) {
-        var btn = document.createElement("button");
-        btn.className = "cell";
-        btn.type = "button";
-        btn.setAttribute("aria-label", "Cell " + (i + 1));
-        (function (index) {
-          btn.addEventListener("click", function () {
-            state = TicTacToe.move(state, index);
-            render();
-          });
-        })(i);
-        boardEl.appendChild(btn);
-        cellButtons.push(btn);
+      for (var r = 0; r < 3; r++) {
+        var rowEl = document.createElement("div");
+        rowEl.className = "row";
+        rowEl.setAttribute("role", "row");
+        for (var c = 0; c < 3; c++) {
+          var index = r * 3 + c;
+          var btn = document.createElement("button");
+          btn.className = "cell";
+          btn.type = "button";
+          btn.setAttribute("role", "gridcell");
+          (function (i) {
+            btn.addEventListener("click", function () {
+              focusedIndex = i;
+              state = TicTacToe.move(state, i);
+              render();
+            });
+          })(index);
+          rowEl.appendChild(btn);
+          cellButtons.push(btn);
+        }
+        boardEl.appendChild(rowEl);
       }
+
+      boardEl.addEventListener("keydown", function (event) {
+        if (NAV_KEYS.indexOf(event.key) === -1) return;
+        event.preventDefault();
+        focusedIndex = TicTacToe.nextFocusIndex(focusedIndex, event.key);
+        updateTabIndexes();
+        cellButtons[focusedIndex].focus();
+      });
 
       newGameBtn.addEventListener("click", function () {
         state = TicTacToe.newGame();
+        focusedIndex = 0;
         render();
       });
 
+      function updateTabIndexes() {
+        for (var i = 0; i < 9; i++) {
+          cellButtons[i].tabIndex = i === focusedIndex ? 0 : -1;
+        }
+      }
+
       function render() {
-        var gameOver = TicTacToe.isGameOver(state);
         for (var i = 0; i < 9; i++) {
           var btn = cellButtons[i];
           var mark = state.board[i];
           btn.textContent = mark || "";
-          btn.disabled = mark !== null || gameOver;
+          btn.setAttribute(
+            "aria-label",
+            "row " + (Math.floor(i / 3) + 1) +
+              ", column " + ((i % 3) + 1) +
+              ", " + (mark || "empty")
+          );
           var isWinCell =
             state.winningLine && state.winningLine.indexOf(i) !== -1;
           btn.classList.toggle("win", !!isWinCell);
         }
+        updateTabIndexes();
 
         if (state.winner) {
           statusEl.textContent = state.winner + " wins!";

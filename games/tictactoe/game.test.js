@@ -1,8 +1,6 @@
-// Run from repo root with: node --test games/tictactoe/game.test.js
+// Run from repo root with: npx jest games/tictactoe/game.test.js
 "use strict";
 
-const test = require("node:test");
-const assert = require("node:assert/strict");
 const {
   WIN_LINES,
   newGame,
@@ -10,6 +8,7 @@ const {
   isBoardFull,
   isGameOver,
   move,
+  nextFocusIndex,
 } = require("./game.js");
 
 // Build a board from a compact array, using '.' for empty cells.
@@ -19,36 +18,36 @@ function board(cells) {
 
 test("newGame starts with an empty board, X to move, nothing decided", () => {
   const state = newGame();
-  assert.deepEqual(state.board, Array(9).fill(null));
-  assert.equal(state.currentPlayer, "X");
-  assert.equal(state.winner, null);
-  assert.equal(state.winningLine, null);
-  assert.equal(state.isDraw, false);
-  assert.equal(isGameOver(state), false);
+  expect(state.board).toEqual(Array(9).fill(null));
+  expect(state.currentPlayer).toBe("X");
+  expect(state.winner).toBe(null);
+  expect(state.winningLine).toBe(null);
+  expect(state.isDraw).toBe(false);
+  expect(isGameOver(state)).toBe(false);
 });
 
 test("clicking an empty cell places the mark and passes the turn", () => {
   const state = newGame();
   const next = move(state, 4);
-  assert.equal(next.board[4], "X");
-  assert.equal(next.currentPlayer, "O");
+  expect(next.board[4]).toBe("X");
+  expect(next.currentPlayer).toBe("O");
   // original state is untouched (immutability)
-  assert.equal(state.board[4], null);
+  expect(state.board[4]).toBe(null);
 });
 
 test("clicking an occupied cell does nothing: no turn pass, no error", () => {
   const state = move(newGame(), 0); // X at 0, O to move
   const attempt = move(state, 0);
-  assert.equal(attempt, state); // exact no-op, same reference
-  assert.equal(attempt.board[0], "X");
-  assert.equal(attempt.currentPlayer, "O");
+  expect(attempt).toBe(state); // exact no-op, same reference
+  expect(attempt.board[0]).toBe("X");
+  expect(attempt.currentPlayer).toBe("O");
 });
 
 test("out-of-range index is rejected without error", () => {
   const state = newGame();
-  assert.equal(move(state, -1), state);
-  assert.equal(move(state, 9), state);
-  assert.equal(move(state, 1.5), state);
+  expect(move(state, -1)).toBe(state);
+  expect(move(state, 9)).toBe(state);
+  expect(move(state, 1.5)).toBe(state);
 });
 
 // All 8 winning lines, verified via checkWinner directly.
@@ -66,15 +65,15 @@ const winningBoards = [
 for (const { name, cells, line } of winningBoards) {
   test(`checkWinner detects winning line: ${name}`, () => {
     const result = checkWinner(board(cells));
-    assert.equal(result.winner, "X");
-    assert.deepEqual(result.line, line);
+    expect(result.winner).toBe("X");
+    expect(result.line).toEqual(line);
   });
 }
 
 test("all 8 winning lines are represented in WIN_LINES", () => {
-  assert.equal(WIN_LINES.length, 8);
+  expect(WIN_LINES.length).toBe(8);
   for (const { line } of winningBoards) {
-    assert.ok(WIN_LINES.some((l) => l.join(",") === line.join(",")));
+    expect(WIN_LINES.some((l) => l.join(",") === line.join(","))).toBe(true);
   }
 });
 
@@ -83,52 +82,83 @@ test("a win is reachable through play and the winning line is recorded", () => {
   // X: 0,1,2 (top row) ; O: 3,4
   const moves = [0, 3, 1, 4, 2];
   for (const m of moves) state = move(state, m);
-  assert.equal(state.winner, "X");
-  assert.deepEqual(state.winningLine, [0, 1, 2]);
-  assert.equal(isGameOver(state), true);
+  expect(state.winner).toBe("X");
+  expect(state.winningLine).toEqual([0, 1, 2]);
+  expect(isGameOver(state)).toBe(true);
 });
 
 test("a full board with no winner reports a draw", () => {
   // X O X / X O O / O X X  -> full board, no line for either player
   const cells = ["X", "O", "X", "X", "O", "O", "O", "X", "X"];
   const full = board(cells);
-  assert.equal(isBoardFull(full), true);
-  assert.equal(checkWinner(full).winner, null);
+  expect(isBoardFull(full)).toBe(true);
+  expect(checkWinner(full).winner).toBe(null);
 
   // Reach it through play: X and O alternate filling exactly this board.
   let state = newGame();
   const order = [0, 1, 2, 4, 3, 5, 7, 6, 8]; // X: 0,2,3,7,8 O: 1,4,5,6 -> matches cells above
   for (const m of order) state = move(state, m);
-  assert.deepEqual(state.board, full);
-  assert.equal(state.winner, null);
-  assert.equal(state.isDraw, true);
-  assert.equal(isGameOver(state), true);
+  expect(state.board).toEqual(full);
+  expect(state.winner).toBe(null);
+  expect(state.isDraw).toBe(true);
+  expect(isGameOver(state)).toBe(true);
 });
 
 test("play stops once decided: further clicks do nothing after a win", () => {
   let state = newGame();
   for (const m of [0, 3, 1, 4, 2]) state = move(state, m); // X wins on top row
-  assert.equal(state.winner, "X");
+  expect(state.winner).toBe("X");
   const after = move(state, 5); // empty cell, but game is over
-  assert.equal(after, state);
-  assert.equal(after.board[5], null);
+  expect(after).toBe(state);
+  expect(after.board[5]).toBe(null);
 });
 
 test("play stops once decided: further clicks do nothing after a draw", () => {
   let state = newGame();
   for (const m of [0, 1, 2, 4, 3, 5, 7, 6, 8]) state = move(state, m);
-  assert.equal(state.isDraw, true);
+  expect(state.isDraw).toBe(true);
   const after = move(state, 0); // occupied anyway, but also game-over
-  assert.equal(after, state);
+  expect(after).toBe(state);
 });
 
 test("New game resets to an empty board with X to move", () => {
   let state = newGame();
   for (const m of [0, 3, 1, 4, 2]) state = move(state, m);
-  assert.ok(isGameOver(state));
+  expect(isGameOver(state)).toBe(true);
 
   const reset = newGame();
-  assert.deepEqual(reset.board, Array(9).fill(null));
-  assert.equal(reset.currentPlayer, "X");
-  assert.equal(isGameOver(reset), false);
+  expect(reset.board).toEqual(Array(9).fill(null));
+  expect(reset.currentPlayer).toBe("X");
+  expect(isGameOver(reset)).toBe(false);
+});
+
+// nextFocusIndex: keyboard navigation for the 3x3 grid.
+describe("nextFocusIndex", () => {
+  test("moves right/left within a row and up/down within a column", () => {
+    expect(nextFocusIndex(4, "ArrowRight")).toBe(5);
+    expect(nextFocusIndex(4, "ArrowLeft")).toBe(3);
+    expect(nextFocusIndex(4, "ArrowUp")).toBe(1);
+    expect(nextFocusIndex(4, "ArrowDown")).toBe(7);
+  });
+
+  test("wraps at the edges", () => {
+    expect(nextFocusIndex(2, "ArrowRight")).toBe(0);
+    expect(nextFocusIndex(0, "ArrowLeft")).toBe(2);
+    expect(nextFocusIndex(0, "ArrowUp")).toBe(6);
+    expect(nextFocusIndex(6, "ArrowDown")).toBe(0);
+  });
+
+  test("Home returns 0 and End returns 8 from any cell", () => {
+    for (let i = 0; i < 9; i++) {
+      expect(nextFocusIndex(i, "Home")).toBe(0);
+      expect(nextFocusIndex(i, "End")).toBe(8);
+    }
+  });
+
+  test("returns the current index unchanged for any other key", () => {
+    expect(nextFocusIndex(4, "Enter")).toBe(4);
+    expect(nextFocusIndex(0, " ")).toBe(0);
+    expect(nextFocusIndex(7, "a")).toBe(7);
+    expect(nextFocusIndex(3, "Tab")).toBe(3);
+  });
 });
