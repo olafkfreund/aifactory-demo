@@ -21,6 +21,8 @@ htmlcov/
 dist/
 build/
 node_modules/
+test-results/
+playwright-report/
 
 # Factory-internal build status; must never be committed (AIFactory#1106)
 .aifactory-status
