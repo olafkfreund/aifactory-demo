@@ -125,7 +125,7 @@
               // computer's turn so a human click can't play its mark.
               if (vsComputer && state.currentPlayer === AI_PLAYER) return;
               focusedIndex = i;
-              state = TicTacToe.move(state, i);
+              state = TicTacToe.applyMove(state, i);
               render();
               maybeMakeComputerMove();
             });
@@ -168,9 +168,9 @@
         var scheduledState = state;
         setTimeout(function () {
           if (state !== scheduledState) return;
-          var idx = TicTacToe.bestMove(state);
+          var idx = TicTacToe.bestMove(state.board, state.currentPlayer);
           if (idx !== null) {
-            state = TicTacToe.move(state, idx);
+            state = TicTacToe.applyMove(state, idx);
             render();
           }
         }, COMPUTER_MOVE_DELAY_MS);
@@ -183,6 +183,9 @@
       }
 
       function render() {
+        var result = TicTacToe.winner(state.board);
+        var line = TicTacToe.winningLine(state.board);
+
         for (var i = 0; i < 9; i++) {
           var btn = cellButtons[i];
           var mark = state.board[i];
@@ -193,16 +196,15 @@
               ", column " + ((i % 3) + 1) +
               ", " + (mark || "empty")
           );
-          var isWinCell =
-            state.winningLine && state.winningLine.indexOf(i) !== -1;
+          var isWinCell = line && line.indexOf(i) !== -1;
           btn.classList.toggle("win", !!isWinCell);
         }
         updateTabIndexes();
 
-        if (state.winner) {
-          statusEl.textContent = state.winner + " wins!";
-        } else if (state.isDraw) {
+        if (result === "draw") {
           statusEl.textContent = "Draw!";
+        } else if (result) {
+          statusEl.textContent = result + " wins!";
         } else {
           statusEl.textContent = state.currentPlayer + "'s turn";
         }

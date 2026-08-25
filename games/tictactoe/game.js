@@ -21,38 +21,71 @@
     [2, 4, 6],
   ];
 
-  // Fresh game state: empty board, X moves first, nothing decided yet.
-  function newGame() {
-    return {
-      board: [null, null, null, null, null, null, null, null, null],
-      currentPlayer: "X",
-      winner: null,
-      winningLine: null,
-      isDraw: false,
-    };
+  // A fresh, empty 9-cell board.
+  function emptyBoard() {
+    return [null, null, null, null, null, null, null, null, null];
   }
 
-  // Look for a completed line on the given board.
-  // Returns { winner: 'X'|'O', line: [a,b,c] } or { winner: null, line: null }.
-  function checkWinner(board) {
+  // The three indices that make up a completed line, or null if there
+  // isn't one.
+  function winningLine(board) {
     for (var i = 0; i < WIN_LINES.length; i++) {
       var line = WIN_LINES[i];
       var a = line[0], b = line[1], c = line[2];
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return { winner: board[a], line: line };
+        return line;
       }
     }
-    return { winner: null, line: null };
+    return null;
   }
 
-  function isBoardFull(board) {
-    return board.every(function (cell) {
-      return cell !== null;
-    });
+  // "X" or "O" if that player has completed a line, "draw" if the board is
+  // full with no winner, or null if play continues.
+  function winner(board) {
+    var line = winningLine(board);
+    if (line) return board[line[0]];
+    for (var i = 0; i < board.length; i++) {
+      if (board[i] === null) return null;
+    }
+    return "draw";
+  }
+
+  // Place `player`'s mark at `index`, returning a NEW board. Returns the
+  // original board unchanged (no-op) if the game is already decided, the
+  // index is out of range, or the cell is occupied.
+  function move(board, index, player) {
+    if (winner(board) !== null) return board;
+    if (typeof index !== "number" || index < 0 || index > 8 || index % 1 !== 0) {
+      return board;
+    }
+    if (board[index] !== null) return board;
+
+    var next = board.slice();
+    next[index] = player;
+    return next;
+  }
+
+  // --- UI-facing helpers built on top of the pure board API above ---
+
+  // Fresh game state: empty board, X moves first.
+  function newGame() {
+    return { board: emptyBoard(), currentPlayer: "X" };
   }
 
   function isGameOver(state) {
-    return state.winner !== null || state.isDraw;
+    return winner(state.board) !== null;
+  }
+
+  // Apply a move at `index` for the state's current player, returning a NEW
+  // state with the turn passed. Returns the original state unchanged if the
+  // move is rejected (occupied cell, game already over, bad index).
+  function applyMove(state, index) {
+    var board = move(state.board, index, state.currentPlayer);
+    if (board === state.board) return state;
+    return {
+      board: board,
+      currentPlayer: state.currentPlayer === "X" ? "O" : "X",
+    };
   }
 
   // Given a focused cell index (0-8) and a keyboard key name, return the
@@ -85,35 +118,6 @@
     return row * 3 + col;
   }
 
-  // Apply a move at `index` to `state`, returning a NEW state.
-  // If the game is already decided, the index is out of range, or the cell
-  // is occupied, the original state object is returned unchanged (no-op).
-  function move(state, index) {
-    if (isGameOver(state)) return state;
-    if (typeof index !== "number" || index < 0 || index > 8 || index % 1 !== 0) {
-      return state;
-    }
-    if (state.board[index] !== null) return state;
-
-    var board = state.board.slice();
-    board[index] = state.currentPlayer;
-
-    var result = checkWinner(board);
-    var full = isBoardFull(board);
-
-    return {
-      board: board,
-      currentPlayer: result.winner
-        ? state.currentPlayer
-        : state.currentPlayer === "X"
-        ? "O"
-        : "X",
-      winner: result.winner,
-      winningLine: result.line,
-      isDraw: !result.winner && full,
-    };
-  }
-
   // Slight preference among equally-good (by minimax score) moves: centre
   // over corners over edges. This only breaks ties — it never overrides a
   // strictly better minimax score — but it's what makes the AI open an
@@ -124,21 +128,24 @@
     return 1;
   }
 
-  // Minimax search with alpha-beta pruning. Returns the value of `state`
-  // from the perspective of `aiPlayer`: positive means aiPlayer is winning,
-  // negative means aiPlayer is losing, 0 is a draw. Faster wins and slower
-  // losses are preferred via the depth term, so the AI plays the fastest
-  // available win and delays an unavoidable loss as long as possible.
-  function minimax(state, aiPlayer, depth, alpha, beta) {
-    if (state.winner === aiPlayer) return 10 - depth;
-    if (state.winner) return depth - 10;
-    if (state.isDraw) return 0;
+  // Minimax search with alpha-beta pruning. Returns the value of `board`
+  // (with `player` to move) from the perspective of `aiPlayer`: positive
+  // means aiPlayer is winning, negative means aiPlayer is losing, 0 is a
+  // draw. Faster wins and slower losses are preferred via the depth term,
+  // so the AI plays the fastest available win and delays an unavoidable
+  // loss as long as possible.
+  function minimax(board, player, aiPlayer, depth, alpha, beta) {
+    var result = winner(board);
+    if (result === aiPlayer) return 10 - depth;
+    if (result === "draw") return 0;
+    if (result) return depth - 10;
 
-    var maximizing = state.currentPlayer === aiPlayer;
+    var opponent = player === "X" ? "O" : "X";
+    var maximizing = player === aiPlayer;
     var value = maximizing ? -Infinity : Infinity;
     for (var i = 0; i < 9; i++) {
-      if (state.board[i] !== null) continue;
-      var score = minimax(move(state, i), aiPlayer, depth + 1, alpha, beta);
+      if (board[i] !== null) continue;
+      var score = minimax(move(board, i, player), opponent, aiPlayer, depth + 1, alpha, beta);
       if (maximizing) {
         if (score > value) value = score;
         if (value > alpha) alpha = value;
@@ -151,18 +158,18 @@
     return value;
   }
 
-  // Returns the index of the best available move for the player to move in
-  // `state`, using exhaustive minimax search — this player never loses.
-  // Returns null if the game is already decided.
-  function bestMove(state) {
-    if (isGameOver(state)) return null;
+  // Returns the index of the best available move for `player` on `board`,
+  // using exhaustive minimax search — this player never loses. Returns
+  // null if the game is already decided.
+  function bestMove(board, player) {
+    if (winner(board) !== null) return null;
 
-    var aiPlayer = state.currentPlayer;
+    var opponent = player === "X" ? "O" : "X";
     var bestIndex = null;
     var bestValue = -Infinity;
     for (var i = 0; i < 9; i++) {
-      if (state.board[i] !== null) continue;
-      var score = minimax(move(state, i), aiPlayer, 1, -Infinity, Infinity);
+      if (board[i] !== null) continue;
+      var score = minimax(move(board, i, player), opponent, player, 1, -Infinity, Infinity);
       var weighted = score + 0.01 * positionWeight(i);
       if (weighted > bestValue) {
         bestValue = weighted;
@@ -174,11 +181,13 @@
 
   return {
     WIN_LINES: WIN_LINES,
-    newGame: newGame,
-    checkWinner: checkWinner,
-    isBoardFull: isBoardFull,
-    isGameOver: isGameOver,
+    emptyBoard: emptyBoard,
     move: move,
+    winner: winner,
+    winningLine: winningLine,
+    newGame: newGame,
+    isGameOver: isGameOver,
+    applyMove: applyMove,
     nextFocusIndex: nextFocusIndex,
     bestMove: bestMove,
   };
