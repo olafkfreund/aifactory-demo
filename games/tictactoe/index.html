@@ -103,7 +103,8 @@
       var AI_PLAYER = "O";
       var COMPUTER_MOVE_DELAY_MS = 300; // well under the 1s response budget
 
-      var state = TicTacToe.newGame();
+      var board = TicTacToe.emptyBoard();
+      var currentPlayer = "X";
       var cellButtons = [];
       var focusedIndex = 0;
       var vsComputer = false;
@@ -123,9 +124,12 @@
             btn.addEventListener("click", function () {
               // While vs-computer mode is on, ignore clicks during the
               // computer's turn so a human click can't play its mark.
-              if (vsComputer && state.currentPlayer === AI_PLAYER) return;
+              if (vsComputer && currentPlayer === AI_PLAYER) return;
               focusedIndex = i;
-              state = TicTacToe.move(state, i);
+              var next = TicTacToe.move(board, i, currentPlayer);
+              if (next === board) return; // occupied cell or game over: no-op
+              board = next;
+              currentPlayer = currentPlayer === "X" ? "O" : "X";
               render();
               maybeMakeComputerMove();
             });
@@ -145,7 +149,8 @@
       });
 
       newGameBtn.addEventListener("click", function () {
-        state = TicTacToe.newGame();
+        board = TicTacToe.emptyBoard();
+        currentPlayer = "X";
         focusedIndex = 0;
         render();
       });
@@ -153,24 +158,26 @@
       vsComputerCheckbox.addEventListener("change", function () {
         vsComputer = vsComputerCheckbox.checked;
         // Start fresh so the human/computer turn order is unambiguous.
-        state = TicTacToe.newGame();
+        board = TicTacToe.emptyBoard();
+        currentPlayer = "X";
         focusedIndex = 0;
         render();
       });
 
       function maybeMakeComputerMove() {
         if (!vsComputer) return;
-        if (TicTacToe.isGameOver(state)) return;
-        if (state.currentPlayer !== AI_PLAYER) return;
-        // Snapshot the state this move was scheduled for. If a new game or
-        // toggle change replaces `state` before this fires, skip it instead
+        if (TicTacToe.winner(board)) return;
+        if (currentPlayer !== AI_PLAYER) return;
+        // Snapshot the board this move was scheduled for. If a new game or
+        // toggle change replaces `board` before this fires, skip it instead
         // of playing a stale move into an unrelated game.
-        var scheduledState = state;
+        var scheduledBoard = board;
         setTimeout(function () {
-          if (state !== scheduledState) return;
-          var idx = TicTacToe.bestMove(state);
+          if (board !== scheduledBoard) return;
+          var idx = TicTacToe.bestMove(board, currentPlayer);
           if (idx !== null) {
-            state = TicTacToe.move(state, idx);
+            board = TicTacToe.move(board, idx, currentPlayer);
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
             render();
           }
         }, COMPUTER_MOVE_DELAY_MS);
@@ -183,9 +190,12 @@
       }
 
       function render() {
+        var line = TicTacToe.winningLine(board);
+        var result = TicTacToe.winner(board);
+
         for (var i = 0; i < 9; i++) {
           var btn = cellButtons[i];
-          var mark = state.board[i];
+          var mark = board[i];
           btn.textContent = mark || "";
           btn.setAttribute(
             "aria-label",
@@ -193,18 +203,17 @@
               ", column " + ((i % 3) + 1) +
               ", " + (mark || "empty")
           );
-          var isWinCell =
-            state.winningLine && state.winningLine.indexOf(i) !== -1;
+          var isWinCell = line && line.indexOf(i) !== -1;
           btn.classList.toggle("win", !!isWinCell);
         }
         updateTabIndexes();
 
-        if (state.winner) {
-          statusEl.textContent = state.winner + " wins!";
-        } else if (state.isDraw) {
+        if (result === "draw") {
           statusEl.textContent = "Draw!";
+        } else if (result) {
+          statusEl.textContent = result + " wins!";
         } else {
-          statusEl.textContent = state.currentPlayer + "'s turn";
+          statusEl.textContent = currentPlayer + "'s turn";
         }
       }
 
