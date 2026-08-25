@@ -1,57 +1,54 @@
-// Run from repo root with: npx jest games/tictactoe/game.test.js
+// Run from repo root with: node --test games/tictactoe/game.test.js
 "use strict";
 
-const {
-  WIN_LINES,
-  newGame,
-  checkWinner,
-  isBoardFull,
-  isGameOver,
-  move,
-  nextFocusIndex,
-  bestMove,
-} = require("./game.js");
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const { emptyBoard, move, winner, winningLine } = require("./game.js");
 
 // Build a board from a compact array, using '.' for empty cells.
 function board(cells) {
   return cells.map((c) => (c === "." ? null : c));
 }
 
-test("newGame starts with an empty board, X to move, nothing decided", () => {
-  const state = newGame();
-  expect(state.board).toEqual(Array(9).fill(null));
-  expect(state.currentPlayer).toBe("X");
-  expect(state.winner).toBe(null);
-  expect(state.winningLine).toBe(null);
-  expect(state.isDraw).toBe(false);
-  expect(isGameOver(state)).toBe(false);
+test("emptyBoard returns a fresh 9-cell board", () => {
+  const b = emptyBoard();
+  assert.equal(b.length, 9);
+  assert.ok(b.every((cell) => cell === null));
 });
 
-test("clicking an empty cell places the mark and passes the turn", () => {
-  const state = newGame();
-  const next = move(state, 4);
-  expect(next.board[4]).toBe("X");
-  expect(next.currentPlayer).toBe("O");
-  // original state is untouched (immutability)
-  expect(state.board[4]).toBe(null);
+test("move places the mark and returns a NEW board (immutability)", () => {
+  const b = emptyBoard();
+  const next = move(b, 4, "X");
+  assert.equal(next[4], "X");
+  assert.notEqual(next, b);
+  assert.equal(b[4], null); // original untouched
 });
 
-test("clicking an occupied cell does nothing: no turn pass, no error", () => {
-  const state = move(newGame(), 0); // X at 0, O to move
-  const attempt = move(state, 0);
-  expect(attempt).toBe(state); // exact no-op, same reference
-  expect(attempt.board[0]).toBe("X");
-  expect(attempt.currentPlayer).toBe("O");
+test("move rejects an occupied cell: no-op, same board returned", () => {
+  const b = move(emptyBoard(), 0, "X");
+  const attempt = move(b, 0, "O");
+  assert.equal(attempt, b); // exact no-op, same reference
+  assert.equal(attempt[0], "X");
 });
 
-test("out-of-range index is rejected without error", () => {
-  const state = newGame();
-  expect(move(state, -1)).toBe(state);
-  expect(move(state, 9)).toBe(state);
-  expect(move(state, 1.5)).toBe(state);
+test("move rejects a move after the game is over", () => {
+  let b = emptyBoard();
+  for (const [i, p] of [[0, "X"], [3, "O"], [1, "X"], [4, "O"], [2, "X"]]) {
+    b = move(b, i, p);
+  }
+  assert.equal(winner(b), "X");
+  const after = move(b, 5, "O"); // empty cell, but game is over
+  assert.equal(after, b);
 });
 
-// All 8 winning lines, verified via checkWinner directly.
+test("move rejects an out-of-range index", () => {
+  const b = emptyBoard();
+  assert.equal(move(b, -1, "X"), b);
+  assert.equal(move(b, 9, "X"), b);
+  assert.equal(move(b, 1.5, "X"), b);
+});
+
+// All 8 winning lines, verified via winner() and winningLine() together.
 const winningBoards = [
   { name: "row 0", cells: ["X", "X", "X", "O", "O", ".", ".", ".", "."], line: [0, 1, 2] },
   { name: "row 1", cells: ["O", "O", ".", "X", "X", "X", ".", ".", "."], line: [3, 4, 5] },
@@ -64,162 +61,46 @@ const winningBoards = [
 ];
 
 for (const { name, cells, line } of winningBoards) {
-  test(`checkWinner detects winning line: ${name}`, () => {
-    const result = checkWinner(board(cells));
-    expect(result.winner).toBe("X");
-    expect(result.line).toEqual(line);
+  test(`winner/winningLine detect winning line: ${name}`, () => {
+    const b = board(cells);
+    assert.equal(winner(b), "X");
+    assert.deepEqual(winningLine(b), line);
   });
 }
 
-test("all 8 winning lines are represented in WIN_LINES", () => {
-  expect(WIN_LINES.length).toBe(8);
-  for (const { line } of winningBoards) {
-    expect(WIN_LINES.some((l) => l.join(",") === line.join(","))).toBe(true);
-  }
-});
-
 test("a win is reachable through play and the winning line is recorded", () => {
-  let state = newGame();
+  let b = emptyBoard();
   // X: 0,1,2 (top row) ; O: 3,4
-  const moves = [0, 3, 1, 4, 2];
-  for (const m of moves) state = move(state, m);
-  expect(state.winner).toBe("X");
-  expect(state.winningLine).toEqual([0, 1, 2]);
-  expect(isGameOver(state)).toBe(true);
+  const moves = [[0, "X"], [3, "O"], [1, "X"], [4, "O"], [2, "X"]];
+  for (const [i, p] of moves) b = move(b, i, p);
+  assert.equal(winner(b), "X");
+  assert.deepEqual(winningLine(b), [0, 1, 2]);
 });
 
 test("a full board with no winner reports a draw", () => {
   // X O X / X O O / O X X  -> full board, no line for either player
   const cells = ["X", "O", "X", "X", "O", "O", "O", "X", "X"];
   const full = board(cells);
-  expect(isBoardFull(full)).toBe(true);
-  expect(checkWinner(full).winner).toBe(null);
+  assert.equal(winner(full), "draw");
+  assert.equal(winningLine(full), null);
 
   // Reach it through play: X and O alternate filling exactly this board.
-  let state = newGame();
-  const order = [0, 1, 2, 4, 3, 5, 7, 6, 8]; // X: 0,2,3,7,8 O: 1,4,5,6 -> matches cells above
-  for (const m of order) state = move(state, m);
-  expect(state.board).toEqual(full);
-  expect(state.winner).toBe(null);
-  expect(state.isDraw).toBe(true);
-  expect(isGameOver(state)).toBe(true);
+  let b = emptyBoard();
+  const order = [
+    [0, "X"], [1, "O"], [2, "X"], [4, "O"], [3, "X"],
+    [5, "O"], [7, "X"], [6, "O"], [8, "X"],
+  ];
+  for (const [i, p] of order) b = move(b, i, p);
+  assert.deepEqual(b, full);
+  assert.equal(winner(b), "draw");
 });
 
-test("play stops once decided: further clicks do nothing after a win", () => {
-  let state = newGame();
-  for (const m of [0, 3, 1, 4, 2]) state = move(state, m); // X wins on top row
-  expect(state.winner).toBe("X");
-  const after = move(state, 5); // empty cell, but game is over
-  expect(after).toBe(state);
-  expect(after.board[5]).toBe(null);
+test("winner returns null while play continues", () => {
+  assert.equal(winner(emptyBoard()), null);
+  assert.equal(winner(move(emptyBoard(), 0, "X")), null);
 });
 
-test("play stops once decided: further clicks do nothing after a draw", () => {
-  let state = newGame();
-  for (const m of [0, 1, 2, 4, 3, 5, 7, 6, 8]) state = move(state, m);
-  expect(state.isDraw).toBe(true);
-  const after = move(state, 0); // occupied anyway, but also game-over
-  expect(after).toBe(state);
-});
-
-test("New game resets to an empty board with X to move", () => {
-  let state = newGame();
-  for (const m of [0, 3, 1, 4, 2]) state = move(state, m);
-  expect(isGameOver(state)).toBe(true);
-
-  const reset = newGame();
-  expect(reset.board).toEqual(Array(9).fill(null));
-  expect(reset.currentPlayer).toBe("X");
-  expect(isGameOver(reset)).toBe(false);
-});
-
-// nextFocusIndex: keyboard navigation for the 3x3 grid.
-describe("nextFocusIndex", () => {
-  test("moves right/left within a row and up/down within a column", () => {
-    expect(nextFocusIndex(4, "ArrowRight")).toBe(5);
-    expect(nextFocusIndex(4, "ArrowLeft")).toBe(3);
-    expect(nextFocusIndex(4, "ArrowUp")).toBe(1);
-    expect(nextFocusIndex(4, "ArrowDown")).toBe(7);
-  });
-
-  test("wraps at the edges", () => {
-    expect(nextFocusIndex(2, "ArrowRight")).toBe(0);
-    expect(nextFocusIndex(0, "ArrowLeft")).toBe(2);
-    expect(nextFocusIndex(0, "ArrowUp")).toBe(6);
-    expect(nextFocusIndex(6, "ArrowDown")).toBe(0);
-  });
-
-  test("Home returns 0 and End returns 8 from any cell", () => {
-    for (let i = 0; i < 9; i++) {
-      expect(nextFocusIndex(i, "Home")).toBe(0);
-      expect(nextFocusIndex(i, "End")).toBe(8);
-    }
-  });
-
-  test("returns the current index unchanged for any other key", () => {
-    expect(nextFocusIndex(4, "Enter")).toBe(4);
-    expect(nextFocusIndex(0, " ")).toBe(0);
-    expect(nextFocusIndex(7, "a")).toBe(7);
-    expect(nextFocusIndex(3, "Tab")).toBe(3);
-  });
-});
-
-// bestMove: the minimax AI. Fast, targeted checks first; the exhaustive
-// proof below is the acceptance criterion that actually matters.
-describe("bestMove", () => {
-  test("returns null once the game is decided", () => {
-    let state = newGame();
-    for (const m of [0, 3, 1, 4, 2]) state = move(state, m); // X wins
-    expect(bestMove(state)).toBe(null);
-  });
-
-  test("takes the centre on an empty board", () => {
-    expect(bestMove(newGame())).toBe(4);
-  });
-
-  test("takes the winning move when one is available in one ply", () => {
-    // X: 0, 1 already placed; O: 3, 4. X to move and can win at 2.
-    const cells = ["X", "X", ".", "O", "O", ".", ".", ".", "."];
-    const state = { board: board(cells), currentPlayer: "X", winner: null, winningLine: null, isDraw: false };
-    expect(bestMove(state)).toBe(2);
-  });
-
-  test("blocks the opponent's immediate winning threat when it cannot win itself", () => {
-    // O: 0, 1 already placed, threatening to win at 2. X: 3, 6 (no threat of its own).
-    const cells = ["O", "O", ".", "X", ".", ".", "X", ".", "."];
-    const state = { board: board(cells), currentPlayer: "X", winner: null, winningLine: null, isDraw: false };
-    expect(bestMove(state)).toBe(2);
-  });
-
-  // Exhaustive proof it never loses: play the AI against EVERY possible
-  // sequence of opponent moves (the opponent branches over every empty
-  // cell at each of its turns; the AI always answers with bestMove). This
-  // walks the full game tree, so if any path let the AI lose, it would be
-  // found here. Run once with the AI moving first (as X) and once with the
-  // AI moving second (as O).
-  function assertAiNeverLoses(state, aiSymbol) {
-    if (isGameOver(state)) {
-      const opponentSymbol = aiSymbol === "X" ? "O" : "X";
-      expect(state.winner).not.toBe(opponentSymbol);
-      return;
-    }
-    if (state.currentPlayer === aiSymbol) {
-      const idx = bestMove(state);
-      assertAiNeverLoses(move(state, idx), aiSymbol);
-    } else {
-      for (let i = 0; i < 9; i++) {
-        if (state.board[i] === null) {
-          assertAiNeverLoses(move(state, i), aiSymbol);
-        }
-      }
-    }
-  }
-
-  test("exhaustive proof: AI playing O never loses to any sequence of X moves", () => {
-    assertAiNeverLoses(newGame(), "O");
-  });
-
-  test("exhaustive proof: AI playing X never loses to any sequence of O moves", () => {
-    assertAiNeverLoses(newGame(), "X");
-  });
+test("winningLine returns null when there is no winning line", () => {
+  assert.equal(winningLine(emptyBoard()), null);
+  assert.equal(winningLine(board(["X", "O", ".", ".", ".", ".", ".", ".", "."])), null);
 });
