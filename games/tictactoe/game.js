@@ -55,36 +55,6 @@
     return state.winner !== null || state.isDraw;
   }
 
-  // Given a focused cell index (0-8) and a keyboard key name, return the
-  // index that keyboard focus should move to. Arrow keys move within the
-  // 3x3 grid and wrap at the edges; Home/End jump to the first/last cell;
-  // any other key leaves focus where it is.
-  function nextFocusIndex(current, key) {
-    var row = Math.floor(current / 3);
-    var col = current % 3;
-    switch (key) {
-      case "ArrowRight":
-        col = (col + 1) % 3;
-        break;
-      case "ArrowLeft":
-        col = (col + 2) % 3;
-        break;
-      case "ArrowDown":
-        row = (row + 1) % 3;
-        break;
-      case "ArrowUp":
-        row = (row + 2) % 3;
-        break;
-      case "Home":
-        return 0;
-      case "End":
-        return 8;
-      default:
-        return current;
-    }
-    return row * 3 + col;
-  }
-
   // Apply a move at `index` to `state`, returning a NEW state.
   // If the game is already decided, the index is out of range, or the cell
   // is occupied, the original state object is returned unchanged (no-op).
@@ -114,64 +84,6 @@
     };
   }
 
-  // Slight preference among equally-good (by minimax score) moves: centre
-  // over corners over edges. This only breaks ties — it never overrides a
-  // strictly better minimax score — but it's what makes the AI open an
-  // empty board by taking the centre instead of an arbitrary first cell.
-  function positionWeight(index) {
-    if (index === 4) return 3;
-    if (index === 0 || index === 2 || index === 6 || index === 8) return 2;
-    return 1;
-  }
-
-  // Minimax search with alpha-beta pruning. Returns the value of `state`
-  // from the perspective of `aiPlayer`: positive means aiPlayer is winning,
-  // negative means aiPlayer is losing, 0 is a draw. Faster wins and slower
-  // losses are preferred via the depth term, so the AI plays the fastest
-  // available win and delays an unavoidable loss as long as possible.
-  function minimax(state, aiPlayer, depth, alpha, beta) {
-    if (state.winner === aiPlayer) return 10 - depth;
-    if (state.winner) return depth - 10;
-    if (state.isDraw) return 0;
-
-    var maximizing = state.currentPlayer === aiPlayer;
-    var value = maximizing ? -Infinity : Infinity;
-    for (var i = 0; i < 9; i++) {
-      if (state.board[i] !== null) continue;
-      var score = minimax(move(state, i), aiPlayer, depth + 1, alpha, beta);
-      if (maximizing) {
-        if (score > value) value = score;
-        if (value > alpha) alpha = value;
-      } else {
-        if (score < value) value = score;
-        if (value < beta) beta = value;
-      }
-      if (beta <= alpha) break;
-    }
-    return value;
-  }
-
-  // Returns the index of the best available move for the player to move in
-  // `state`, using exhaustive minimax search — this player never loses.
-  // Returns null if the game is already decided.
-  function bestMove(state) {
-    if (isGameOver(state)) return null;
-
-    var aiPlayer = state.currentPlayer;
-    var bestIndex = null;
-    var bestValue = -Infinity;
-    for (var i = 0; i < 9; i++) {
-      if (state.board[i] !== null) continue;
-      var score = minimax(move(state, i), aiPlayer, 1, -Infinity, Infinity);
-      var weighted = score + 0.01 * positionWeight(i);
-      if (weighted > bestValue) {
-        bestValue = weighted;
-        bestIndex = i;
-      }
-    }
-    return bestIndex;
-  }
-
   return {
     WIN_LINES: WIN_LINES,
     newGame: newGame,
@@ -179,7 +91,5 @@
     isBoardFull: isBoardFull,
     isGameOver: isGameOver,
     move: move,
-    nextFocusIndex: nextFocusIndex,
-    bestMove: bestMove,
   };
 });
