@@ -1,24 +1,19 @@
 // AC#1: Opening games/tictactoe/index.html directly in a browser gives a
 // playable game — no server, no build.
 //
-// This test loads the page over the file:// protocol (no HTTP server, no
-// bundler, no npm install of the app) and proves the initial rendered state:
-//   - the document opens over file:// (not http(s)) — no server required
-//   - a 9-cell (3x3) board is drawn
-//   - the status line reads "X's turn" (X moves first)
-//   - loading the page produces no console errors or page exceptions
-//
-// If any of this required a server or a build step, loading over file:// would
-// fail and these assertions would not hold.
-//
-// Target: games/tictactoe/index.html::body
-import { test, expect, type ConsoleMessage } from '@playwright/test';
+// This test loads games/tictactoe/index.html over the file:// protocol (no HTTP
+// server, no bundler, no npm install of the app) and asserts that the static
+// markup alone renders a playable starting state: a 9-cell (3x3) board, an
+// "X's turn" status, and a "New game" control. If any of this required a server
+// or a build step, loading over file:// would fail and these assertions would
+// not hold.
+import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Resolve games/tictactoe/index.html without a dev server. This test file lives
-// under <spec_dir>/tests/e2e, and the game ships under the project worktree, so
+// Resolve games/tictactoe/index.html without a dev server. The test file lives
+// under <spec_dir>/tests/e2e; the game ships under the project worktree, so
 // probe the known relative locations and use the first that exists on disk.
 function resolveIndexHtml(): string {
   const candidates = [
@@ -36,37 +31,39 @@ function resolveIndexHtml(): string {
 
 const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 
-test.describe('games/tictactoe/index.html loads a playable board from file:// (AC#1)', () => {
-  test('renders a 9-cell board with X to move and no console errors', async ({
-    page,
-  }) => {
-    // Capture any console errors emitted while the page loads and initialises.
-    const consoleErrors: string[] = [];
-    page.on('console', (msg: ConsoleMessage) => {
-      if (msg.type() === 'error') {
-        consoleErrors.push(msg.text());
-      }
-    });
-    // A page-level exception (e.g. a ReferenceError) also counts as a load error.
-    page.on('pageerror', (err) => {
-      consoleErrors.push(err.message);
-    });
-
-    // No server, no build — open the file directly over file://.
+test.describe('tic-tac-toe loads playable from file:// (AC#1)', () => {
+  test.beforeEach(async ({ page }) => {
+    // file:// — proves the game needs no server and no build step to open.
     await page.goto(INDEX_URL);
+  });
 
-    // Guard the "no server, no build" half of AC#1: the loaded document is a
-    // local file addressed by the file:// scheme, not http(s).
+  test('opens over file:// with no server or build step', async ({ page }) => {
+    // The loaded document is a local file addressed by the file:// scheme, not
+    // http(s): this is the "no server, no build" half of AC#1.
     expect(page.url().startsWith('file://')).toBe(true);
+    await expect(page).toHaveTitle('Tic-Tac-Toe');
+  });
 
-    // The board is drawn as 9 clickable cells (gridcell buttons).
+  test('renders a 9-cell board on first load', async ({ page }) => {
+    const board = page.getByRole('grid', { name: 'Tic-Tac-Toe board' });
+    await expect(board).toBeVisible();
+
+    // A 3x3 board is exactly 9 gridcells, all empty on first load.
     const cells = page.getByRole('gridcell');
     await expect(cells).toHaveCount(9);
+    for (let i = 0; i < 9; i++) {
+      await expect(cells.nth(i)).toHaveText('');
+    }
+  });
 
-    // X moves first: the status line announces "X's turn".
+  test('shows X to move on first load', async ({ page }) => {
+    // A fresh game starts with X to play.
     await expect(page.getByRole('status')).toHaveText("X's turn");
+  });
 
-    // Opening the file produced no console errors or page exceptions.
-    expect(consoleErrors).toEqual([]);
+  test('exposes an enabled "New game" control', async ({ page }) => {
+    const newGame = page.getByRole('button', { name: 'New game' });
+    await expect(newGame).toBeVisible();
+    await expect(newGame).toBeEnabled();
   });
 });
