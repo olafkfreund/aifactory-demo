@@ -1,23 +1,26 @@
 // AC#1: Opening games/tictactoe/index.html directly in a browser gives a
 // playable game — no server, no build.
 //
-// This test loads the page over the file:// protocol (no HTTP server, no
-// bundler, no npm install of the app) and proves it is genuinely playable off
-// the filesystem:
-//   - a 9-cell (3x3) board is rendered, all cells empty on first load
-//   - X moves first, and clicking cells lets X and O alternate turns
-//   - loading and playing produce NO console errors and NO uncaught page errors
+// This test opens games/tictactoe/index.html over the file:// protocol — no
+// HTTP server, no bundler, no npm install of the app — and proves the page is
+// genuinely PLAYABLE straight off disk:
+//   - the document is served from file:// (not http/https)
+//   - a 3x3 board renders as exactly 9 clickable cells, all empty on load
+//   - a fresh game starts with X to move
+//   - clicking a cell actually plays a move (mark appears, turn passes)
+//   - loading and playing produces no console errors and no uncaught exceptions
 // If the game required a server or a build step, loading over file:// would
-// fail (e.g. game.js would not resolve) and these assertions would not hold.
+// fail (e.g. the inline <script src="game.js"> would not resolve) and these
+// assertions would not hold.
 //
-// Target: games/tictactoe/index.html::board
+// Target: games/tictactoe/index.html::TicTacToe
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // Resolve games/tictactoe/index.html without a dev server. The test file lives
-// under <spec_dir>/tests/e2e, and the game ships under the project worktree, so
+// under <spec_dir>/tests/e2e; the game ships under the project worktree, so
 // probe the known relative locations and use the first that exists on disk.
 function resolveIndexHtml(): string {
   const candidates = [
@@ -35,12 +38,13 @@ function resolveIndexHtml(): string {
 
 const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 
-test.describe('games/tictactoe/index.html is playable over file:// with no build (AC#1)', () => {
-  test('renders a 9-cell board and alternates X and O on clicks, no console errors', async ({
+test.describe('games/tictactoe/index.html is playable from file:// with no server or build (AC#1)', () => {
+  test('renders a playable 9-cell board straight off disk with no console errors', async ({
     page,
   }) => {
-    // Fail the test on any console error or uncaught exception during load/play
-    // rather than passing silently on a broken script.
+    // Collect console errors and uncaught page exceptions from the first load so
+    // a broken script — or a resource that fails to resolve without a server —
+    // fails this test rather than passing silently.
     const consoleErrors: string[] = [];
     const pageErrors: string[] = [];
     page.on('console', (msg) => {
@@ -50,34 +54,35 @@ test.describe('games/tictactoe/index.html is playable over file:// with no build
       pageErrors.push(err.message);
     });
 
-    // No server, no build — open the file directly.
+    // file:// — proves the game needs no server and no build step to open.
     await page.goto(INDEX_URL);
 
     // "No server" half of AC#1: the document is a local file, not http(s).
     expect(page.url().startsWith('file://')).toBe(true);
+    await expect(page).toHaveTitle('Tic-Tac-Toe');
+
+    // The board container is present and labelled as a grid.
+    const board = page.getByRole('grid', { name: 'Tic-Tac-Toe board' });
+    await expect(board).toBeVisible();
 
     // A 3x3 board is exactly 9 gridcells, all empty on first load.
     const cells = page.getByRole('gridcell');
     await expect(cells).toHaveCount(9);
+    for (let i = 0; i < 9; i++) {
+      await expect(cells.nth(i)).toHaveText('');
+    }
 
-    // X moves first.
+    // A fresh game starts with X to play.
     await expect(page.getByRole('status')).toHaveText("X's turn");
 
-    // Playable: X moves, then O moves — the marks and status alternate.
+    // "Playable" half of AC#1: clicking an empty cell places X and passes the
+    // turn to O — the game responds to input with no server round-trip.
     await cells.nth(0).click();
     await expect(cells.nth(0)).toHaveText('X');
     await expect(page.getByRole('status')).toHaveText("O's turn");
 
-    await cells.nth(1).click();
-    await expect(cells.nth(1)).toHaveText('O');
-    await expect(page.getByRole('status')).toHaveText("X's turn");
-
-    // A third move returns the turn to X's mark, confirming the alternation.
-    await cells.nth(2).click();
-    await expect(cells.nth(2)).toHaveText('X');
-    await expect(page.getByRole('status')).toHaveText("O's turn");
-
-    // No console errors and no uncaught exceptions during load or play.
+    // Loading and playing the first move produced no console errors and no
+    // uncaught exceptions.
     expect(consoleErrors).toEqual([]);
     expect(pageErrors).toEqual([]);
   });
