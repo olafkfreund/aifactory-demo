@@ -1,29 +1,31 @@
 // AC#6: Play stops once the game is decided; further clicks do nothing.
 //
-// Target: games/tictactoe/index.html::onCellClick — each cell's click handler
-// calls TicTacToe.move(board, i, currentPlayer); when the game is already
-// decided move() returns the SAME board reference, so the handler short-circuits
-// (`if (next === board) return;`) without placing a mark, flipping the player, or
-// re-rendering. This browser test drives a real, deterministic X win over
-// file:// (no server, no build step — AC#1), then clicks the remaining empty
-// cells and asserts the board and result are unchanged: no new mark appears,
-// the winning highlight stays on exactly the three winning cells, and the status
-// remains "X wins!".
+// Target: games/tictactoe/index.html::#status — once TicTacToe.winner(board)
+// reports a winner, the per-cell click handler's call to TicTacToe.move()
+// returns the SAME board reference (a decided game rejects every move), so the
+// handler's `if (next === board) return;` short-circuits: no mark is placed on
+// the clicked empty cell, the winning line stays highlighted, and #status keeps
+// announcing the same winner.
+//
+// This test loads the page straight off the filesystem (file:// URL, no dev
+// server, no bundler), plays a deterministic sequence to an X win, then clicks a
+// remaining empty cell and asserts the board and winner status are unchanged.
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Resolve games/tictactoe/index.html without a dev server. This spec runs from a
-// verification tree that is a sibling of the game under test, so probe the known
-// relative locations (and the .worktree copy) and use the first that exists.
+// Resolve games/tictactoe/index.html without a dev server. This spec lives under
+// the run's spec_dir/tests/e2e, while the game under test ships inside the
+// .worktree copy of the repo; probe the known relative locations and use the
+// first that exists on disk.
 function resolveIndexHtml(): string {
   const candidates = [
-    path.resolve(__dirname, '../../games/tictactoe/index.html'),
     path.resolve(__dirname, '../../.worktree/games/tictactoe/index.html'),
-    path.resolve(process.cwd(), 'games/tictactoe/index.html'),
-    path.resolve(process.cwd(), '.worktree/games/tictactoe/index.html'),
+    path.resolve(__dirname, '../../games/tictactoe/index.html'),
     path.resolve(__dirname, '../../../.worktree/games/tictactoe/index.html'),
+    path.resolve(process.cwd(), '.worktree/games/tictactoe/index.html'),
+    path.resolve(process.cwd(), 'games/tictactoe/index.html'),
   ];
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) return candidate;
@@ -35,77 +37,63 @@ function resolveIndexHtml(): string {
 
 const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 
-// Deterministic playthrough: X takes the top row (0,1,2) and wins on the third
-// mark; O plays 3 and 4. Same clicks every run -> same decided game every run.
+// Deterministic winning sequence: X takes the top row (0,1,2) and wins on the
+// third mark; O plays 3 and 4. Same clicks every run -> same decided state.
 const WINNING_MOVES = [0, 3, 1, 4, 2];
-const WINNING_CELLS = [0, 1, 2];
-// Cells still empty after the win: X on 0,1,2 and O on 3,4 leaves 5..8 open.
-const EMPTY_AFTER_WIN = [5, 6, 7, 8];
+// After the win, cells 0..4 are filled (X:0,1,2  O:3,4); cells 5..8 are empty.
+const EMPTY_CELL_AFTER_WIN = 5;
 
-test.describe('tic-tac-toe ignores clicks after the game is decided (AC#6)', () => {
+test.describe('tic-tac-toe: clicks after a win do nothing (AC#6)', () => {
+  const pageErrors: Error[] = [];
+
   test.beforeEach(async ({ page }) => {
+    // A no-op click must never raise an uncaught error.
+    pageErrors.length = 0;
+    page.on('pageerror', (err) => pageErrors.push(err));
+
     // file:// — no server, no build step required to play.
     await page.goto(INDEX_URL);
+    // The board renders its 9 gridcells on load.
     await expect(page.getByRole('gridcell')).toHaveCount(9);
-
-    // Play the deterministic win so the game is decided before we probe.
-    const cells = page.getByRole('gridcell');
-    for (const index of WINNING_MOVES) {
-      await cells.nth(index).click();
-    }
-    await expect(page.getByRole('status')).toHaveText('X wins!');
   });
 
-  test('clicking empty cells after a win leaves the board and status unchanged', async ({ page }) => {
+  test('clicking an empty cell after a win leaves the board and winner status unchanged', async ({ page }) => {
     const cells = page.getByRole('gridcell');
     const status = page.getByRole('status');
 
-    // The decided board: X on the winning line, O on 3 and 4, the rest empty.
-    await expect(cells.nth(0)).toHaveText('X');
-    await expect(cells.nth(1)).toHaveText('X');
-    await expect(cells.nth(2)).toHaveText('X');
-    await expect(cells.nth(3)).toHaveText('O');
-    await expect(cells.nth(4)).toHaveText('O');
-    for (const i of EMPTY_AFTER_WIN) {
-      await expect(cells.nth(i)).toHaveText('');
+    // Play the deterministic sequence to reach a decided game (X wins).
+    for (const index of WINNING_MOVES) {
+      await cells.nth(index).click();
     }
 
-    // Click every still-empty cell: play has stopped, so each is a no-op.
-    for (const i of EMPTY_AFTER_WIN) {
-      await cells.nth(i).click();
-      // No mark is placed — the cell stays empty.
-      await expect(cells.nth(i)).toHaveText('');
-    }
-
-    // The result is unchanged: still X wins, and no turn ever passed.
+    // The game is decided: X wins and exactly the three winning cells are marked.
     await expect(status).toHaveText('X wins!');
-    // The full board is exactly as it was when the game was decided.
-    await expect(cells.nth(0)).toHaveText('X');
-    await expect(cells.nth(1)).toHaveText('X');
-    await expect(cells.nth(2)).toHaveText('X');
-    await expect(cells.nth(3)).toHaveText('O');
-    await expect(cells.nth(4)).toHaveText('O');
-    for (const i of EMPTY_AFTER_WIN) {
-      await expect(cells.nth(i)).toHaveText('');
-    }
-  });
+    const winningCells = page.locator('.cell.win');
+    await expect(winningCells).toHaveCount(3);
+    await expect(winningCells).toHaveText(['X', 'X', 'X']);
 
-  test('the winning highlight stays on exactly the three winning cells after further clicks', async ({ page }) => {
-    const cells = page.getByRole('gridcell');
+    // Snapshot the full board while the game is decided; a spare cell is empty.
+    const boardBefore = await cells.allTextContents();
+    expect(boardBefore[EMPTY_CELL_AFTER_WIN]).toBe('');
 
-    // Clicking an occupied winning cell and an empty cell must not disturb the
-    // highlight: play is over, so render() is never re-run by these clicks.
-    await cells.nth(0).click();
-    await cells.nth(8).click();
+    // Act: click a remaining empty cell now that play has stopped.
+    await cells.nth(EMPTY_CELL_AFTER_WIN).click();
 
-    // Exactly the three winning cells remain highlighted.
-    for (let i = 0; i < 9; i++) {
-      if (WINNING_CELLS.includes(i)) {
-        await expect(cells.nth(i)).toHaveClass(/\bwin\b/);
-      } else {
-        await expect(cells.nth(i)).not.toHaveClass(/\bwin\b/);
-      }
-    }
-    await expect(page.getByRole('status')).toHaveText('X wins!');
+    // The clicked empty cell stays empty — no mark was placed.
+    await expect(cells.nth(EMPTY_CELL_AFTER_WIN)).toHaveText('');
+
+    // The status still declares the same winner (the turn did not advance).
+    await expect(status).toHaveText('X wins!');
+
+    // The winning line is untouched: still exactly three highlighted X cells.
+    await expect(winningCells).toHaveCount(3);
+    await expect(winningCells).toHaveText(['X', 'X', 'X']);
+
+    // The whole board is identical to before the post-win click.
+    const boardAfter = await cells.allTextContents();
+    expect(boardAfter).toEqual(boardBefore);
+
+    // The ignored click raised no uncaught page error.
+    expect(pageErrors).toEqual([]);
   });
 });
