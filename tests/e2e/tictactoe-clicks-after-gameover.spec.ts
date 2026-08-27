@@ -1,13 +1,13 @@
 // AC#6: Play stops once the game is decided; further clicks do nothing.
 //
-// Target: games/tictactoe/index.html::render — every cell is a gridcell button
+// Target: games/tictactoe/index.html::board — each cell is a gridcell button
 // whose click handler calls TicTacToe.move(board, i, currentPlayer). Once the
-// game is decided, move() returns the same board reference, so the handler's
+// game is decided, move() returns the SAME board reference, so the handler's
 // `if (next === board) return;` short-circuits: no mark is placed, the turn is
-// not passed, and render() is never re-run. This E2E test drives the page over
-// file:// (no server, no build step), plays a deterministic winning sequence so
-// X wins, then clicks the still-empty cells after game over and proves the UI
-// ignores them — no new marks appear and the status stays on the winner.
+// not passed, and the winner status is untouched. This E2E test drives the page
+// over file:// (no server, no build step), plays a deterministic winning
+// sequence so X wins, then clicks a still-empty cell after game over and proves
+// the UI ignores it — the board is unchanged and the winner status persists.
 import { test, expect } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
@@ -41,14 +41,14 @@ const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 const WIN_SEQUENCE = [0, 3, 1, 4, 2];
 const EMPTY_AFTER_WIN = [5, 6, 7, 8];
 
-test.describe("tic-tac-toe ignores clicks once the game is decided (AC#6)", () => {
+test.describe("AC#6: the UI ignores clicks once the game is decided", () => {
   test.beforeEach(async ({ page }) => {
     // file:// — no server, no build step required to play.
     await page.goto(INDEX_URL);
     await expect(page.getByRole("gridcell")).toHaveCount(9);
   });
 
-  test("a click on an empty cell after a win places no mark and keeps the winner status", async ({
+  test("clicking an empty cell after a win leaves the board and winner status unchanged", async ({
     page,
   }) => {
     const cells = page.getByRole("gridcell");
@@ -59,29 +59,31 @@ test.describe("tic-tac-toe ignores clicks once the game is decided (AC#6)", () =
       await cells.nth(index).click();
     }
 
-    // The game is decided: the status announces the winner (not a turn).
+    // The game is decided: the status announces the winner, not a turn, and
+    // the winning line is visibly marked.
     await expect(status).toHaveText("X wins!");
     await expect(page.locator(".cell.win")).toHaveText(["X", "X", "X"]);
 
     // Snapshot the frozen board; nothing below may change it.
     const boardAfterWin = await cells.allInnerTexts();
 
-    // Cell 7 is still empty and was never part of the winning line.
-    await expect(cells.nth(7)).toHaveText("");
+    // Cell 5 is still empty and was never part of the winning line.
+    await expect(cells.nth(EMPTY_AFTER_WIN[0])).toHaveText("");
 
-    // Click the empty cell after game over — the UI must ignore it.
-    await cells.nth(7).click();
+    // Act: click a still-empty cell now that play has stopped.
+    await cells.nth(EMPTY_AFTER_WIN[0]).click();
 
-    // No mark placed (turn did not pass), status still on the winner.
-    await expect(cells.nth(7)).toHaveText("");
+    // The cell stays empty — no mark placed, no turn passed.
+    await expect(cells.nth(EMPTY_AFTER_WIN[0])).toHaveText("");
+    // The status still declares the same winner.
     await expect(status).toHaveText("X wins!");
-    // Board is byte-for-byte identical to its pre-click state.
+    // The board is byte-for-byte identical to its pre-click state.
     expect(await cells.allInnerTexts()).toEqual(boardAfterWin);
     // The winning highlight is unchanged: still exactly the three X cells.
     await expect(page.locator(".cell.win")).toHaveText(["X", "X", "X"]);
   });
 
-  test("hammering every remaining empty cell after a win never advances the game", async ({
+  test("clicking every remaining empty cell after a win never advances the game", async ({
     page,
   }) => {
     const cells = page.getByRole("gridcell");
@@ -92,11 +94,15 @@ test.describe("tic-tac-toe ignores clicks once the game is decided (AC#6)", () =
     }
     await expect(status).toHaveText("X wins!");
 
-    // Click every open cell that remains after the win — each is a no-op.
+    // Every open cell that remains after the win is a no-op when clicked.
     for (const index of EMPTY_AFTER_WIN) {
       await cells.nth(index).click();
       await expect(cells.nth(index)).toHaveText("");
     }
+
+    // No mark ever appeared: the board still holds exactly the five win moves.
+    const filled = (await cells.allInnerTexts()).filter((t) => t !== "");
+    expect(filled).toEqual(["X", "X", "X", "O", "O"]);
 
     // Status stays on the winner; no turn change, no draw.
     await expect(status).toHaveText("X wins!");
