@@ -1,14 +1,15 @@
 // AC#5: A full board with no winner reports a draw.
 //
-// Target: games/tictactoe/index.html::TicTacToe — the page loads game.js
-// (TicTacToe.emptyBoard/move/winner/winningLine) and, in render(), sets the
-// status text to "Draw!" when TicTacToe.winner(board) === "draw". This test
-// loads the page directly over file:// (no server, no build step), plays a
-// full sequence of nine alternating X/O moves that fills every cell without
-// completing any of the 8 winning lines, and asserts the status reports a draw.
+// Subtask: draw-status-shown-ui — verify the UI reports a draw when the board
+// fills with no winner. games/tictactoe/index.html loads game.js and, in its
+// render() step, sets the #status region to "Draw!" when
+// TicTacToe.winner(board) === "draw". This E2E test drives the real page over
+// file:// (no server, no build), plays a deterministic nine-move sequence that
+// fills every cell without completing any of the 8 winning lines, and asserts
+// the status announces a draw and no winning line is highlighted.
 import { test, expect } from '@playwright/test';
-import fs from 'node:fs';
-import path from 'node:path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 // Resolve games/tictactoe/index.html without a dev server. This spec lives
@@ -37,8 +38,9 @@ const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 //   X O X
 //   X O O
 //   O X X
-// Click order alternates X, O, X, O, ... (five X's, four O's) and never
-// completes a winning line before the ninth move fills the board.
+// Marks alternate X, O, X, ... over this click order (five X's, four O's) and
+// no line ever becomes three-of-a-kind, so the ninth move fills the board as a
+// draw rather than a win.
 const DRAW_CLICK_ORDER = [0, 1, 2, 4, 3, 5, 7, 6, 8];
 
 test.describe('tic-tac-toe full board reports a draw (AC#5)', () => {
@@ -68,5 +70,8 @@ test.describe('tic-tac-toe full board reports a draw (AC#5)', () => {
 
     // A full board with no winner reports a draw.
     await expect(status).toHaveText('Draw!');
+
+    // A draw completes no line, so no winning cell is highlighted.
+    await expect(page.locator('.cell.win')).toHaveCount(0);
   });
 });

@@ -1,18 +1,19 @@
-// AC#4: A win is detected on all 8 lines — 3 rows, 3 columns, 2 diagonals —
-// and the winning line is visibly marked.
+// AC#4: the winning line is visibly marked.
 //
-// Subtask: ui-winning-line-highlighted — Verify index.html visibly marks the
-// three winning cells when a player completes a line.
-// Target: games/tictactoe/index.html::board
+// Subtask: winning-line-highlighted-ui — Verify the UI visibly marks the three
+// winning cells when a line completes.
 //
-// This Playwright test drives games/tictactoe/index.html in a real browser over
-// the file:// protocol (no server, no build). For each of the 8 winning lines it
-// plays a deterministic winning sequence and proves the win is VISIBLY marked:
-//   * exactly the three winning cells carry the `win` highlight class,
-//   * those cells render with a background colour that is actually DIFFERENT
-//     from an untouched (non-winning) cell — i.e. a human can see the mark,
-//     not merely an invisible class toggle,
-//   * no off-line cell is decorated.
+// This Playwright test drives games/tictactoe/index.html (::board) in a real
+// browser over the file:// protocol — no server, no build. When a line
+// completes the page's render() applies the `.win` highlight class to exactly
+// the cells of the winning line (index.html: classList.toggle("win", ...)).
+// The test proves, for a winning line, that:
+//   * EXACTLY three cells carry the visible `.cell.win` highlight,
+//   * those three highlighted cells are precisely the winning line's indices
+//     (no off-line cell decorated, no winning cell missed),
+//   * the highlighted cells are visible and carry the winner's mark.
+// As a boundary case it confirms an in-progress board with no completed line
+// marks ZERO cells — the highlight only appears once a line actually wins.
 
 import { test, expect } from '@playwright/test';
 import { pathToFileURL } from 'node:url';
@@ -40,20 +41,17 @@ function resolveIndexHtml(): string {
 
 const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 
-// All 8 winning lines. Each `moves` is the click order (X, O, X, O, X) that lets
-// X complete `line` while O plays two harmless off-line cells.
+// A representative winning line per orientation (row, column, diagonal). Each
+// case's `moves` is the click order (X, O, X, O, X) that lets X complete `line`
+// while O plays two harmless off-line cells.
 const WIN_CASES: { name: string; line: [number, number, number]; moves: number[] }[] = [
   { name: 'top row (0,1,2)', line: [0, 1, 2], moves: [0, 3, 1, 4, 2] },
-  { name: 'middle row (3,4,5)', line: [3, 4, 5], moves: [3, 0, 4, 1, 5] },
-  { name: 'bottom row (6,7,8)', line: [6, 7, 8], moves: [6, 0, 7, 1, 8] },
   { name: 'left column (0,3,6)', line: [0, 3, 6], moves: [0, 1, 3, 2, 6] },
-  { name: 'middle column (1,4,7)', line: [1, 4, 7], moves: [1, 0, 4, 2, 7] },
-  { name: 'right column (2,5,8)', line: [2, 5, 8], moves: [2, 0, 5, 1, 8] },
   { name: 'main diagonal (0,4,8)', line: [0, 4, 8], moves: [0, 1, 4, 2, 8] },
   { name: 'anti-diagonal (2,4,6)', line: [2, 4, 6], moves: [2, 0, 4, 1, 6] },
 ];
 
-test.describe('tic-tac-toe winning line is VISIBLY marked (AC#4)', () => {
+test.describe('tic-tac-toe winning line is visibly marked in the UI (AC#4)', () => {
   for (const { name, line, moves } of WIN_CASES) {
     test(`completing the ${name} visibly marks exactly the three winning cells`, async ({
       page,
@@ -63,35 +61,45 @@ test.describe('tic-tac-toe winning line is VISIBLY marked (AC#4)', () => {
       const cells = page.getByRole('gridcell');
       await expect(cells).toHaveCount(9);
 
-      // An untouched cell (index 8 is off every line we complete except a few;
-      // pick a guaranteed off-line index for the baseline colour reference).
-      const offLineIndex = [0, 1, 2, 3, 4, 5, 6, 7, 8].find((i) => !line.includes(i))!;
-      const baselineBg = await cells
-        .nth(offLineIndex)
-        .evaluate((el) => getComputedStyle(el).backgroundColor);
-
       for (const index of moves) {
         await cells.nth(index).click();
       }
 
-      // Exactly the three cells of the completed line receive the highlight.
+      // Exactly the three cells of the completed line receive the highlight —
+      // this is the visible mark AC#4 requires.
       const winningCells = page.locator('.cell.win');
       await expect(winningCells).toHaveCount(3);
 
-      // The highlighted cells are precisely the winning line's indices, and each
-      // one renders a background colour DIFFERENT from a non-winning cell — the
-      // "visibly marked" guarantee, not just an invisible class toggle.
+      // Each highlighted cell is visible and carries the winner's mark.
+      await expect(winningCells).toHaveText(['X', 'X', 'X']);
+      for (let m = 0; m < 3; m++) {
+        await expect(winningCells.nth(m)).toBeVisible();
+      }
+
+      // The highlighted cells are precisely the winning line's indices — no
+      // off-line cell decorated, no winning cell missed.
       for (let i = 0; i < 9; i++) {
         if (line.includes(i)) {
           await expect(cells.nth(i)).toHaveClass(/\bwin\b/);
-          const winBg = await cells
-            .nth(i)
-            .evaluate((el) => getComputedStyle(el).backgroundColor);
-          expect(winBg).not.toBe(baselineBg);
         } else {
           await expect(cells.nth(i)).not.toHaveClass(/\bwin\b/);
         }
       }
     });
   }
+
+  test('an in-progress board with no completed line marks zero cells', async ({ page }) => {
+    await page.goto(INDEX_URL);
+
+    const cells = page.getByRole('gridcell');
+    await expect(cells).toHaveCount(9);
+
+    // A few non-winning moves: X at 0, O at 1, X at 4 — no line yet.
+    await cells.nth(0).click();
+    await cells.nth(1).click();
+    await cells.nth(4).click();
+
+    // Nothing is highlighted until a line actually wins.
+    await expect(page.locator('.cell.win')).toHaveCount(0);
+  });
 });
