@@ -12,7 +12,6 @@
     in {
       devShells.${system}.default = pkgs.mkShell {
         packages = [
-          (pkgs.python313.withPackages (p: [ p."fastapi" p."uvicorn" p."httpx" ]))
           pkgs.nodejs_22
           pkgs.playwright-test
           pkgs.dejavu_fonts
