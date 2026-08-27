@@ -1,47 +1,42 @@
 // AC#2: Clicking an empty cell places the current player's mark and passes the
 // turn.
 //
-// Target: games/tictactoe/index.html::board
-//
-// Each cell in the board is a role="gridcell" button whose click handler calls
-// TicTacToe.move(board, i, currentPlayer). On a real (non-no-op) move the
-// handler flips currentPlayer and re-renders, so the clicked cell shows the
-// acting player's mark and the role="status" live region advances to the other
-// player's turn. This test loads index.html directly over file:// (no server,
-// no build), clicks empty cells, and asserts each click renders the acting
-// player's mark and passes the turn.
+// Target: games/tictactoe/index.html::onCellClick — each cell's click handler
+// calls TicTacToe.move(board, i, currentPlayer); on a real (non-no-op) move it
+// commits the new board, flips currentPlayer, and re-renders. So the clicked
+// empty cell shows the acting player's mark and the status advances to the
+// other player's turn. This test loads the page directly over file:// (no
+// server, no build step per AC#1), clicks empty cells, and asserts each click
+// renders the acting player's mark and flips the active player.
+import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { test, expect } from '@playwright/test';
 
-// Resolve games/tictactoe/index.html without a dev server. This spec lives at
-// <spec_dir>/tests/e2e, while the game under verification ships under
-// <spec_dir>/.worktree/games/tictactoe (and, in other layouts, as a sibling
-// games/ tree). Probe the known relative locations and use the first that
-// exists on disk.
-function resolveIndexUrl(): string {
+// Resolve games/tictactoe/index.html without a dev server. This spec lives
+// under the spec dir's tests/e2e tree while the game under test ships inside
+// the checkout (a .worktree copy in verification runs, or a plain
+// games/tictactoe tree otherwise), so probe the known relative locations and
+// use the first that exists on disk.
+function resolveIndexHtml(): string {
   const candidates = [
-    process.env.INDEX_HTML,
     path.resolve(__dirname, '../../.worktree/games/tictactoe/index.html'),
     path.resolve(__dirname, '../../games/tictactoe/index.html'),
+    path.resolve(__dirname, '../../../.worktree/games/tictactoe/index.html'),
     path.resolve(process.cwd(), '.worktree/games/tictactoe/index.html'),
     path.resolve(process.cwd(), 'games/tictactoe/index.html'),
-  ].filter((p): p is string => Boolean(p));
-
+  ];
   for (const candidate of candidates) {
-    if (fs.existsSync(candidate)) {
-      return pathToFileURL(candidate).href;
-    }
+    if (fs.existsSync(candidate)) return candidate;
   }
   throw new Error(
     `games/tictactoe/index.html not found. Looked in:\n${candidates.join('\n')}`,
   );
 }
 
-const INDEX_URL = resolveIndexUrl();
+const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 
-test.describe('tic-tac-toe: clicking an empty cell places a mark and passes the turn (AC#2)', () => {
+test.describe('tic-tac-toe: clicking an empty cell marks it and passes the turn (AC#2)', () => {
   test.beforeEach(async ({ page }) => {
     // file:// — no server, no build step required to play.
     await page.goto(INDEX_URL);
@@ -49,7 +44,7 @@ test.describe('tic-tac-toe: clicking an empty cell places a mark and passes the 
     await expect(page.getByRole('gridcell')).toHaveCount(9);
   });
 
-  test('clicking an empty cell places X then passes the turn to O', async ({ page }) => {
+  test('clicking an empty cell places X and passes the turn to O', async ({ page }) => {
     const cells = page.getByRole('gridcell');
     const status = page.getByRole('status');
 
@@ -65,7 +60,7 @@ test.describe('tic-tac-toe: clicking an empty cell places a mark and passes the 
     await expect(status).toHaveText("O's turn");
   });
 
-  test('a second click places O and passes the turn back to X', async ({ page }) => {
+  test('a following click places O and passes the turn back to X', async ({ page }) => {
     const cells = page.getByRole('gridcell');
     const status = page.getByRole('status');
 
@@ -79,12 +74,9 @@ test.describe('tic-tac-toe: clicking an empty cell places a mark and passes the 
     await cells.nth(1).click();
     await expect(cells.nth(1)).toHaveText('O');
     await expect(status).toHaveText("X's turn");
-
-    // The earlier X mark is untouched — placing O did not disturb the board.
-    await expect(cells.nth(0)).toHaveText('X');
   });
 
-  test('a single move marks exactly the clicked cell and no other', async ({ page }) => {
+  test('a move marks exactly the clicked cell and leaves the rest empty', async ({ page }) => {
     const cells = page.getByRole('gridcell');
 
     // A single move must place exactly one mark and not leak into other cells.
