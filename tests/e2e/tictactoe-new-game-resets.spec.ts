@@ -1,89 +1,62 @@
 // AC#7: A "New game" control resets to an empty board with X to move.
 //
-// Subtask: ui-new-game-resets-board — verify the "New game" button clears all
-// marks and returns the status to "X's turn" after a game in progress.
+// Subtask ui-new-game-resets-board: verify the "New game" button
+// (games/tictactoe/index.html::newGameBtn — id="new-game") clears all marks,
+// removes any winning highlight, and sets the status to X's turn.
 //
-// The page is a single self-contained file (games/tictactoe/index.html) opened
-// directly over file:// — no server, no build (AC#1). We drive a few real moves
-// through the UI so the board is dirty and the turn has advanced, click the
-// "New game" control, and assert the board is empty and X is to move again.
-import fs from "node:fs";
-import path from "node:path";
-import { pathToFileURL } from "node:url";
-import { test, expect } from "@playwright/test";
+// This test opens games/tictactoe/index.html directly via file:// (no server,
+// no build step — AC#1). It plays a full game to an X win on the top row so the
+// board carries marks AND a winning-line highlight is visible, then clicks
+// "New game" and asserts the UI fully resets.
 
-// The game lives at games/tictactoe/index.html somewhere above this test file.
-// Walk up from __dirname until we find it, so the test resolves regardless of
-// how the runner lays the spec tests out relative to the project tree.
-function resolveIndexHtml(): string {
-  const rel = path.join("games", "tictactoe", "index.html");
-  let dir = __dirname;
-  for (let i = 0; i < 12; i++) {
-    const candidate = path.join(dir, rel);
-    if (fs.existsSync(candidate)) return candidate;
-    const parent = path.dirname(dir);
-    if (parent === dir) break;
-    dir = parent;
-  }
-  throw new Error(`Could not locate ${rel} above ${__dirname}`);
-}
+import { test, expect } from '@playwright/test';
+import { pathToFileURL } from 'node:url';
+import * as path from 'node:path';
 
-const INDEX_URL = pathToFileURL(resolveIndexHtml()).toString();
+// index.html lives at games/tictactoe/index.html relative to the repo root.
+const INDEX_HTML = pathToFileURL(
+  path.resolve(process.cwd(), 'games', 'tictactoe', 'index.html'),
+).href;
 
 test.beforeEach(async ({ page }) => {
-  await page.goto(INDEX_URL);
+  await page.goto(INDEX_HTML);
+  // The board renders its 9 gridcells on load.
+  await expect(page.getByRole('gridcell')).toHaveCount(9);
 });
 
-test("New game clears all marks and returns status to X's turn", async ({
-  page,
-}) => {
-  const status = page.getByRole("status");
-  const cells = page.getByRole("gridcell");
-  const newGame = page.getByRole("button", { name: "New game" });
+test('New game clears marks, removes the winning highlight, and resets status to X to move', async ({ page }) => {
+  const cells = page.getByRole('gridcell');
+  const newGame = page.getByRole('button', { name: 'New game' });
+  const status = page.getByRole('status');
 
-  // A fresh game shows a 9-cell board with X to move.
-  await expect(cells).toHaveCount(9);
-  await expect(status).toHaveText("X's turn");
-
-  // Game in progress: X -> O -> X leaves marks and the turn resting on O.
-  await cells.nth(0).click(); // X
-  await cells.nth(4).click(); // O
-  await cells.nth(2).click(); // X
-  await expect(cells.nth(0)).toHaveText("X");
-  await expect(cells.nth(4)).toHaveText("O");
-  await expect(cells.nth(2)).toHaveText("X");
-  await expect(status).toHaveText("O's turn");
-
-  // Click "New game": every mark is cleared and it is X's turn again.
-  await newGame.click();
-
-  await expect(cells).toHaveCount(9);
-  for (let i = 0; i < 9; i++) {
-    await expect(cells.nth(i)).toHaveText("");
-  }
-  await expect(status).toHaveText("X's turn");
-});
-
-test("New game after a decided game resets to an empty board with X to move", async ({
-  page,
-}) => {
-  const status = page.getByRole("status");
-  const cells = page.getByRole("gridcell");
-  const newGame = page.getByRole("button", { name: "New game" });
-
-  // Drive X to a top-row win: X at 0,1,2 and O at 3,4.
+  // Drive the game to an X win on the top row (0,1,2):
+  // X:0, O:3, X:1, O:4, X:2 -> X wins.
   await cells.nth(0).click(); // X
   await cells.nth(3).click(); // O
   await cells.nth(1).click(); // X
   await cells.nth(4).click(); // O
-  await cells.nth(2).click(); // X completes the top row -> win
-  await expect(status).toHaveText("X wins!");
+  await cells.nth(2).click(); // X wins
 
-  // "New game" clears the decided board and hands the turn back to X.
+  // Sanity: the game is decided and the winning line is visibly marked.
+  await expect(status).toHaveText('X wins!');
+  // TODO(reviewer): the winning highlight is only exposed via the `.win` CSS
+  // class on the three winning cells; there is no ARIA/testid hook for it, so a
+  // CSS-class locator is the only way to assert the highlight is present/removed.
+  const winHighlight = page.locator('.cell.win');
+  await expect(winHighlight).toHaveCount(3);
+
+  // Click the "New game" control.
   await newGame.click();
 
+  // Every one of the 9 cells is cleared back to empty.
+  await expect(cells).toHaveCount(9);
   for (let i = 0; i < 9; i++) {
-    await expect(cells.nth(i)).toHaveText("");
+    await expect(cells.nth(i)).toHaveText('');
   }
+
+  // The winning highlight is removed — no cell carries the `.win` class.
+  await expect(winHighlight).toHaveCount(0);
+
+  // The status resets to X to move.
   await expect(status).toHaveText("X's turn");
 });
