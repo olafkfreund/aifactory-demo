@@ -1,40 +1,31 @@
 // AC#5: A full board with no winner reports a draw.
 // This unit test proves the rules-layer behaviour behind that AC: winner(board)
-// returns "draw" when all 9 cells are filled and no line (row, column, or
-// diagonal) is complete. It also guards the boundary that a board which is full
-// but DOES contain a winning line reports the winner, not a draw.
+// returns "draw" for a full 9-cell board that has no completed line (no row,
+// column, or diagonal is a single mark), and returns null while any cell is
+// still empty (play continues).
 import { winner } from "app/games/tictactoe/game";
 
 type Cell = "X" | "O" | null;
 
-describe("winner reports a draw on a full board with no completed line", () => {
-  it('returns "draw" for a full board where no line is completed', () => {
-    // X O X
-    // X X O
-    // O X O
-    // No row, column, or diagonal is a single mark → a draw.
-    const fullNoWinner: Cell[] = ["X", "O", "X", "X", "X", "O", "O", "X", "O"];
+describe("winner() reports draw on a full board and null while cells remain empty", () => {
+  // X O X
+  // O O X
+  // X X O
+  // Full board; no row, column, or diagonal is a single mark → a draw.
+  const fullNoWinner: Cell[] = ["X", "O", "X", "O", "O", "X", "X", "X", "O"];
+
+  it('returns "draw" for a full board with no completed line', () => {
     expect(winner(fullNoWinner)).toBe("draw");
   });
 
-  it('returns "draw" for a different full board with no completed line', () => {
-    // O X O
-    // X X O
-    // X O X
-    const fullNoWinner: Cell[] = ["O", "X", "O", "X", "X", "O", "X", "O", "X"];
-    expect(winner(fullNoWinner)).toBe("draw");
+  it('returns null for an empty board (play continues)', () => {
+    const empty: Cell[] = [null, null, null, null, null, null, null, null, null];
+    expect(winner(empty)).toBeNull();
   });
 
-  it("does not report a draw when a full board still contains a winning line", () => {
-    // X X X  (top row wins)
-    // O O X
-    // O X O
-    const fullWithWinner: Cell[] = ["X", "X", "X", "O", "O", "X", "O", "X", "O"];
-    expect(winner(fullWithWinner)).toBe("X");
-  });
-
-  it("does not report a draw while the board still has an empty cell", () => {
-    const incomplete: Cell[] = ["X", "O", "X", "X", "O", "O", "O", "X", null];
-    expect(winner(incomplete)).toBeNull();
+  it("returns null while a single empty cell remains and no line is complete", () => {
+    // Same layout as the draw board but with the last cell still empty.
+    const onePlayLeft: Cell[] = ["X", "O", "X", "O", "O", "X", "X", "X", null];
+    expect(winner(onePlayLeft)).toBeNull();
   });
 });

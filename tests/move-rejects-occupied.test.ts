@@ -1,47 +1,64 @@
 // AC#3: Clicking an occupied cell does nothing (no turn passes, no error).
-// move(board, index, player) must return the board unchanged — no new board,
-// no mutation, and no throw — when the target cell is already occupied.
+//
+// The rules layer expresses "clicking an occupied cell" as move(board, index,
+// player) targeting a cell that already holds a mark. This suite proves move()
+// treats that as a no-op: it returns the original board unchanged, mutates
+// nothing, and never throws — so no turn passes and no error surfaces.
+import { move } from "../games/tictactoe/game";
 
-import { move } from 'app/games/tictactoe/game';
+describe("move() rejects an already-occupied cell (AC#3)", () => {
+  it("returns the original board unchanged when the target cell is occupied", () => {
+    const board = ["X", null, null, null, null, null, null, null, null];
 
-describe('move rejects an already-occupied cell (AC#3)', () => {
-  it('returns the same board reference when the target cell is occupied', () => {
-    const board = ['X', null, null, null, null, null, null, null, null];
+    const result = move(board, 0, "O");
 
-    const result = move(board, 0, 'O');
-
-    // Returning the identical reference proves no new board was produced,
-    // i.e. the turn did not pass.
+    // No-op: the exact same board object is handed back, untouched.
     expect(result).toBe(board);
+    expect(result).toEqual([
+      "X",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ]);
   });
 
-  it('leaves the board contents unchanged when the cell is occupied', () => {
-    const board = [null, 'X', null, null, 'O', null, null, null, null];
+  it("does not mutate the input board when the cell is occupied", () => {
+    const board = [null, null, null, null, "O", null, null, null, null];
 
-    const result = move(board, 4, 'X');
+    move(board, 4, "X");
 
-    expect(result).toEqual([null, 'X', null, null, 'O', null, null, null, null]);
+    // The occupying mark stays exactly as it was; nothing else changes.
+    expect(board[4]).toBe("O");
+    expect(board).toEqual([
+      null,
+      null,
+      null,
+      null,
+      "O",
+      null,
+      null,
+      null,
+      null,
+    ]);
   });
 
-  it('does not overwrite an existing mark with the new player', () => {
-    const board = [null, null, null, null, null, null, null, null, 'X'];
+  it("does not throw when a player clicks an occupied cell", () => {
+    const board = [null, null, "X", null, null, null, null, null, null];
 
-    const result = move(board, 8, 'O');
-
-    expect(result[8]).toBe('X');
+    expect(() => move(board, 2, "O")).not.toThrow();
   });
 
-  it('does not mutate the original board array', () => {
-    const board = ['O', null, null, null, null, null, null, null, null];
+  it("leaves a cell occupied by the same player unchanged (no double-mark)", () => {
+    const board = [null, null, null, null, null, null, null, null, "X"];
 
-    move(board, 0, 'X');
+    const result = move(board, 8, "X");
 
-    expect(board).toEqual(['O', null, null, null, null, null, null, null, null]);
-  });
-
-  it('does not throw when the target cell is occupied', () => {
-    const board = ['X', 'O', null, null, null, null, null, null, null];
-
-    expect(() => move(board, 1, 'X')).not.toThrow();
+    expect(result).toBe(board);
+    expect(result[8]).toBe("X");
   });
 });

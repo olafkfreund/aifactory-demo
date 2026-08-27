@@ -1,11 +1,25 @@
 // AC#2: Clicking an empty cell places the current player's mark and passes the turn.
-// This unit test proves the rules-layer behaviour behind that AC: move(board, index, player)
-// returns a NEW board with the player's mark at `index` when the cell is empty, while leaving
-// the original board object unmutated.
-import { emptyBoard, move } from "app/games/tictactoe/game";
+//
+// This unit test proves the pure rule behind that UI behaviour:
+//   move(board, index, player) places `player`'s mark at an empty `index` and
+//   returns a NEW board, leaving the ORIGINAL board unmutated (immutability).
+//
+// The module under test (games/tictactoe/game.js) is a UMD/CommonJS file with no
+// type declarations, so it is loaded via require. The spec's `app` import root is a
+// Python convention that does not apply to this in-repo relative JS module; there is
+// no tsconfig `paths` / package `imports` alias mapping a bare `app/...` specifier.
+declare function require(id: string): any;
 
-describe("move places a mark on an empty cell", () => {
-  it("puts the player's mark at the target index when the cell is empty", () => {
+const {
+  move,
+  emptyBoard,
+}: {
+  move: (board: (string | null)[], index: number, player: string) => (string | null)[];
+  emptyBoard: () => (string | null)[];
+} = require("../games/tictactoe/game");
+
+describe("move(board, index, player) — places mark on a new board (AC#2)", () => {
+  it("places the player's mark at the chosen empty index", () => {
     const board = emptyBoard();
 
     const next = move(board, 4, "X");
@@ -13,16 +27,32 @@ describe("move places a mark on an empty cell", () => {
     expect(next[4]).toBe("X");
   });
 
-  it("returns a new board and leaves the original board unmutated", () => {
+  it("places an O mark at a different empty index", () => {
     const board = emptyBoard();
 
     const next = move(board, 0, "O");
 
-    expect(next).not.toBe(board);
-    expect(board).toEqual([null, null, null, null, null, null, null, null, null]);
+    expect(next[0]).toBe("O");
   });
 
-  it("only changes the targeted cell, leaving every other cell untouched", () => {
+  it("returns a NEW board object, not the original reference", () => {
+    const board = emptyBoard();
+
+    const next = move(board, 4, "X");
+
+    expect(next).not.toBe(board);
+  });
+
+  it("leaves the original board unmutated after a move", () => {
+    const board = emptyBoard();
+
+    move(board, 4, "X");
+
+    expect(board[4]).toBeNull();
+    expect(board).toEqual(emptyBoard());
+  });
+
+  it("only sets the target cell, leaving every other cell empty", () => {
     const board = emptyBoard();
 
     const next = move(board, 8, "X");

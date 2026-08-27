@@ -1,9 +1,9 @@
 // AC#2: Clicking an empty cell places the current player's mark and passes the
 // turn.
 //
-// Target: games/tictactoe/index.html::onCellClick — each cell's click handler
-// calls TicTacToe.move(board, i, currentPlayer); on a real (non-no-op) move it
-// commits the new board, flips currentPlayer, and re-renders. So the clicked
+// Target: games/tictactoe/index.html::board — each cell button's click handler
+// calls TicTacToe.move(board, i, currentPlayer). On a real (non-no-op) move it
+// commits the new board, flips currentPlayer, and re-renders, so the clicked
 // empty cell shows the acting player's mark and the status advances to the
 // other player's turn. This test loads the page directly over file:// (no
 // server, no build step per AC#1), clicks empty cells, and asserts each click
@@ -15,9 +15,9 @@ import { pathToFileURL } from 'node:url';
 
 // Resolve games/tictactoe/index.html without a dev server. This spec lives
 // under the spec dir's tests/e2e tree while the game under test ships inside
-// the checkout (a .worktree copy in verification runs, or a plain
-// games/tictactoe tree otherwise), so probe the known relative locations and
-// use the first that exists on disk.
+// the project checkout (a ".worktree" copy during verification runs, or a
+// plain games/tictactoe tree otherwise), so probe the known relative
+// locations and use the first that exists on disk.
 function resolveIndexHtml(): string {
   const candidates = [
     path.resolve(__dirname, '../../.worktree/games/tictactoe/index.html'),
@@ -76,7 +76,7 @@ test.describe('tic-tac-toe: clicking an empty cell marks it and passes the turn 
     await expect(status).toHaveText("X's turn");
   });
 
-  test('a move marks exactly the clicked cell and leaves the rest empty', async ({ page }) => {
+  test('a single move marks exactly the clicked cell and leaves the rest empty', async ({ page }) => {
     const cells = page.getByRole('gridcell');
 
     // A single move must place exactly one mark and not leak into other cells.

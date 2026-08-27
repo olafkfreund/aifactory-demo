@@ -1,30 +1,31 @@
 // AC#3: Clicking an occupied cell does nothing (no turn passes, no error).
 //
-// Target: games/tictactoe/index.html::onCellClick — each cell's click handler
-// calls TicTacToe.move(board, i, currentPlayer). move() rejects an already-marked
-// cell by returning the SAME board reference, so the handler's `if (next === board)
-// return;` guard short-circuits: no mark is overwritten, currentPlayer does not
-// flip, and no re-render (and no error) occurs. This test loads the page directly
-// over file:// (no server, no build step per AC#1), then clicks an occupied cell
-// and asserts the board and active player are unchanged and no page error fires.
+// Target: games/tictactoe/index.html::board — each board cell is a gridcell
+// button whose click handler calls TicTacToe.move(board, i, currentPlayer).
+// When the cell is already occupied, move() returns the SAME board reference,
+// so the handler early-returns: no mark overwrite, no player flip, no
+// re-render. This spec opens the page directly over file:// (no server, no
+// build step), places a mark, then re-clicks that occupied cell and asserts
+// the mark and the #status turn indicator both stay put and no page error is
+// raised.
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-// Resolve games/tictactoe/index.html without a dev server. This spec lives
-// under the spec dir's tests/e2e tree while the game under test ships inside
-// the checkout (a .worktree copy in verification runs, or a plain
-// games/tictactoe tree otherwise), so probe the known relative locations and
-// use the first that exists on disk.
+// Resolve games/tictactoe/index.html without a dev server. This spec lives at
+// <spec_dir>/tests/e2e, while the game under verification ships under
+// <spec_dir>/.worktree/games/tictactoe (and, in other layouts, as a sibling
+// games/ tree). Probe the known relative locations and use the first that
+// exists on disk.
 function resolveIndexHtml(): string {
   const candidates = [
+    process.env.INDEX_HTML,
     path.resolve(__dirname, '../../.worktree/games/tictactoe/index.html'),
     path.resolve(__dirname, '../../games/tictactoe/index.html'),
-    path.resolve(__dirname, '../../../.worktree/games/tictactoe/index.html'),
     path.resolve(process.cwd(), '.worktree/games/tictactoe/index.html'),
     path.resolve(process.cwd(), 'games/tictactoe/index.html'),
-  ];
+  ].filter((p): p is string => Boolean(p));
   for (const candidate of candidates) {
     if (fs.existsSync(candidate)) return candidate;
   }
@@ -35,68 +36,79 @@ function resolveIndexHtml(): string {
 
 const INDEX_URL = pathToFileURL(resolveIndexHtml()).href;
 
-test.describe('tic-tac-toe: clicking an occupied cell is a no-op (AC#3)', () => {
+test.describe('tic-tac-toe: clicking an occupied cell does nothing (AC#3)', () => {
+  // Capture any uncaught page errors so we can assert the no-op raised none.
   test.beforeEach(async ({ page }) => {
+    const pageErrors: Error[] = [];
+    page.on('pageerror', (err) => pageErrors.push(err));
+    (page as unknown as { __pageErrors: Error[] }).__pageErrors = pageErrors;
+
     // file:// — no server, no build step required to play.
     await page.goto(INDEX_URL);
-    // The board renders its 9 gridcells on load.
+    // render() paints all 9 gridcells on load.
     await expect(page.getByRole('gridcell')).toHaveCount(9);
   });
 
-  test('re-clicking an occupied cell leaves the mark and active player unchanged', async ({ page }) => {
+  test('re-clicking an occupied cell keeps the mark and turn unchanged, no error', async ({ page }) => {
     const cells = page.getByRole('gridcell');
     const status = page.getByRole('status');
+
+    // Fresh game: X to move.
+    await expect(status).toHaveText("X's turn");
 
     // X takes the center cell; the turn passes to O.
     await cells.nth(4).click();
     await expect(cells.nth(4)).toHaveText('X');
     await expect(status).toHaveText("O's turn");
 
-    // O now clicks the SAME (occupied) cell: nothing should change. The mark
-    // stays X and the turn is still O's — no turn passes.
+    // O clicks that SAME occupied cell: move() rejects it, the handler no-ops.
     await cells.nth(4).click();
+
+    // The mark is untouched — still X, not overwritten by O or cleared.
     await expect(cells.nth(4)).toHaveText('X');
+    // The turn did NOT pass — still O to move.
     await expect(status).toHaveText("O's turn");
+
+    // No other cell gained a mark from the rejected click.
+    for (let i = 0; i < 9; i++) {
+      if (i === 4) continue;
+      await expect(cells.nth(i)).toHaveText('');
+    }
+
+    // The rejected click raised no uncaught page error.
+    const pageErrors = (page as unknown as { __pageErrors: Error[] }).__pageErrors;
+    expect(pageErrors).toEqual([]);
   });
 
-  test('clicking an occupied cell does not overwrite the mark or spill into other cells', async ({ page }) => {
+  test('occupied cells stay no-ops across turns, legal moves still work after', async ({ page }) => {
     const cells = page.getByRole('gridcell');
+    const status = page.getByRole('status');
 
-    // X plays top-left; O plays top-middle.
+    // X plays top-left, O plays top-middle: two occupied cells, X to move.
     await cells.nth(0).click();
     await expect(cells.nth(0)).toHaveText('X');
     await cells.nth(1).click();
     await expect(cells.nth(1)).toHaveText('O');
+    await expect(status).toHaveText("X's turn");
 
-    // X (now to move) clicks O's occupied cell: the O mark must not be
-    // overwritten, and no other cell may gain a mark.
+    // Re-click X's cell twice, then O's cell twice: all four are no-ops.
+    await cells.nth(0).click();
+    await cells.nth(0).click();
     await cells.nth(1).click();
-    await expect(cells.nth(1)).toHaveText('O');
+    await cells.nth(1).click();
+
+    // Marks are exactly as placed; occupied clicks never overwrote them.
     await expect(cells.nth(0)).toHaveText('X');
-    for (let i = 2; i < 9; i++) {
-      await expect(cells.nth(i)).toHaveText('');
-    }
-  });
+    await expect(cells.nth(1)).toHaveText('O');
+    // The turn never advanced past X — no occupied click passed the turn.
+    await expect(status).toHaveText("X's turn");
 
-  test('clicking an occupied cell raises no page error', async ({ page }) => {
-    const cells = page.getByRole('gridcell');
-    const status = page.getByRole('status');
-
-    // Capture any uncaught page error so an occupied-cell click can be proven
-    // silent (AC#3: "no error").
-    const pageErrors: Error[] = [];
-    page.on('pageerror', (err) => pageErrors.push(err));
-
-    // X takes a corner, then X-to-be O clicks the same occupied cell.
-    await cells.nth(8).click();
-    await expect(cells.nth(8)).toHaveText('X');
+    // A legal move on an empty cell still works after the rejected clicks.
+    await cells.nth(2).click();
+    await expect(cells.nth(2)).toHaveText('X');
     await expect(status).toHaveText("O's turn");
 
-    await cells.nth(8).click();
-
-    // Still X's mark, still O's turn, and no error surfaced.
-    await expect(cells.nth(8)).toHaveText('X');
-    await expect(status).toHaveText("O's turn");
+    const pageErrors = (page as unknown as { __pageErrors: Error[] }).__pageErrors;
     expect(pageErrors).toEqual([]);
   });
 });
