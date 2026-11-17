@@ -64,6 +64,15 @@
     return next;
   }
 
+  // Given a board history (oldest first), return a NEW array with the most
+  // recent board removed — i.e. undo the last move. If there is nothing to
+  // undo (an empty history, or just the starting board with no moves yet),
+  // returns the same array unchanged (same reference).
+  function undo(history) {
+    if (history.length <= 1) return history;
+    return history.slice(0, -1);
+  }
+
   // Given a focused cell index (0-8) and a keyboard key name, return the
   // index that keyboard focus should move to. Arrow keys move within the
   // 3x3 grid and wrap at the edges; Home/End jump to the first/last cell;
@@ -161,6 +170,7 @@
     move: move,
     winner: winner,
     winningLine: winningLine,
+    undo: undo,
     nextFocusIndex: nextFocusIndex,
     bestMove: bestMove,
   };

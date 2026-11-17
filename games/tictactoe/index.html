@@ -62,13 +62,22 @@
     outline: 3px solid #1a73e8;
     outline-offset: 2px;
   }
-  #new-game {
+  #new-game,
+  #undo {
     font-size: 1rem;
     padding: 8px 20px;
     cursor: pointer;
     border-radius: 6px;
     border: 1px solid #888;
     background: #fff;
+  }
+  #undo:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  #controls {
+    display: flex;
+    gap: 12px;
   }
   #vs-computer-label {
     font-size: 1rem;
@@ -88,7 +97,10 @@
     </label>
     <div id="status" role="status" aria-live="polite"></div>
     <div id="board" role="grid" aria-label="Tic-Tac-Toe board"></div>
-    <button id="new-game" type="button">New game</button>
+    <div id="controls">
+      <button id="new-game" type="button">New game</button>
+      <button id="undo" type="button">Undo</button>
+    </div>
   </main>
 
   <script src="game.js"></script>
@@ -97,13 +109,17 @@
       var boardEl = document.getElementById("board");
       var statusEl = document.getElementById("status");
       var newGameBtn = document.getElementById("new-game");
+      var undoBtn = document.getElementById("undo");
       var vsComputerCheckbox = document.getElementById("vs-computer");
 
       // Human always plays X; when vs-computer mode is on, the AI plays O.
       var AI_PLAYER = "O";
       var COMPUTER_MOVE_DELAY_MS = 300; // well under the 1s response budget
 
-      var board = TicTacToe.emptyBoard();
+      // Every board seen this game, oldest first; history[0] is always the
+      // empty starting board. Undo pops the most recent one.
+      var history = [TicTacToe.emptyBoard()];
+      var board = history[0];
       var currentPlayer = "X";
       var cellButtons = [];
       var focusedIndex = 0;
@@ -128,6 +144,7 @@
               focusedIndex = i;
               var next = TicTacToe.move(board, i, currentPlayer);
               if (next === board) return; // occupied cell or game over: no-op
+              history.push(next);
               board = next;
               currentPlayer = currentPlayer === "X" ? "O" : "X";
               render();
@@ -149,16 +166,29 @@
       });
 
       newGameBtn.addEventListener("click", function () {
-        board = TicTacToe.emptyBoard();
+        history = [TicTacToe.emptyBoard()];
+        board = history[0];
         currentPlayer = "X";
         focusedIndex = 0;
         render();
       });
 
+      undoBtn.addEventListener("click", function () {
+        var prevHistory = TicTacToe.undo(history);
+        if (prevHistory === history) return; // nothing to undo: no-op
+        history = prevHistory;
+        board = history[history.length - 1];
+        // Turn passes back: parity of the move count tells us who's up.
+        currentPlayer = (history.length - 1) % 2 === 0 ? "X" : "O";
+        render();
+        maybeMakeComputerMove();
+      });
+
       vsComputerCheckbox.addEventListener("change", function () {
         vsComputer = vsComputerCheckbox.checked;
         // Start fresh so the human/computer turn order is unambiguous.
-        board = TicTacToe.emptyBoard();
+        history = [TicTacToe.emptyBoard()];
+        board = history[0];
         currentPlayer = "X";
         focusedIndex = 0;
         render();
@@ -176,7 +206,9 @@
           if (board !== scheduledBoard) return;
           var idx = TicTacToe.bestMove(board, currentPlayer);
           if (idx !== null) {
-            board = TicTacToe.move(board, idx, currentPlayer);
+            var next = TicTacToe.move(board, idx, currentPlayer);
+            history.push(next);
+            board = next;
             currentPlayer = currentPlayer === "X" ? "O" : "X";
             render();
           }
@@ -207,6 +239,7 @@
           btn.classList.toggle("win", !!isWinCell);
         }
         updateTabIndexes();
+        undoBtn.disabled = history.length <= 1;
 
         if (result === "draw") {
           statusEl.textContent = "Draw!";
