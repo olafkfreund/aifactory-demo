@@ -49,6 +49,19 @@
     return "draw";
   }
 
+  // The indices (0-8) of empty cells in the board, in ascending order.
+  // Returns an empty array once the game is decided (winner is not null).
+  function availableMoves(board) {
+    if (winner(board)) return [];
+    var moves = [];
+    for (var i = 0; i < board.length; i++) {
+      if (board[i] === null) {
+        moves.push(i);
+      }
+    }
+    return moves;
+  }
+
   // Place `player`'s mark at `index`, returning a NEW board. Returns the
   // original board unchanged (same reference) if the game is already
   // decided, the index is out of range, or the cell is occupied.
@@ -161,6 +174,7 @@
     move: move,
     winner: winner,
     winningLine: winningLine,
+    availableMoves: availableMoves,
     nextFocusIndex: nextFocusIndex,
     bestMove: bestMove,
   };
