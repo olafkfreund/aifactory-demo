@@ -8,9 +8,10 @@
   },
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
-    "test": "pytest -q"
+    "test": "jest"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1"
+    "@playwright/test": "^1.62.1",
+    "jest": "^29.0.0"
   }
 }
