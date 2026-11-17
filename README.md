@@ -28,3 +28,5 @@ AIFactory's own backend uses FastAPI, so the AI agents are familiar with the fra
 3. **Add `/version` endpoint with tests** — reads `__version__` from `src/app/__init__.py`
 
 Issues are closed at the start of each demo run, then re-created fresh.
+
+GitHub App cutover smoke test (AIFactory#1973).
