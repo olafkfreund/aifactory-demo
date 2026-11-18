@@ -6,8 +6,8 @@ test so state never leaks between tests.
 
 from __future__ import annotations
 
-import time
 import uuid
+from datetime import datetime, timedelta
 
 import pytest
 from fastapi.testclient import TestClient
@@ -45,11 +45,18 @@ def test_create_note_valid_returns_201_with_uuid_id_and_timestamps():
     assert note["title"] == "My Title"
     assert note["body"] == "My body"
 
-    # id should be a valid uuid (hex form, as produced by uuid4().hex).
-    assert uuid.UUID(note["id"])
+    # id should be a canonical uuid4 string (as produced by str(uuid4())).
+    assert str(uuid.UUID(note["id"], version=4)) == note["id"]
 
-    assert note["created_at"]
-    assert note["updated_at"]
+    assert note["created_at"] == note["updated_at"]
+    for key in ("created_at", "updated_at"):
+        assert datetime.fromisoformat(note[key]).utcoffset() == timedelta(0)
+
+
+def test_create_note_without_body_defaults_to_empty_string():
+    r = client.post("/notes", json={"title": "Only title"})
+    assert r.status_code == 201
+    assert r.json()["body"] == ""
 
 
 def test_create_note_with_empty_title_returns_422():
@@ -60,6 +67,12 @@ def test_create_note_with_empty_title_returns_422():
 def test_create_note_with_title_over_100_chars_returns_422():
     r = client.post("/notes", json={"title": "a" * 101, "body": "Body"})
     assert r.status_code == 422
+
+
+def test_create_note_with_title_of_exactly_100_chars_succeeds():
+    r = client.post("/notes", json={"title": "a" * 100, "body": "Body"})
+    assert r.status_code == 201
+    assert r.json()["title"] == "a" * 100
 
 
 def test_create_note_with_body_over_5000_chars_returns_422():
@@ -97,7 +110,6 @@ def test_get_note_unknown_id_returns_404():
 # update ------------------------------------------------------------------
 def test_update_note_success():
     created = _create_note("Original", "Body")
-    time.sleep(0.01)
 
     r = client.put(
         f"/notes/{created['id']}", json={"title": "Updated", "body": "New body"}
@@ -109,8 +121,9 @@ def test_update_note_success():
     assert updated["created_at"] == created["created_at"]
     assert updated["title"] == "Updated"
     assert updated["body"] == "New body"
-    assert updated["updated_at"] != created["updated_at"]
-    assert updated["updated_at"] != created["created_at"]
+    assert datetime.fromisoformat(updated["updated_at"]) > datetime.fromisoformat(
+        created["updated_at"]
+    )
 
 
 def test_update_note_unknown_id_returns_404():
@@ -142,5 +155,40 @@ def test_delete_note_then_get_returns_404():
 
 def test_delete_note_unknown_id_returns_404():
     r = client.delete(f"/notes/{uuid.uuid4().hex}")
+    assert r.status_code == 404
+    assert r.json() == {"detail": "note not found"}
+
+
+# integration ---------------------------------------------------------------
+def test_full_crud_lifecycle():
+    r = client.post("/notes", json={"title": "Groceries", "body": "milk, eggs"})
+    assert r.status_code == 201
+    created = r.json()
+    note_id = created["id"]
+
+    r = client.get("/notes")
+    assert r.status_code == 200
+    assert [n["id"] for n in r.json()] == [note_id]
+
+    r = client.get(f"/notes/{note_id}")
+    assert r.status_code == 200
+    assert r.json() == created
+
+    r = client.put(f"/notes/{note_id}", json={"title": "Groceries v2", "body": "milk"})
+    assert r.status_code == 200
+    updated = r.json()
+    assert updated["id"] == note_id
+    assert updated["title"] == "Groceries v2"
+    assert updated["body"] == "milk"
+    assert updated["created_at"] == created["created_at"]
+    assert datetime.fromisoformat(updated["updated_at"]) > datetime.fromisoformat(
+        created["updated_at"]
+    )
+
+    r = client.delete(f"/notes/{note_id}")
+    assert r.status_code == 204
+    assert r.content == b""
+
+    r = client.get(f"/notes/{note_id}")
     assert r.status_code == 404
     assert r.json() == {"detail": "note not found"}

@@ -12,6 +12,8 @@ from fastapi import FastAPI, HTTPException, Response
 from app import store
 from app.models import Note, NoteIn
 
+NOTE_NOT_FOUND = "note not found"
+
 app = FastAPI(title="notes-api")
 
 
@@ -34,7 +36,7 @@ async def list_notes() -> list[Note]:
 async def get_note(note_id: str) -> Note:
     note = store.get(note_id)
     if note is None:
-        raise HTTPException(status_code=404, detail="note not found")
+        raise HTTPException(status_code=404, detail=NOTE_NOT_FOUND)
     return note
 
 
@@ -42,7 +44,7 @@ async def get_note(note_id: str) -> Note:
 async def update_note(note_id: str, body: NoteIn) -> Note:
     updated = store.update(note_id, body)
     if updated is None:
-        raise HTTPException(status_code=404, detail="note not found")
+        raise HTTPException(status_code=404, detail=NOTE_NOT_FOUND)
     return updated
 
 
@@ -50,5 +52,5 @@ async def update_note(note_id: str, body: NoteIn) -> Note:
 async def delete_note(note_id: str) -> Response:
     deleted = store.delete(note_id)
     if not deleted:
-        raise HTTPException(status_code=404, detail="note not found")
+        raise HTTPException(status_code=404, detail=NOTE_NOT_FOUND)
     return Response(status_code=204)

@@ -24,7 +24,7 @@ class Note(BaseModel):
     def new(cls, title: str, body: str) -> "Note":
         now = datetime.now(timezone.utc).isoformat()
         return cls(
-            id=uuid4().hex,
+            id=str(uuid4()),
             title=title,
             body=body,
             created_at=now,
