@@ -11,5 +11,12 @@
     "test": "pytest -q",
     "scoreboard": "node scoreboard/server.js",
     "test:scoreboard": "playwright test -c scoreboard"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "jest": "^30.5.2"
+  },
+  "jest": {
+    "testMatch": ["**/*.test.js"]
   }
 }
