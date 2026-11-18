@@ -8,13 +8,8 @@
   },
   "scripts": {
     "start": "uvicorn src.app.main:app --reload",
-    "test": "pytest -q"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.62.1",
-    "jest": "^30.5.2"
-  },
-  "jest": {
-    "testMatch": ["**/*.test.js"]
+    "test": "pytest -q",
+    "scoreboard": "node scoreboard/server.js",
+    "test:scoreboard": "playwright test -c scoreboard"
   }
 }
