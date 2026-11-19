@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tic-Tac-Toe Score Board</title>
+  </head>
+  <body>
+    <h1>Tic-Tac-Toe Score Board</h1>
+
+    <form id="score-form">
+      <div>
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required />
+      </div>
+      <div>
+        <label for="score">Score</label>
+        <input type="number" id="score" name="score" step="1" required />
+      </div>
+      <button type="submit">Submit score</button>
+    </form>
+
+    <h2>Scores</h2>
+    <ul id="scores"></ul>
+
+    <script>
+      // Plain fetch() + DOM APIs only — no framework, no build step, and
+      // textContent/createElement (not raw-HTML assignment) so user-supplied
+      // names can't inject markup.
+      "use strict";
+
+      (function () {
+        var form = document.getElementById("score-form");
+        var nameInput = document.getElementById("name");
+        var scoreInput = document.getElementById("score");
+        var list = document.getElementById("scores");
+
+        function renderScores(entries) {
+          while (list.firstChild) {
+            list.removeChild(list.firstChild);
+          }
+          entries.forEach(function (entry) {
+            var li = document.createElement("li");
+            li.textContent = entry.name + ": " + entry.score;
+            list.appendChild(li);
+          });
+        }
+
+        function loadScores() {
+          return fetch("/scores")
+            .then(function (res) {
+              return res.json();
+            })
+            .then(renderScores)
+            .catch(function () {
+              // Ignore network errors; list simply stays as-is.
+            });
+        }
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          var payload = {
+            name: nameInput.value,
+            score: Number(scoreInput.value),
+          };
+
+          fetch("/scores", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          })
+            .then(function () {
+              form.reset();
+              return loadScores();
+            })
+            .catch(function () {
+              // Ignore network errors on submit.
+            });
+        });
+
+        loadScores();
+      })();
+    </script>
+  </body>
+</html>
