@@ -1,8 +1,5 @@
-# Acceptance criterion (AC#3): GET /notes lists created notes; GET /notes/{id}
-# returns the note; unknown id returns 404 with detail "note not found".
-#
-# This file verifies the GET /notes/{id} portion: fetching the created note by
-# its id returns it, and an unknown id returns 404 with detail "note not found".
+# AC#3: GET /notes/{id} returns the note; unknown id returns 404 with detail
+# "note not found".
 
 import os
 import uuid
@@ -10,48 +7,37 @@ import uuid
 import requests
 
 
-def _create_note(base_url):
-    """Create a note via POST /notes and return the parsed response body."""
-    payload = {"title": "My note", "body": "some body text"}
-    resp = requests.post(f"{base_url}/notes", json=payload, timeout=10)
-    assert resp.status_code == 201
-    return resp.json()
+def _unique_title():
+    return f"note-{uuid.uuid4()}"
 
 
-def test_get_note_existing_id_returns_200():
+def test_get_note_existing_id_returns_the_note():
     base_url = os.environ["TFACTORY_TARGET_URL"]
-    created = _create_note(base_url)
+    title = _unique_title()
 
-    resp = requests.get(f"{base_url}/notes/{created['id']}", timeout=10)
+    create = requests.post(
+        f"{base_url}/notes",
+        json={"title": title, "body": "hello world"},
+        timeout=10,
+    )
+    assert create.status_code == 201
+    created = create.json()
+    note_id = created["id"]
+
+    resp = requests.get(f"{base_url}/notes/{note_id}", timeout=10)
 
     assert resp.status_code == 200
+    note = resp.json()
+    assert note["id"] == note_id
+    assert note["title"] == title
+    assert note["body"] == "hello world"
 
 
-def test_get_note_existing_id_returns_created_note():
-    base_url = os.environ["TFACTORY_TARGET_URL"]
-    created = _create_note(base_url)
-
-    resp = requests.get(f"{base_url}/notes/{created['id']}", timeout=10)
-    fetched = resp.json()
-
-    assert fetched["id"] == created["id"]
-    assert fetched["title"] == created["title"]
-    assert fetched["body"] == created["body"]
-
-
-def test_get_note_unknown_id_returns_404():
+def test_get_note_unknown_id_returns_404_note_not_found():
     base_url = os.environ["TFACTORY_TARGET_URL"]
     unknown_id = str(uuid.uuid4())
 
     resp = requests.get(f"{base_url}/notes/{unknown_id}", timeout=10)
 
     assert resp.status_code == 404
-
-
-def test_get_note_unknown_id_returns_note_not_found_detail():
-    base_url = os.environ["TFACTORY_TARGET_URL"]
-    unknown_id = str(uuid.uuid4())
-
-    resp = requests.get(f"{base_url}/notes/{unknown_id}", timeout=10)
-
     assert resp.json()["detail"] == "note not found"

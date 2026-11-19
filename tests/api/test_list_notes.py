@@ -1,92 +1,65 @@
-# AC#3: GET /notes lists created notes; GET /notes/{id} returns the note;
-# unknown id returns 404 with detail "note not found".
+# AC#3: GET /notes lists created notes (in insertion order).
+#
+# Verifies that notes created via POST /notes appear in the GET /notes
+# listing, in the order in which they were created (insertion order).
 
 import os
 import uuid
 
 import requests
 
+TIMEOUT = 10
+
 
 def _base_url():
     return os.environ["TFACTORY_TARGET_URL"]
 
 
-def _create_note(base_url, title, body=""):
-    resp = requests.post(
+def test_list_notes_returns_created_notes():
+    """GET /notes returns 200 and includes notes that were created."""
+    base_url = _base_url()
+    suffix = uuid.uuid4().hex
+
+    title = f"note-{suffix}"
+    create_resp = requests.post(
         f"{base_url}/notes",
-        json={"title": title, "body": body},
-        timeout=10,
+        json={"title": title, "body": "hello"},
+        timeout=TIMEOUT,
     )
-    assert resp.status_code == 201
-    return resp.json()
+    assert create_resp.status_code == 201
+    created_id = create_resp.json()["id"]
 
+    list_resp = requests.get(f"{base_url}/notes", timeout=TIMEOUT)
+    assert list_resp.status_code == 200
 
-def test_list_notes_returns_200():
-    base_url = _base_url()
-    resp = requests.get(f"{base_url}/notes", timeout=10)
-    assert resp.status_code == 200
+    notes = list_resp.json()
+    assert isinstance(notes, list)
 
-
-def test_list_notes_returns_list():
-    base_url = _base_url()
-    resp = requests.get(f"{base_url}/notes", timeout=10)
-    assert isinstance(resp.json(), list)
-
-
-def test_list_notes_includes_created_note():
-    base_url = _base_url()
-    created = _create_note(base_url, "list-include-title", "list-include-body")
-
-    resp = requests.get(f"{base_url}/notes", timeout=10)
-    assert resp.status_code == 200
-    ids = [note["id"] for note in resp.json()]
-    assert created["id"] in ids
+    ids = [note["id"] for note in notes]
+    assert created_id in ids
 
 
 def test_list_notes_preserves_insertion_order():
+    """GET /notes lists created notes in insertion order."""
     base_url = _base_url()
-    first = _create_note(base_url, "order-first")
-    second = _create_note(base_url, "order-second")
-    third = _create_note(base_url, "order-third")
+    suffix = uuid.uuid4().hex
 
-    resp = requests.get(f"{base_url}/notes", timeout=10)
-    assert resp.status_code == 200
-    ids = [note["id"] for note in resp.json()]
+    created_ids = []
+    for index in range(3):
+        resp = requests.post(
+            f"{base_url}/notes",
+            json={"title": f"note-{suffix}-{index}", "body": f"body-{index}"},
+            timeout=TIMEOUT,
+        )
+        assert resp.status_code == 201
+        created_ids.append(resp.json()["id"])
 
-    positions = [ids.index(first["id"]), ids.index(second["id"]), ids.index(third["id"])]
-    assert positions == sorted(positions)
+    list_resp = requests.get(f"{base_url}/notes", timeout=TIMEOUT)
+    assert list_resp.status_code == 200
 
+    notes = list_resp.json()
+    all_ids = [note["id"] for note in notes]
 
-def test_get_note_by_id_returns_200():
-    base_url = _base_url()
-    created = _create_note(base_url, "get-by-id-title", "get-by-id-body")
-
-    resp = requests.get(f"{base_url}/notes/{created['id']}", timeout=10)
-    assert resp.status_code == 200
-
-
-def test_get_note_by_id_returns_the_note():
-    base_url = _base_url()
-    created = _create_note(base_url, "get-returns-title", "get-returns-body")
-
-    resp = requests.get(f"{base_url}/notes/{created['id']}", timeout=10)
-    body = resp.json()
-    assert body["id"] == created["id"]
-    assert body["title"] == "get-returns-title"
-    assert body["body"] == "get-returns-body"
-
-
-def test_get_note_unknown_id_returns_404():
-    base_url = _base_url()
-    unknown_id = str(uuid.uuid4())
-
-    resp = requests.get(f"{base_url}/notes/{unknown_id}", timeout=10)
-    assert resp.status_code == 404
-
-
-def test_get_note_unknown_id_returns_note_not_found_detail():
-    base_url = _base_url()
-    unknown_id = str(uuid.uuid4())
-
-    resp = requests.get(f"{base_url}/notes/{unknown_id}", timeout=10)
-    assert resp.json()["detail"] == "note not found"
+    # Keep only the ids this test created, preserving listing order.
+    observed_order = [note_id for note_id in all_ids if note_id in set(created_ids)]
+    assert observed_order == created_ids
